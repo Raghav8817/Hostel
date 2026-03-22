@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | Tech FE</title>
+    <link rel="stylesheet" href="student_reg.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+</head>
+
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <div class="register-container">
+        <div class="form-box">
+            <h2>Student Registration</h2>
+
+            <form action="#">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" placeholder="Student ID" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-user-tag"></i>
+                        <input type="text" placeholder="First Name" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-user-tag"></i>
+                        <input type="text" placeholder="Middle Name">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-user-tag"></i>
+                        <input type="text" placeholder="Last Name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-venus-mars"></i>
+                        <select id="gender" name="gender" required>
+                            <option value="" disabled selected>Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-graduation-cap"></i>
+                        <select id="branch" name="branch" required>
+                            <option value="" disabled selected>Select Branch</option>
+                            <option value="BCA">BCA</option>
+                            <option value="BBA">BBA</option>
+                            <option value="Btech">Btech</option>
+                            <option value="MBA">MBA</option>
+                            <option value="MCA">MCA</option>
+                            <option value="diploma">Diploma</option>
+                            <option value="Mtech">Mtech</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email Address" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" placeholder="Phone Number" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-door-open"></i>
+                        <input type="text" placeholder="Room No" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Confirm Password" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="file" placeholder="photo" >
+                    </div>
+                </div>
+
+                <button type="submit" class="register-btn">Register Now</button>
+
+                <p class="switch">
+                    Already registered? <a href="studentlog.html">Login</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
