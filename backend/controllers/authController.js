@@ -33,7 +33,7 @@ exports.register = (req, res) => {
             if (logErr) console.error("Error inserting into logs", logErr);
         });
         
-        res.cookie('authToken', token).json({ message: "Registered successfully!", id: result.insertId });
+        res.cookie('authToken', token, { secure: true, sameSite: 'none' }).json({ message: "Registered successfully!", id: result.insertId });
     });
 };
 
@@ -55,7 +55,7 @@ exports.login = (req, res) => {
         const loginquery = `INSERT INTO ${tables.logs} (${tables.idField}, authtoken) VALUES (?, ?) ON DUPLICATE KEY UPDATE authtoken = VALUES(authtoken)`;
         db.query(loginquery, [username, token], (logErr) => {
             if (logErr) console.error("Failed to insert log into DB:", logErr);
-            res.cookie('authToken', token).json({ message: "Login successful!", id: result[0].id });
+            res.cookie('authToken', token, { secure: true, sameSite: 'none' }).json({ message: "Login successful!", id: result[0].id });
         });
     });
 };
@@ -100,6 +100,6 @@ exports.logout = (req, res) => {
         }
     }
 
-    res.clearCookie('authToken');
+    res.clearCookie('authToken', { secure: true, sameSite: 'none' });
     res.json({ message: "Logged out successfully" });
 };
