@@ -1,0 +1,198 @@
+.selector-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e1e2f 0%, #151522 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    padding: 2rem;
+    color: #ffffff;
+}
+
+.selector-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.selector-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.selector-header p {
+    font-size: 1.2rem;
+    color: #a0a0b2;
+}
+
+.cards-wrapper {
+    display: flex;
+    gap: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.role-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 320px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.role-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.role-card:hover::before {
+    opacity: 1;
+}
+
+.card-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.role-card:hover .card-icon-wrapper {
+    transform: scale(1.1);
+}
+
+.role-student:hover { border-color: #4facfe; box-shadow: 0 20px 40px rgba(79, 172, 254, 0.15); }
+.role-student .card-icon-wrapper { color: #4facfe; background: rgba(79, 172, 254, 0.1); }
+.role-student:hover .card-icon-wrapper { background: #4facfe; color: #fff; }
+
+.role-staff:hover { border-color: #43e97b; box-shadow: 0 20px 40px rgba(67, 233, 123, 0.15); }
+.role-staff .card-icon-wrapper { color: #43e97b; background: rgba(67, 233, 123, 0.1); }
+.role-staff:hover .card-icon-wrapper { background: #43e97b; color: #fff; }
+
+.role-admin:hover { border-color: #fa709a; box-shadow: 0 20px 40px rgba(250, 112, 154, 0.15); }
+.role-admin .card-icon-wrapper { color: #fa709a; background: rgba(250, 112, 154, 0.1); }
+.role-admin:hover .card-icon-wrapper { background: #fa709a; color: #fff; }
+
+.role-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.role-card p {
+    color: #a0a0b2;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    flex-grow: 1;
+}
+
+.card-action {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.role-card:hover .card-action {
+    opacity: 1;
+    gap: 1.2rem;
+}
+
+.card-action i {
+    transition: transform 0.3s ease;
+}
+
+.role-card:hover .card-action i {
+    transform: translateX(5px);
+}
+
+.selector-footer {
+    margin-top: 4rem;
+    text-align: center;
+    color: #a0a0b2;
+    font-size: 1.1rem;
+}
+
+.selector-link {
+    color: #4facfe;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.selector-link:hover {
+    color: #00f2fe;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+}
+
+.selector-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+    transition: width 0.3s ease;
+}
+
+.selector-link:hover::after {
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .role-card {
+        width: calc(50% - 1rem); /* 2 cards per row */
+    }
+}
+
+@media (max-width: 768px) {
+    .role-card {
+        width: 100%; /* 1 card per row */
+    }
+    
+    .selector-header h1 {
+        font-size: 2.2rem;
+    }
+}

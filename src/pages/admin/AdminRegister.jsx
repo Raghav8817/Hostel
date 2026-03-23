@@ -1,50 +1,66 @@
 import { useState } from "react";
-import "../../../../styles/AdminRegistration.css";
-import RegisteredSuccess from "./RegisteredSuccess";
-import {Routes,Route} from 'react-router-dom';
+import "../../styles/AdminRegistration.css";
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 function AdminRegistration() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "",
         middlename:"",
         firstname: "",
         lastname: "",
+        gender:"",
         email: "",
         phone: "",
         password: "",
         confirmpassword:"",
     });
-    const [submitted,setSubmitted]=useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
-        // console.log(e.target)
+        if (formData.phone.length !== 10) {
+            // window.alert("provide valid phone");
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData); 
-        if (formData.confirmpassword!=formData.password) {
-            window.alert("password doesn't match with confirm password");
-        }
-        else if (formData.phone.length!=10) {
-            window.alert("provide valid phone");
-        }
-        else{
-            try {
-                const response = await fetch("http://localhost:3000/register", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) })
-                setSubmitted(true);
-                console.log("passed")
-            } catch (error) {
-                console.log("error sending data to backend")
+        
+        try {
+            const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + "/register/admin", { 
+                method: 'POST', 
+                headers: { 
+                    'Content-Type': 'application/json' 
+                }, 
+                credentials: 'include',
+                body: JSON.stringify(formData) 
+            })
+            const data = await response.json();
+            
+            if (!response.ok) {
+                setErrorMessage(data.error || "Failed to register.");
+                return;
             }
+
+            setErrorMessage("");
+            console.log("passed to backend", data);
+            
+            // Automatically log the user in by navigating to dashboard
+            navigate('/dashboard');
+            
+        } catch (error) {
+            setErrorMessage("Error connecting to the server.");
+            console.error("error sending form data to backend", error);
         }
+    
     };
-    if (submitted) {
-        return <RegisteredSuccess/>;
-    }
+
+    // A readable variable: TRUE if user started typing a confirmation password AND it doesn't match the original
+    const showPasswordError = formData.confirmpassword && formData.password !== formData.confirmpassword;
+
     return (
         <div>
             <div className="bg-overlay"></div>
@@ -53,6 +69,11 @@ function AdminRegistration() {
                     <h2>Admin Registration</h2>
 
                     <form action="#" onSubmit={handleSubmit}>
+                        {errorMessage && (
+                            <div style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
+                                {errorMessage}
+                            </div>
+                        )}
                         <div className="form-grid">
 
                             <div className="input-group">
@@ -77,7 +98,7 @@ function AdminRegistration() {
 
                             <div className="input-group">
                                 <i className="fas fa-venus-mars"></i>
-                                <select name="gender" defaultValue="" onChange={handleChange}>
+                                <select name="gender" defaultValue="" onChange={handleChange} required>
                                     <option value="" disabled>
                                         Select Gender
                                     </option>
@@ -104,7 +125,14 @@ function AdminRegistration() {
 
                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
+                                
                                 <input type="password" placeholder="Confirm Password" name="confirmpassword" required  onChange={handleChange}/>
+                                
+                                {showPasswordError ? (
+                                    <div style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>
+                                        Passwords do not match!
+                                    </div>
+                                ) : null}
                             </div>
 
                         </div>
@@ -114,7 +142,7 @@ function AdminRegistration() {
                         </button>
 
                         <p className="switch">
-                            Already registered? <a href="/adminlog">Login</a>
+                            Already registered? <Link to="/Dashboard">Login</Link>
                         </p>
                     </form>
                 </div>

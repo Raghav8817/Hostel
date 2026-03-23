@@ -1,25 +1,24 @@
-const express=require('express');
-const mysql=require('mysql2');
-const cors=require('cors');
-const app=express();
+const express = require('express');
+const cors = require('cors');
+const cookie = require('cookie-parser');
 require('dotenv').config({ path: './.env' });
 
-app.use(cors());
+const authRoutes = require('./routes/authRoutes');
+
+const app = express();
+
+// Middleware integration
+app.use(cors({
+    origin: [ 'http://localhost:5173', process.env.FRONTEND_URL ], // Auto-accepts requests from Netlify and Local
+    credentials: true                
+}));
+app.use(cookie());
 app.use(express.json());
-const db=mysql.createConnection({uri:process.env.DATABASE_URL, ssl:{rejectUnauthorized:false}});
-app.post('/register',(req,res)=>{
-    const { firstname,middlename,lastname,email,phone,password} = req.body;
-    console.log("-----------------------------------------"+firstname);
-    const sql = "INSERT INTO RegStudents (firstname, middlename, lastname, email, phone, password) VALUES (?, ?, ?, ?, ?, ?)";
-    db.query(sql, [firstname, middlename, lastname, email, phone, password], (err, result) => {
-    if (err) {
-        console.error("Database Error:", err);
-        return res.status(500).json({ error: err.message });
-    }
-    
-    console.log("Data inserted successfully:", result);
-    // Send back a success message or the result
-    res.json({ message: "Student registered!", id: result.insertId });
+
+// Main Modular Routes Registration
+app.use('/', authRoutes);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server listening securely on port ${PORT}`);
 });
-});
-app.listen(3000);
