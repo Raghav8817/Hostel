@@ -6,21 +6,12 @@ const ProtectedRoute = ({ children }) => {
 
     React.useEffect(() => {
         const verifyToken = async () => {
-            const tokenCookie = document.cookie.split('; ').find(row => row.startsWith('authToken='));
-            if (!tokenCookie) {
-                setIsAuthorized(false);
-                return;
-            }
-
-            const token = tokenCookie.split('=')[1];
-
             try {
-                // Securely ask the BACKEND if the token is valid! Don't use jwt.verify on the frontend.
-                const response = await fetch('http://localhost:3000/verify-token', {
+                // Securely ask the BACKEND if the token is valid! Let Chrome securely ferry the encrypted cookie dynamically!
+                const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + '/verify-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ token })
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();

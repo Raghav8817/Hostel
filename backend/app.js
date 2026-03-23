@@ -6,6 +6,7 @@ require('dotenv').config({ path: './.env' });
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
+app.set('trust proxy', 1); // Crucial for Render proxy load balancing cookies!
 
 // Middleware integration
 app.use(cors({
