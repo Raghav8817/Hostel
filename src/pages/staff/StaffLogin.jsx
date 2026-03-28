@@ -26,7 +26,7 @@ const Login = () => {
             });
 
             if (response.ok) {
-                navigate('/dashboard'); 
+                navigate('/'); 
             } else {
                 const data = await response.json();
                 setError(data.error || 'Invalid credentials');

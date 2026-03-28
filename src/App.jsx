@@ -1,10 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/admin/Dashboard";
 
 import LoginSelector from "./pages/selectors/LoginSelector";
 import RegisterSelector from "./pages/selectors/RegisterSelector";
-
 // Login Pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import StaffLogin from "./pages/staff/StaffLogin";
@@ -14,13 +12,16 @@ import StudentLogin from "./pages/student/StudentLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
 import StaffRegister from "./pages/staff/StaffRegister";
 import StudentRegister from "./pages/student/StudentRegister";
-
+import Layout from "./pages/student/Layout";
 function App() {
     return (
         <BrowserRouter>
             <Routes>
                 {/* Protected Dashboard */}
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/" element={<ProtectedRoute>
+                    <Layout>
+                    </Layout>
+                </ProtectedRoute>} />
 
                 {/* Role Selector */}
                 <Route path="/login" element={<LoginSelector />} />
@@ -37,7 +38,7 @@ function App() {
                 <Route path="/register/student" element={<StudentRegister />} />
                 
                 {/* Fallback routing */}
-                <Route path="*" element={<LoginSelector />} />
+                {/* <Route path="*" element={<StudentDash></StudentDash>} /> */}
             </Routes>
         </BrowserRouter>
     );

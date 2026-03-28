@@ -8,14 +8,16 @@ const ProtectedRoute = ({ children }) => {
         const verifyToken = async () => {
             try {
                 // Securely ask the BACKEND if the token is valid! Let Chrome securely ferry the encrypted cookie dynamically!
-                const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + '/verify-token', {
-                    method: 'POST',
+                const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + '/verify', {
+                    method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include'
                 });
                 
                 const data = await response.json();
-                setIsAuthorized(data.valid === true);
+                console.log(response.json());
+                
+                setIsAuthorized(data.authenticated === true);
             } catch (error) {
                 console.error("Token verification failed:", error);
                 setIsAuthorized(false);

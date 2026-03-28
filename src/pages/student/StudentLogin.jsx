@@ -11,22 +11,24 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-
         if (!identifier || !password) {
             setError('Please fill in all fields');
             return;
         }
 
         try {
-            const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + "/login/student", {
+            const response = await fetch(("http://localhost:3000" || import.meta.env.VITE_API_URL) + "/login/student", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ identifier, password })
+                
             });
 
+            // console.log(JSON.stringify({ identifier, password }))
+            console.log(response.ok)
             if (response.ok) {
-                navigate('/dashboard'); 
+                navigate('/'); 
             } else {
                 const data = await response.json();
                 setError(data.error || 'Invalid credentials');

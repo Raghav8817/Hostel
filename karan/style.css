@@ -1,0 +1,153 @@
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI';}
+
+    body{
+        height:100vh;
+        background: radial-gradient(circle,#1e293b,#020617);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        color:white;
+        overflow:hidden;
+    }
+
+    /* AUTH CARD */
+    .card{
+        width:360px;
+        background:rgba(255,255,255,0.05);
+        padding:25px;
+        border-radius:20px;
+    }
+
+    .form{display:none;}
+    .form.active{display:block;}
+
+    h2{text-align:center;margin-bottom:15px;}
+
+    .inputBox{position:relative;margin:15px 0;}
+    .inputBox input{
+        width:100%;
+        padding:12px;
+        border-radius:10px;
+        border:1px solid rgba(255,255,255,0.2);
+        background:transparent;
+        color:white;
+    }
+    .inputBox label{
+        position:absolute;
+        left:10px;top:12px;
+        color:#94a3b8;
+        transition:0.3s;
+    }
+    .inputBox input:focus + label,
+    .inputBox input:valid + label{
+        top:-8px;
+        font-size:12px;
+        background:#020617;
+    }
+
+    .captchaBox{display:flex; justify-content:space-between; align-items:center;}
+    .captcha{background:#334155; padding:6px 10px; border-radius:5px; font-family:monospace;}
+
+    button{
+        width:100%;
+        padding:12px;
+        border:none;
+        border-radius:10px;
+        background:linear-gradient(45deg,#3b82f6,#9333ea);
+        color:white;
+        margin-top:10px;
+        cursor:pointer;
+    }
+
+    .links{text-align:center;margin-top:10px;}
+    .links a{color:#94a3b8; cursor:pointer;}
+
+    .uploadBox{
+        width:70px; height:70px;
+        border:2px dashed #3b82f6;
+        border-radius:50%;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        margin:15px auto;
+        cursor:pointer;
+        overflow:hidden;
+    }
+    .uploadBox img{width:100%; height:100%; object-fit:cover;}
+
+    /* DASHBOARD */
+    #dashboardContainer{
+        /* display:none; */
+        width:100%;
+        max-width:600px;
+        height:100vh;
+        padding:20px;
+        overflow-y:auto;
+    }
+
+    .topbar{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+    }
+
+    .profile{
+        position:relative;
+        cursor:pointer;
+    }
+    .profile img{
+        width:40px; height:40px;
+        border-radius:50%;
+        border:2px solid #3b82f6;
+    }
+
+    .dropdown{
+        position:absolute;
+        right:0;
+        top:50px;
+        background:#1e293b;
+        padding:10px;
+        border-radius:8px;
+        display:none;
+        z-index:100;
+    }
+    .dropdown p{padding:8px; cursor:pointer; margin:2px 0;}
+
+    .dashboard-card{
+        background:#1e293b;
+        padding:20px;
+        border-radius:12px;
+        margin-bottom:20px;
+    }
+
+    input, select{
+        width:100%;
+        padding:10px;
+        margin:8px 0;
+        border:none;
+        border-radius:6px;
+        background:#334155;
+        color:white;
+    }
+
+    .transaction{
+        display:flex;
+        justify-content:space-between;
+        padding:12px;
+        margin-top:8px;
+        border-radius:6px;
+    }
+    .income{background:#065f46;}
+    .expense{background:#7f1d1d;}
+
+    .profile-img{
+        display:flex;
+        justify-content:center;
+        margin-bottom:15px;
+    }
+    .profile-img img{
+        width:80px; height:80px;
+        border-radius:50%;
+        border:3px solid #3b82f6;
+    }

@@ -49,7 +49,7 @@ function AdminRegistration() {
             console.log("passed to backend", data);
             
             // Automatically log the user in by navigating to dashboard
-            navigate('/dashboard');
+            navigate('/');
             
         } catch (error) {
             setErrorMessage("Error connecting to the server.");
