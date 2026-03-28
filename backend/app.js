@@ -111,7 +111,7 @@ app.post('/register/student', (req, res) => {
         res.cookie('authToken', token, {
             httpOnly: true,
             secure: false, // Set to true in production with HTTPS
-            sameSite: 'lax',
+            sameSite: 'none',
             maxAge: 86400000 
         });
 
@@ -161,7 +161,7 @@ app.post('/register/admin', (req, res) => {
         res.cookie('authToken', token, {
             httpOnly: true,
             secure: false, // Set to true in production with HTTPS
-            sameSite: 'lax',
+            sameSite: 'none',
             maxAge: 86400000 
         });
 
@@ -211,7 +211,7 @@ app.post('/register/staff', (req, res) => {
         res.cookie('authToken', token, {
             httpOnly: true,
             secure: false, // Set to true in production with HTTPS
-            sameSite: 'lax',
+            sameSite: 'none',
             maxAge: 86400000 
         });
 
@@ -253,7 +253,7 @@ app.post('/login/student', (req, res) => {
             res.cookie('authToken', token, {
                 httpOnly: true,
                 secure: false, // Set true for HTTPS
-                sameSite: 'lax',
+                sameSite: 'none',
                 maxAge: 60000 // 1 minute
             });
 
@@ -298,7 +298,7 @@ app.post('/login/admin', (req, res) => {
             res.cookie('authToken', token, {
                 httpOnly: true,
                 secure: false, // Set true for HTTPS
-                sameSite: 'lax',
+                sameSite: 'none',
                 maxAge: 60000 // 1 minute
             });
 
@@ -345,7 +345,7 @@ app.post('/login/staff', (req, res) => {
             res.cookie('authToken', token, {
                 httpOnly: true,
                 secure: false, // Set true for HTTPS
-                sameSite: 'lax',
+                sameSite: 'none',
                 maxAge: 60000 // 1 minute
             });
 
