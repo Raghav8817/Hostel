@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
                 });
                 
                 const data = await response.json();
-                console.log(response.json());
+                // console.log(response.json());
                 
                 setIsAuthorized(data.authenticated === true);
             } catch (error) {
