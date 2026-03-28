@@ -1,9 +1,9 @@
-const express=require('express')
-const app=express()
-const cors=require('cors')
-const db=require('./config/db')
-const jwt=require("jsonwebtoken")
-const cookieparser=require('cookie-parser')
+const express = require('express')
+const app = express()
+const cors = require('cors')
+const db = require('./config/db')
+const jwt = require("jsonwebtoken")
+const cookieparser = require('cookie-parser')
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, './config/.env') });
 
@@ -41,10 +41,10 @@ app.use(cookieparser())
 app.get('/verify', (req, res) => {
     const token = req.cookies.authToken; // Needs cookie-parser installed
     // console.log(token);
-    
+
     if (!token) {
-        console.log("-----------------------","no token");
-        
+        console.log("-----------------------", "no token");
+
         return res.status(401).json({ authenticated: false });
     }
 
@@ -63,15 +63,15 @@ app.get('/student-data', (req, res) => {
 
     // Get everything for the student using the ID from the token
     const sql = "SELECT full_name, role, email, contact, student_bus_id, course, branch_sem FROM users WHERE id = ?";
-    
+
     db.query(sql, [decoded.username], (err, results) => {
         if (err) return res.status(500).json({ error: "DB Error" });
-        res.json(results[0]); 
+        res.json(results[0]);
     });
 });
 
 app.post('/register/student', (req, res) => {
-    const { 
+    const {
         username,
         middlename,
         firstname,
@@ -86,11 +86,11 @@ app.post('/register/student', (req, res) => {
     let values = [];
 
     // 1. Determine which table to use based on the role
-        sql = `INSERT INTO students 
+    sql = `INSERT INTO students 
                (username,middlename,firstname,lastname,gender,email,phone,password) 
                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        values = [username,middlename,firstname,lastname,gender,email,phone,password];
-        
+    values = [username, middlename, firstname, lastname, gender, email, phone, password];
+
 
     // 2. Execute the query
     db.query(sql, values, (err, result) => {
@@ -102,8 +102,8 @@ app.post('/register/student', (req, res) => {
         // 3. Generate JWT Token
         // result.insertId is the ID from whichever table was used
         const token = jwt.sign(
-            { username:username, password:password }, 
-            process.env.JWT_SECRET, 
+            { username: username, password: password },
+            process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
@@ -112,16 +112,16 @@ app.post('/register/student', (req, res) => {
             httpOnly: true,
             secure: false, // Set to true in production with HTTPS
             sameSite: 'none',
-            maxAge: 86400000 
+            maxAge: 86400000
         });
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: `${username} registered successfully!`,
         });
     });
 });
 app.post('/register/admin', (req, res) => {
-    const { 
+    const {
         username,
         middlename,
         firstname,
@@ -136,11 +136,11 @@ app.post('/register/admin', (req, res) => {
     let values = [];
 
     // 1. Determine which table to use based on the role
-        sql = `INSERT INTO admins
+    sql = `INSERT INTO admins
                (username,middlename,firstname,lastname,gender,email,phone,password) 
                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        values = [username,middlename,firstname,lastname,gender,email,phone,password];
-        
+    values = [username, middlename, firstname, lastname, gender, email, phone, password];
+
 
     // 2. Execute the query
     db.query(sql, values, (err, result) => {
@@ -152,8 +152,8 @@ app.post('/register/admin', (req, res) => {
         // 3. Generate JWT Token
         // result.insertId is the ID from whichever table was used
         const token = jwt.sign(
-            { username:username, password:password }, 
-            process.env.JWT_SECRET, 
+            { username: username, password: password },
+            process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
@@ -162,16 +162,16 @@ app.post('/register/admin', (req, res) => {
             httpOnly: true,
             secure: false, // Set to true in production with HTTPS
             sameSite: 'none',
-            maxAge: 86400000 
+            maxAge: 86400000
         });
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: `${username} registered successfully!`,
         });
     });
 });
 app.post('/register/staff', (req, res) => {
-    const { 
+    const {
         username,
         middlename,
         firstname,
@@ -186,11 +186,11 @@ app.post('/register/staff', (req, res) => {
     let values = [];
 
     // 1. Determine which table to use based on the role
-        sql = `INSERT INTO staff
+    sql = `INSERT INTO staff
                (username,middlename,firstname,lastname,gender,email,phone,password) 
                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        values = [username,middlename,firstname,lastname,gender,email,phone,password];
-        
+    values = [username, middlename, firstname, lastname, gender, email, phone, password];
+
 
     // 2. Execute the query
     db.query(sql, values, (err, result) => {
@@ -202,8 +202,8 @@ app.post('/register/staff', (req, res) => {
         // 3. Generate JWT Token
         // result.insertId is the ID from whichever table was used
         const token = jwt.sign(
-            { username:username, password:password }, 
-            process.env.JWT_SECRET, 
+            { username: username, password: password },
+            process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
@@ -212,17 +212,17 @@ app.post('/register/staff', (req, res) => {
             httpOnly: true,
             secure: false, // Set to true in production with HTTPS
             sameSite: 'none',
-            maxAge: 86400000 
+            maxAge: 86400000
         });
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: `${username} registered successfully!`,
         });
     });
 });
 
 app.post('/login/student', (req, res) => {
-    const { identifier, password} = req.body;
+    const { identifier, password } = req.body;
 
     // Build query based on role
     let sql = "";
@@ -232,20 +232,20 @@ app.post('/login/student', (req, res) => {
     params = [identifier, password];
 
     db.query(sql, params, (err, results) => {
-        if (err){
+        if (err) {
             console.log(err)
             return res.status(500).json({ error: "Database error" });
         }
 
         console.log(results);
-        
+
         if (results.length > 0) {
             const user = results[0];
 
             // Create Token
             const token = jwt.sign(
-                { username:user, password:password },
-                process.env.JWT_SECRET, 
+                { username: user, password: password },
+                process.env.JWT_SECRET,
                 { expiresIn: "1m" } // Keeping your 1-minute test limit
             );
 
@@ -257,9 +257,9 @@ app.post('/login/student', (req, res) => {
                 maxAge: 60000 // 1 minute
             });
 
-            return res.status(200).json({ 
-                message: "Login successful", 
-                role: user.role 
+            return res.status(200).json({
+                message: "Login successful",
+                role: user.role
             });
         } else {
             return res.status(401).json({ error: "Invalid credentials ❌" });
@@ -267,7 +267,7 @@ app.post('/login/student', (req, res) => {
     });
 });
 app.post('/login/admin', (req, res) => {
-    const { identifier, password} = req.body;
+    const { identifier, password } = req.body;
 
     // Build query based on role
     let sql = "";
@@ -277,20 +277,20 @@ app.post('/login/admin', (req, res) => {
     params = [identifier, password];
 
     db.query(sql, params, (err, results) => {
-        if (err){
+        if (err) {
             console.log(err)
             return res.status(500).json({ error: "Database error" });
         }
 
         console.log(results);
-        
+
         if (results.length > 0) {
             const user = results[0];
 
             // Create Token
             const token = jwt.sign(
-                { username:user, password:password },
-                process.env.JWT_SECRET, 
+                { username: user, password: password },
+                process.env.JWT_SECRET,
                 { expiresIn: "1m" } // Keeping your 1-minute test limit
             );
 
@@ -302,9 +302,9 @@ app.post('/login/admin', (req, res) => {
                 maxAge: 60000 // 1 minute
             });
 
-            return res.status(200).json({ 
-                message: "Login successful", 
-                role: user.role 
+            return res.status(200).json({
+                message: "Login successful",
+                role: user.role
             });
         } else {
             return res.status(401).json({ error: "Invalid credentials ❌" });
@@ -313,9 +313,9 @@ app.post('/login/admin', (req, res) => {
 });
 
 app.post('/login/staff', (req, res) => {
-    const { identifier, password} = req.body;
-    console.log(identifier,password);
-    
+    const { identifier, password } = req.body;
+    console.log(identifier, password);
+
     // Build query based on role
     let sql = "";
     let params = [];
@@ -324,34 +324,34 @@ app.post('/login/staff', (req, res) => {
     params = [identifier, password];
 
     db.query(sql, params, (err, results) => {
-        if (err){
+        if (err) {
             console.log(err)
             return res.status(500).json({ error: "Database error" });
         }
 
         console.log(results);
-        
+
         if (results.length > 0) {
             const user = results[0];
 
             // Create Token
             const token = jwt.sign(
-                { username:user, password:password },
-                process.env.JWT_SECRET, 
+                { username: user, password: password },
+                process.env.JWT_SECRET,
                 { expiresIn: "1m" } // Keeping your 1-minute test limit
             );
 
             // Set Cookie
             res.cookie('authToken', token, {
-                httpOnly: true,
-                secure: false, // Set true for HTTPS
-                sameSite: 'none',
-                maxAge: 60000 // 1 minute
+                httpOnly: true,    // Prevents XSS attacks
+                secure: true,      // REQUIRED: Must be true for HTTPS (Render/Netlify)
+                sameSite: 'none',  // REQUIRED: Must be 'none' to work across different domains
+                maxAge: 3600000    // 1 hour
             });
 
-            return res.status(200).json({ 
-                message: "Login successful", 
-                role: user.role 
+            return res.status(200).json({
+                message: "Login successful",
+                role: user.role
             });
         } else {
             return res.status(401).json({ error: "Invalid credentials ❌" });
