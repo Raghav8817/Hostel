@@ -8,7 +8,15 @@ const ProtectedRoute = ({ children }) => {
         const verifyToken = async () => {
             try {
                 // Securely ask the BACKEND if the token is valid! Let Chrome securely ferry the encrypted cookie dynamically!
-                const response = await fetch((import.meta.env.VITE_API_URL+"/verify" || "http://localhost:3000") + '/verify', {
+                // const response = await fetch((import.meta.env.VITE_API_URL+"/verify" || "http://localhost:3000") + '/verify', {
+                //     method: 'GET',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     credentials: 'include'
+                // });
+                // ✅ Correct concatenation
+                const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+                const response = await fetch(`${BASE_URL}/verify`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include'
