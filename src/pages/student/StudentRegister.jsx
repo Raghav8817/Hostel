@@ -30,7 +30,7 @@ function AdminRegistration() {
         e.preventDefault();
         
         try {
-            const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + "/register/student", { 
+            const response = await fetch((import.meta.env.VITE_API_URL+"/register/student" || "http://localhost:3000") + "/register/student", { 
                 method: 'POST', 
                 headers: { 
                     'Content-Type': 'application/json' 
