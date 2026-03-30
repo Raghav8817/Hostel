@@ -9,32 +9,16 @@ require('dotenv').config({ path: path.resolve(__dirname, './config/.env') });
 
 
 const allowedOrigins = [
-    process.env.FRONTEND_URL,      // Your Netlify URL
-    "http://localhost:5173",       // Your Local React URL
-    "http://127.0.0.1:5173"        // Just in case
+    "http://localhost:5173",           // Your local React app
+    "https://velvety-scone-4a9a17.netlify.app"    // Your deployed Netlify app
 ];
 
 app.use(cors({
-    origin: function (origin, callback) {
-        // allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
+    origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
-// app.use(cors({
-//     // Fallback to localhost if the environment variable isn't set
-//     origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     // allowedHeaders: ["Content-Type", "Authorization"]
-// }));
 app.use(express.json())
 app.use(cookieparser())
 
@@ -57,16 +41,26 @@ app.get('/verify', (req, res) => {
 });
 
 // Inside your backend app.js
-app.get('/student-data', (req, res) => {
+app.get('/user-data', (req, res) => {
     const token = req.cookies.authToken;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
 
-    // Get everything for the student using the ID from the token
-    const sql = "SELECT full_name, role, email, contact, student_bus_id, course, branch_sem FROM users WHERE id = ?";
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(401).json({ error: "Invalid Token" });
+        console.log("decoded",decoded);
+        
+        // decoded contains { username, password, role } 
+        // We use decoded.role (the table name) to run the query
+        console.log("decoded.role",decoded.role);
+        
+        const tableName = decoded.role;
+        const sql = `SELECT firstname, lastname, username FROM ${tableName} WHERE username = ?`;
 
-    db.query(sql, [decoded.username], (err, results) => {
-        if (err) return res.status(500).json({ error: "DB Error" });
-        res.json(results[0]);
+        db.query(sql, [decoded.username], (err, result) => {
+            if (err || result.length === 0) return res.status(404).json({ error: "User not found" });
+
+            res.json(result[0]); // Sends back { firstname, lastname, username }
+        });
     });
 });
 
@@ -79,44 +73,49 @@ app.post('/register/student', (req, res) => {
         gender,
         email,
         phone,
-        password
+        password,
+        role="student"
     } = req.body;
 
-    let sql = "";
-    let values = [];
+    const sql = `INSERT INTO students 
+                 (username, middlename, firstname, lastname, gender, email, phone, password,role) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`;
 
-    // 1. Determine which table to use based on the role
-    sql = `INSERT INTO students 
-               (username,middlename,firstname,lastname,gender,email,phone,password) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    values = [username, middlename, firstname, lastname, gender, email, phone, password];
+    const values = [username, middlename, firstname, lastname, gender, email, phone, password,role];
 
-
-    // 2. Execute the query
     db.query(sql, values, (err, result) => {
         if (err) {
             console.error("Signup Error:", err.message);
+            // Handle duplicate username/email
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ error: "Username or Email already exists" });
+            }
             return res.status(500).json({ error: "Database error during signup" });
         }
 
-        // 3. Generate JWT Token
-        // result.insertId is the ID from whichever table was used
+        // 1. Generate JWT Token 
+        // CRITICAL: Removed password from the payload.
+        // Even without bcrypt, NEVER put passwords in a JWT. 
+        // JWTs are encoded, not encrypted; anyone can read them.
         const token = jwt.sign(
-            { username: username, password: password },
+            {  username: username, password:password, role: role },
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
-        // 4. Set the Cookie
+        // 2. Set the Cookie (Corrected for Render/Netlify Deployment)
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('authToken', token, {
             httpOnly: true,
-            secure: false, // Set to true in production with HTTPS
-            sameSite: 'none',
-            maxAge: 86400000
+            secure: isProduction, // true on Render, false on Localhost
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 60000
         });
 
         res.status(201).json({
             message: `${username} registered successfully!`,
+            authenticated: true
         });
     });
 });
@@ -129,7 +128,8 @@ app.post('/register/admin', (req, res) => {
         gender,
         email,
         phone,
-        password
+        password,
+        role="admin"
     } = req.body;
 
     let sql = "";
@@ -137,9 +137,9 @@ app.post('/register/admin', (req, res) => {
 
     // 1. Determine which table to use based on the role
     sql = `INSERT INTO admins
-               (username,middlename,firstname,lastname,gender,email,phone,password) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    values = [username, middlename, firstname, lastname, gender, email, phone, password];
+               (username,middlename,firstname,lastname,gender,email,phone,password,role) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?.?)`;
+    values = [username, middlename, firstname, lastname, gender, email, phone, password,role];
 
 
     // 2. Execute the query
@@ -152,17 +152,19 @@ app.post('/register/admin', (req, res) => {
         // 3. Generate JWT Token
         // result.insertId is the ID from whichever table was used
         const token = jwt.sign(
-            { username: username, password: password },
+            { username: username, password: password,role:role },
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
         // 4. Set the Cookie
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('authToken', token, {
             httpOnly: true,
-            secure: false, // Set to true in production with HTTPS
-            sameSite: 'none',
-            maxAge: 86400000
+            secure: isProduction, // true on Render, false on Localhost
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 60000
         });
 
         res.status(201).json({
@@ -179,7 +181,8 @@ app.post('/register/staff', (req, res) => {
         gender,
         email,
         phone,
-        password
+        password,
+        role="staff"
     } = req.body;
 
     let sql = "";
@@ -187,9 +190,9 @@ app.post('/register/staff', (req, res) => {
 
     // 1. Determine which table to use based on the role
     sql = `INSERT INTO staff
-               (username,middlename,firstname,lastname,gender,email,phone,password) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    values = [username, middlename, firstname, lastname, gender, email, phone, password];
+               (username,middlename,firstname,lastname,gender,email,phone,password,role) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`;
+    values = [username, middlename, firstname, lastname, gender, email, phone, password,role];
 
 
     // 2. Execute the query
@@ -202,17 +205,19 @@ app.post('/register/staff', (req, res) => {
         // 3. Generate JWT Token
         // result.insertId is the ID from whichever table was used
         const token = jwt.sign(
-            { username: username, password: password },
+            { username: username, password: password,role:role },
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
         // 4. Set the Cookie
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('authToken', token, {
             httpOnly: true,
-            secure: false, // Set to true in production with HTTPS
-            sameSite: 'none',
-            maxAge: 86400000
+            secure: isProduction, // true on Render, false on Localhost
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 60000
         });
 
         res.status(201).json({
@@ -222,44 +227,44 @@ app.post('/register/staff', (req, res) => {
 });
 
 app.post('/login/student', (req, res) => {
-    const { identifier, password } = req.body;
+    const { username, password } = req.body;
 
     // Build query based on role
     let sql = "";
     let params = [];
 
     sql = "SELECT * FROM students WHERE  username = ? AND password = ?;"
-    params = [identifier, password];
+    params = [username, password];
 
     db.query(sql, params, (err, results) => {
         if (err) {
             console.log(err)
             return res.status(500).json({ error: "Database error" });
         }
-
         console.log(results);
 
         if (results.length > 0) {
-            const user = results[0];
 
             // Create Token
             const token = jwt.sign(
-                { username: user, password: password },
+                { username: username, password: password ,role:"students"},
                 process.env.JWT_SECRET,
                 { expiresIn: "1m" } // Keeping your 1-minute test limit
             );
 
             // Set Cookie
+            const isProduction = process.env.NODE_ENV === 'production';
+
             res.cookie('authToken', token, {
                 httpOnly: true,
-                secure: false, // Set true for HTTPS
-                sameSite: 'none',
-                maxAge: 60000 // 1 minute
+                secure: isProduction, // true on Render, false on Localhost
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 60000
             });
 
             return res.status(200).json({
                 message: "Login successful",
-                role: user.role
+                role: "students"
             });
         } else {
             return res.status(401).json({ error: "Invalid credentials ❌" });
@@ -267,14 +272,14 @@ app.post('/login/student', (req, res) => {
     });
 });
 app.post('/login/admin', (req, res) => {
-    const { identifier, password } = req.body;
+    const { username, password } = req.body;
 
     // Build query based on role
     let sql = "";
     let params = [];
 
     sql = "SELECT * FROM admins WHERE  username = ? AND password = ?;"
-    params = [identifier, password];
+    params = [username, password];
 
     db.query(sql, params, (err, results) => {
         if (err) {
@@ -288,18 +293,23 @@ app.post('/login/admin', (req, res) => {
             const user = results[0];
 
             // Create Token
+            console.log("logged in admins");
+            
             const token = jwt.sign(
-                { username: user, password: password },
+                { username: username, password: password ,role:"admins"},
                 process.env.JWT_SECRET,
                 { expiresIn: "1m" } // Keeping your 1-minute test limit
             );
 
             // Set Cookie
+            const isProduction = process.env.NODE_ENV === 'production';
+            console.log("isproduction ",isProduction);
+            
             res.cookie('authToken', token, {
                 httpOnly: true,
-                secure: false, // Set true for HTTPS
-                sameSite: 'none',
-                maxAge: 60000 // 1 minute
+                secure: isProduction, // true on Render, false on Localhost
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 60000
             });
 
             return res.status(200).json({
@@ -313,15 +323,15 @@ app.post('/login/admin', (req, res) => {
 });
 
 app.post('/login/staff', (req, res) => {
-    const { identifier, password } = req.body;
-    console.log(identifier, password);
+    const { username, password } = req.body;
+    console.log(username, password);
 
     // Build query based on role
     let sql = "";
     let params = [];
 
     sql = "SELECT * FROM staff WHERE  username = ? AND password = ?;"
-    params = [identifier, password];
+    params = [username, password];
 
     db.query(sql, params, (err, results) => {
         if (err) {
@@ -342,11 +352,12 @@ app.post('/login/staff', (req, res) => {
             );
 
             // Set Cookie
+            const isProduction = process.env.NODE_ENV === 'production';
             res.cookie('authToken', token, {
-                httpOnly: true,    // Prevents XSS attacks
-                secure: true,      // REQUIRED: Must be true for HTTPS (Render/Netlify)
-                sameSite: 'none',  // REQUIRED: Must be 'none' to work across different domains
-                maxAge: 3600000    // 1 hour
+                httpOnly: true,
+                secure: isProduction, // true on Render, false on Localhost
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 60000
             });
 
             return res.status(200).json({

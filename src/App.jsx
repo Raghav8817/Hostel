@@ -7,7 +7,9 @@ import RegisterSelector from "./pages/selectors/RegisterSelector";
 import AdminLogin from "./pages/admin/AdminLogin";
 import StaffLogin from "./pages/staff/StaffLogin";
 import StudentLogin from "./pages/student/StudentLogin";
-
+// Dashboard pages
+import Profile from "./pages/student/Profile";
+import Leave from "./pages/student/Leave";
 // Registration Pages
 import AdminRegister from "./pages/admin/AdminRegister";
 import StaffRegister from "./pages/staff/StaffRegister";
@@ -22,6 +24,8 @@ function App() {
                     <Layout>
                     </Layout>
                 </ProtectedRoute>} />
+                <Route path="/leave" element={<Leave></Leave>}></Route>
+                <Route path="/profile" element={<Profile/>}></Route>
 
                 {/* Role Selector */}
                 <Route path="/login" element={<LoginSelector />} />

@@ -1,0 +1,84 @@
+/* Sidebar Container */
+.sidebar {
+  width: 260px;
+  background: #0f172a;
+  border-right: 1px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+/* User Profile Section in Sidebar */
+.sidebar-header {
+  padding: 0 20px 30px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #1e293b;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: #00c6ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.logo-text {
+  font-size: 1.1rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Navigation List */
+.sidebar-nav ul {
+  list-style: none;
+}
+
+.sidebar-nav li {
+  margin: 4px 15px;
+}
+
+/* THE MAGIC: NavLink styles */
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+/* Hover Effect */
+.sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+  transform: translateX(5px);
+}
+
+/* ACTIVE CLASS: Automatically applied by React Router */
+.sidebar-nav a.active {
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+}
+
+/* Small dot indicator for active state (optional) */
+.sidebar-nav a.active::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+  margin-right: 10px;
+}

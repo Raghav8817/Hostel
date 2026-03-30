@@ -1,30 +1,64 @@
+/* Ensure the app takes up the full screen and prevents weird scrolling */
 .layout {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Keeps the header fixed and scrolls only the content */
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  font-family: 'Inter', sans-serif;
 }
 
+/* Navigation / Header */
 .header {
+  height: 70px;
   background: #111;
   color: white;
-  padding: 15px;
-}
-
-.content {
+  padding: 0 30px;
   display: flex;
-  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
+/* This is the container for Sidebar + Main */
+.Sidebar-container {
+  display: flex;
+  flex: 1; /* Takes up all remaining height below header */
+  overflow: hidden;
+}
+
+/* Sidebar */
 .sidebar {
-  width: 200px;
-  background: #1e293b;
-  color: white;
-  padding: 15px;
+  width: 240px;
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 20px 10px;
+  border-right: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
+/* Main Content Area */
 .main {
   flex: 1;
-  padding: 20px;
-  background: #0f172a;
+  padding: 30px;
+  overflow-y: auto; /* Allows the dashboard content to scroll while header/sidebar stay fixed */
+  background: transparent;
   color: white;
+}
+
+/* Scrollbar styling for a cleaner dark mode look */
+.main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+.main::-webkit-scrollbar-track {
+  background: #0f172a;
 }

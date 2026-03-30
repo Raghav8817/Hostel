@@ -1,35 +1,50 @@
 import { NavLink } from "react-router-dom";
-
-function Sidebar() {
+// Optional: If you want icons, ensure you have font-awesome linked in index.html
+import '../../styles/Sidebar.css'
+function Sidebar({ user }) {
   return (
     <div className="sidebar">
-      <h2 className="logo">Karan Kumar</h2>
+      <div className="sidebar-header">
+        <div className="avatar">
+          {user?.firstname?.charAt(0) || "K"}
+        </div>
+        <h2 className="logo-text">{user ? `${user.firstname}` : "User"}</h2>
+      </div>
 
-      <ul>
-        <li>
-          <NavLink to="/StudentDash">Dashboard</NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/profile">Profile</NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/attendance">Attendance</NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/fees">Fees</NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/courses">Courses</NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/complaints">Complaints</NavLink>
-        </li>
-      </ul>
+      <nav className="sidebar-nav">
+        <ul>
+          <li>
+            <NavLink to="/" end className={({ isActive }) => isActive ? "active" : ""}>
+              Dashboard
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
+              Profile
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
+              Attendance
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/fees" className={({ isActive }) => isActive ? "active" : ""}>
+              Fees
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/courses" className={({ isActive }) => isActive ? "active" : ""}>
+              Courses
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/complaints" className={({ isActive }) => isActive ? "active" : ""}>
+              Complaints
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

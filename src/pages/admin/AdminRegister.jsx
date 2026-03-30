@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../styles/AdminRegistration.css";
+import "../../styles/Register.css";
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 function AdminRegistration() {
     const navigate = useNavigate();
@@ -30,7 +30,8 @@ function AdminRegistration() {
         e.preventDefault();
         
         try {
-            const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + "/register/admin", { 
+            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const response = await fetch(`${BASE_URL}/register/admin`, { 
                 method: 'POST', 
                 headers: { 
                     'Content-Type': 'application/json' 
@@ -49,7 +50,7 @@ function AdminRegistration() {
             console.log("passed to backend", data);
             
             // Automatically log the user in by navigating to dashboard
-            navigate('/dashboard');
+            navigate('/');
             
         } catch (error) {
             setErrorMessage("Error connecting to the server.");

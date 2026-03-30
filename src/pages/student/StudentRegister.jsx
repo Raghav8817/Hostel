@@ -1,7 +1,7 @@
 import { useState } from "react";
-import "../../styles/AdminRegistration.css";
+import "../../styles/Register.css";
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-function AdminRegistration() {
+function StudentRegister() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "",
@@ -30,7 +30,8 @@ function AdminRegistration() {
         e.preventDefault();
         
         try {
-            const response = await fetch((import.meta.env.VITE_API_URL+"/register/student" || "http://localhost:3000") + "/register/student", { 
+            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const response = await fetch(`${BASE_URL}/register/student`, { 
                 method: 'POST', 
                 headers: { 
                     'Content-Type': 'application/json' 
@@ -151,4 +152,4 @@ function AdminRegistration() {
     );
 }
 
-export default AdminRegistration;
+export default StudentRegister;

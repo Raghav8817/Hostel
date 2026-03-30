@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { data, Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
     const [isAuthorized, setIsAuthorized] = React.useState(null);
@@ -15,7 +15,6 @@ const ProtectedRoute = ({ children }) => {
                 // });
                 // ✅ Correct concatenation
                 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
                 const response = await fetch(`${BASE_URL}/verify`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
@@ -23,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
                 });
                 
                 const data = await response.json();
-                // console.log(response.json());
+                console.log("protected called");
                 
                 setIsAuthorized(data.authenticated === true);
             } catch (error) {

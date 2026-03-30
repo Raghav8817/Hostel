@@ -4,7 +4,7 @@ import '../../styles/Login.css';
 
 const Login = () => {
     const navigate = useNavigate();
-    const [identifier, setIdentifier] = useState(''); // For username, email, or phone
+    const [username, setusername] = useState(''); // For username, email, or phone
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -12,21 +12,22 @@ const Login = () => {
         e.preventDefault();
         setError('');
 
-        if (!identifier || !password) {
+        if (!username || !password) {
             setError('Please fill in all fields');
             return;
         }
 
         try {
-            const response = await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + "/login/admin", {
+            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const response = await fetch(`${BASE_URL}/login/admin`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ identifier, password })
+                body: JSON.stringify({ username, password })
             });
 
             if (response.ok) {
-                navigate('/dashboard'); 
+                navigate('/'); 
             } else {
                 const data = await response.json();
                 setError(data.error || 'Invalid credentials');
@@ -42,14 +43,14 @@ const Login = () => {
             {error && <p className="login-error">{error}</p>}
             <form onSubmit={handleLogin} className="login-form">
                 <div className="login-input-group">
-                    <label htmlFor="identifier">
+                    <label htmlFor="username">
                         Username, Email, or Phone
                     </label>
                     <input
                         type="text"
-                        id="identifier"
-                        value={identifier}
-                        onChange={(e) => setIdentifier(e.target.value)}
+                        id="username"
+                        value={username}
+                        onChange={(e) => setusername(e.target.value)}
                         placeholder="Enter your username, email or phone"
                         className="login-input"
                         required
