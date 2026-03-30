@@ -14,7 +14,6 @@ export default function Notification() {
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
-
   const markRead = (index) => {
     const updated = [...notifications];
     updated[index].read = true;

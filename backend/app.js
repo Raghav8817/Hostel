@@ -110,7 +110,7 @@ app.post('/register/student', (req, res) => {
             httpOnly: true,
             secure: isProduction, // true on Render, false on Localhost
             sameSite: isProduction ? 'none' : 'lax',
-            maxAge: 60000
+            maxAge: 46400000
         });
 
         res.status(201).json({
@@ -164,7 +164,7 @@ app.post('/register/admin', (req, res) => {
             httpOnly: true,
             secure: isProduction, // true on Render, false on Localhost
             sameSite: isProduction ? 'none' : 'lax',
-            maxAge: 60000
+            maxAge: 86400000
         });
 
         res.status(201).json({
@@ -217,7 +217,7 @@ app.post('/register/staff', (req, res) => {
             httpOnly: true,
             secure: isProduction, // true on Render, false on Localhost
             sameSite: isProduction ? 'none' : 'lax',
-            maxAge: 60000
+            maxAge: 86400000
         });
 
         res.status(201).json({
@@ -249,7 +249,7 @@ app.post('/login/student', (req, res) => {
             const token = jwt.sign(
                 { username: username, password: password ,role:"students"},
                 process.env.JWT_SECRET,
-                { expiresIn: "1m" } // Keeping your 1-minute test limit
+                { expiresIn: "1d" } // Keeping your 1-minute test limit
             );
 
             // Set Cookie
@@ -259,7 +259,7 @@ app.post('/login/student', (req, res) => {
                 httpOnly: true,
                 secure: isProduction, // true on Render, false on Localhost
                 sameSite: isProduction ? 'none' : 'lax',
-                maxAge: 60000
+                maxAge: 86400000
             });
 
             return res.status(200).json({
@@ -286,7 +286,7 @@ app.post('/login/admin', (req, res) => {
             console.log(err)
             return res.status(500).json({ error: "Database error" });
         }
-
+            
         console.log(results);
 
         if (results.length > 0) {
@@ -298,7 +298,7 @@ app.post('/login/admin', (req, res) => {
             const token = jwt.sign(
                 { username: username, password: password ,role:"admins"},
                 process.env.JWT_SECRET,
-                { expiresIn: "1m" } // Keeping your 1-minute test limit
+                { expiresIn: "1d" } // Keeping your 1-minute test limit
             );
 
             // Set Cookie
@@ -309,7 +309,7 @@ app.post('/login/admin', (req, res) => {
                 httpOnly: true,
                 secure: isProduction, // true on Render, false on Localhost
                 sameSite: isProduction ? 'none' : 'lax',
-                maxAge: 60000
+                maxAge: 86400000
             });
 
             return res.status(200).json({
@@ -348,7 +348,7 @@ app.post('/login/staff', (req, res) => {
             const token = jwt.sign(
                 { username: user, password: password },
                 process.env.JWT_SECRET,
-                { expiresIn: "1m" } // Keeping your 1-minute test limit
+                { expiresIn: "1d" } // Keeping your 1-minute test limit
             );
 
             // Set Cookie
@@ -357,7 +357,7 @@ app.post('/login/staff', (req, res) => {
                 httpOnly: true,
                 secure: isProduction, // true on Render, false on Localhost
                 sameSite: isProduction ? 'none' : 'lax',
-                maxAge: 60000
+                maxAge: 86400000
             });
 
             return res.status(200).json({

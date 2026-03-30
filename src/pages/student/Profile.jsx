@@ -5,9 +5,19 @@ import '../../styles/Profile.css';
 const Profile = () => {
     // This gets the user data passed from Layout's <Outlet context={userData} />
     const user = useOutletContext();
-
+    console.log("Profile Component Received:", user);
     if (!user) {
-        return <div className="main">Loading Profile Data...</div>;
+        return (
+            <div className="loading-container" style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
+                color: '#00c6ff'
+            }}>
+                <h2>Login First</h2>
+            </div>
+        );
     }
 
     return (

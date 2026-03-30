@@ -1,95 +1,79 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.notifications-page {
+    animation: fadeIn 0.4s ease-in-out;
 }
 
-body {
-  font-family: Arial;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: white;
+.notification-box {
+    background: #111;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    overflow: hidden;
 }
 
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 30px;
-  background: #111;
+.box-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
 }
 
-/* NOTIFICATION */
-.notification {
-  position: relative;
-  cursor: pointer;
-  font-size: 22px;
+.box-actions {
+    display: flex;
+    gap: 15px;
 }
 
-.badge {
-  position: absolute;
-  top: -6px;
-  right: -8px;
-  background: red;
-  padding: 2px 6px;
-  border-radius: 50%;
-  font-size: 12px;
+.btn-text {
+    background: none;
+    border: none;
+    color: #00c6ff;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
-/* DROPDOWN */
-.dropdown {
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background: #111;
-  width: 250px;
-  border-radius: 5px;
-  overflow: hidden;
+.red-text { color: #ef4444; }
+
+.notification-item {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    transition: 0.2s;
 }
 
-.dropdown div {
-  padding: 10px;
-  border-bottom: 1px solid #333;
+.notification-item.unread {
+    background: rgba(0, 198, 255, 0.05);
+    border-left: 4px solid #00c6ff;
 }
 
-.dropdown div:hover {
-  background: #00c6ff;
-  color: black;
+.item-details p {
+    color: #f8fafc;
+    margin-bottom: 4px;
 }
 
-/* MAIN */
-.main {
-  padding: 20px;
+.item-details span {
+    font-size: 0.8rem;
+    color: #94a3b8;
 }
 
-/* NOTIFICATION LIST */
-.box {
-  background: #111;
-  padding: 15px;
-  border-radius: 10px;
+.mark-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #00c6ff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-.item {
-  padding: 12px;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
+.mark-btn:hover {
+    background: #00c6ff;
+    color: #000;
 }
 
-.item span {
-  font-size: 12px;
-  color: #aaa;
-}
-
-.unread {
-  background: #1e293b;
-}
-
-.btn {
-  padding: 6px 10px;
-  border: none;
-  background: #00c6ff;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-top: 10px;
+.empty-msg {
+    padding: 40px;
+    text-align: center;
+    color: #64748b;
 }

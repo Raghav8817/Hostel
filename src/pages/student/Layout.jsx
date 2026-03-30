@@ -30,14 +30,10 @@ function Layout() {
 
   return (
     <div className="layout">
-      {/* Pass the userData to the Navigation */}
       <Navigation user={userData} />
-
-      <div className="Sidebar">
+      <div className="Sidebar-container"> {/* This class MUST have display: flex in CSS */}
         <Sidebar user={userData} />
-
         <main className="main">
-          {/* If you want the sub-pages to have the user data too, use context or pass via outlet */}
           <Outlet context={userData} />
         </main>
       </div>

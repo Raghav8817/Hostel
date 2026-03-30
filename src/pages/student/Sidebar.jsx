@@ -24,18 +24,13 @@ function Sidebar({ user }) {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
-              Attendance
+            <NavLink to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>
+              Notifications
             </NavLink>
           </li>
           <li>
             <NavLink to="/fees" className={({ isActive }) => isActive ? "active" : ""}>
               Fees
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/courses" className={({ isActive }) => isActive ? "active" : ""}>
-              Courses
             </NavLink>
           </li>
           <li>
