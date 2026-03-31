@@ -36,7 +36,6 @@ const Profile = () => {
                     <h2>{user.firstname} {user.lastname}</h2>
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Role:</strong> {user.role || 'Student'}</p>
-                    <p><strong>Status:</strong> <span className="status-badge">Active</span></p>
 
                     <button className="btn edit-btn" onClick={() => navigate('/edit')}>
                         <i className="fas fa-edit"></i> Edit Profile
@@ -70,8 +69,8 @@ const Profile = () => {
                 </div>
 
                 <div className="info-box">
-                    <h4>Department</h4>
-                    <p>Computer Science</p>
+                    <h4>Course</h4>
+                    <p>{user.course?user.course:""}</p>
                 </div>
             </div>
 

@@ -43,7 +43,6 @@ app.get('/verify', (req, res) => {
 
 // Inside your backend app.js
 app.get('/user-data', (req, res) => {
-    // Note: Ensure the cookie name matches exactly (authToken vs authtoken)
     const token = req.cookies.authToken || req.cookies.authtoken;
 
     if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -51,12 +50,16 @@ app.get('/user-data', (req, res) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).json({ error: "Invalid Token" });
 
-        const tableName = decoded.role; // e.g., 'students'
+        const tableName = "students";
 
-        // Added profile_pic to the SELECT statement
-        const sql = `SELECT firstname, lastname, username, profile_pic FROM ?? WHERE username = ?`;
+        // Removed 'year' from the SELECT statement
+        const sql = `
+            SELECT 
+                firstname, lastname, username, email,phone, bio, profile_pic, 
+                fathername, fatherphone, course 
+            FROM ?? WHERE username = ?
+        `;
 
-        // Using ?? for table names is a security best practice to prevent SQL injection
         db.query(sql, [tableName, decoded.username], (err, result) => {
             if (err) {
                 console.error("Database error:", err);
@@ -67,8 +70,24 @@ app.get('/user-data', (req, res) => {
                 return res.status(404).json({ error: "User not found" });
             }
 
-            // result[0] now contains { firstname, lastname, username, profile_pic }
-            res.json(result[0]);
+            const user = result[0];
+
+            // Sanitizing to handle NULLs from the database
+            const sanitizedUser = {
+                firstname: user.firstname || "",
+                lastname: user.lastname || "",
+                username: user.username || "",
+                phone: user.phone || "Not Provided",
+                bio: user.bio || "No bio added yet.",
+                profile_pic: user.profile_pic || null,
+                fathername: user.fathername || "Not Provided",
+                fatherphone: user.fatherphone || "Not Provided",
+                course: user.course || "Not Provided",
+                email:user.email||"Not Provided",
+                role: tableName
+            };
+
+            res.json(sanitizedUser);
         });
     });
 });
@@ -87,10 +106,10 @@ app.post('/register/student', (req, res) => {
     } = req.body;
 
     const sql = `INSERT INTO students 
-                 (username, middlename, firstname, lastname, gender, email, phone, password,role) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`;
+                 (username, middlename, firstname, lastname, gender, email, phone, password,role,fathername,fatherphone,course) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`;
 
-    const values = [username, middlename, firstname, lastname, gender, email, phone, password,role];
+    const values = [username, middlename, firstname, lastname, gender, email, phone, password, role, fatherphone, course];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -380,56 +399,93 @@ app.post('/login/staff', (req, res) => {
 });
 
 app.put('/edit', async (req, res) => {
-    const { firstname, lastname, phone, bio, profilePhoto } = req.body;
+    // 1. Destructure all fields including the new Father's info and Course
+    const {
+        firstname,
+        lastname,
+        phone,
+        bio,
+        profilePhoto,
+        fathername,
+        fatherphone,
+        course
+    } = req.body;
 
-    // 1. Get the username from the existing cookie
-    const token = req.cookies.authToken;
+    // 2. Get the token (checking both casing versions for safety)
+    const token = req.cookies.authToken || req.cookies.authtoken;
+
     if (!token) {
         return res.status(401).json({ message: "Unauthorized: No token found" });
     }
 
     try {
-        // 2. Verify the token to get the current username
+        // 3. Verify the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const username = decoded.username;
+        const tableName = decoded.role || 'students'; // Dynamic table name based on role
 
-        // 3. Update the 'students' table
+        // 4. Update the SQL query with the new columns
+        // Use ?? for the table name to allow students/admins/teachers to use the same route
         const query = `
-            UPDATE students 
-            SET firstname = ?, lastname = ?, phone = ?, bio = ?, profile_pic = ? 
+            UPDATE ?? 
+            SET 
+                firstname = ?, 
+                lastname = ?, 
+                phone = ?, 
+                bio = ?, 
+                profile_pic = ?, 
+                fathername = ?, 
+                fatherphone = ?, 
+                course = ? 
             WHERE username = ?
         `;
 
-        await db.execute(query, [firstname, lastname, phone, bio, profilePhoto, username]);
+        // Execute query (Ensure your DB connection uses .query or .execute consistently)
+        db.query(query, [
+            "students",
+            firstname,
+            lastname,
+            phone,
+            bio,
+            profilePhoto,
+            fathername,
+            fatherphone,
+            course,
+            username
+        ], (err, result) => {
+            if (err) {
+                console.error("Database Error:", err);
+                return res.status(500).json({ message: "Database update failed" });
+            }
 
-        // 4. Create a NEW token with updated info (so the UI updates immediately)
-        const newToken = jwt.sign(
-            {
-                username: decoded.username,
-                password: decoded.password,
-                role: decoded.role
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+            // 5. Re-sign the JWT to keep the session alive
+            const newToken = jwt.sign(
+                {
+                    username: decoded.username,
+                    role: decoded.role
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
 
-        // 5. Send the updated cookie back to the Brave browser
-        const isProduction = process.env.NODE_ENV === 'production';
-        res.cookie('authToken', newToken, {
-            httpOnly: true,
-            secure: isProduction, // true on Render, false on Localhost
-            sameSite: isProduction ? 'none' : 'lax',
-            maxAge: 86400000
-        });
+            // 6. Set the updated cookie
+            const isProduction = process.env.NODE_ENV === 'production';
+            res.cookie('authToken', newToken, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 86400000 // 24 hours
+            });
 
-        return res.status(200).json({
-            message: "Profile and Cookie updated!",
-            user: { firstname, lastname }
+            return res.status(200).json({
+                message: "Profile updated successfully!",
+                user: { firstname, lastname, course }
+            });
         });
 
     } catch (error) {
-        console.error("JWT or DB Error:", error);
-        return res.status(403).json({ message: "Invalid token or server error" });
+        console.error("JWT Verification Error:", error);
+        return res.status(403).json({ message: "Session expired or invalid token" });
     }
 });
 app.listen(3000)

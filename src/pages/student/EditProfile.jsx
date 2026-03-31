@@ -12,12 +12,15 @@ const EditProfile = () => {
         lastname: '',
         phone: '',
         bio: '',
+        fathername: '',   // New field
+        fatherphone: '',  // New field
+        course: '',       // New field
         profilePhoto: null
     });
 
     const [isSaving, setIsSaving] = useState(false);
 
-    // Sync initial data from Layout context
+    // Sync initial data from Layout context (User-Data API)
     useEffect(() => {
         if (userData) {
             setFormData({
@@ -25,6 +28,9 @@ const EditProfile = () => {
                 lastname: userData.lastname || '',
                 phone: userData.phone || '',
                 bio: userData.bio || '',
+                fathername: userData.fathername || '',
+                fatherphone: userData.fatherphone || '',
+                course: userData.course || '',
                 profilePhoto: userData.profile_pic || null
             });
         }
@@ -54,16 +60,20 @@ const EditProfile = () => {
             const response = await fetch(`${BASE_URL}/edit`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData), // No need to manually add username here
-                credentials: 'include' // CRITICAL: This sends the cookie to the backend
+                body: JSON.stringify(formData),
+                credentials: 'include'
             });
 
             if (response.ok) {
-                // This forces a refresh or state update so the Nav bar shows the new name
+                // Refresh to update the global user state across the app
                 window.location.reload();
+            } else {
+                alert("Failed to update profile.");
             }
         } catch (error) {
-            console.error(error);
+            console.error("Error updating profile:", error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -105,6 +115,7 @@ const EditProfile = () => {
                         </div>
                     </header>
 
+                    {/* Photo Upload Section */}
                     <section className="profile-upload-zone">
                         <div className="avatar-wrapper">
                             <img
@@ -131,37 +142,46 @@ const EditProfile = () => {
                         </div>
                     </section>
 
+                    {/* Form Section */}
                     <form id="profile-form" onSubmit={handleSubmit} className="form-grid">
+
+                        {/* Personal Details */}
                         <div className="input-field">
                             <label>First Name</label>
-                            <input
-                                type="text"
-                                name="firstname"
-                                value={formData.firstname}
-                                onChange={handleChange}
-                                required
-                            />
+                            <input type="text" name="firstname" value={formData.firstname} onChange={handleChange} required />
                         </div>
                         <div className="input-field">
                             <label>Last Name</label>
-                            <input
-                                type="text"
-                                name="lastname"
-                                value={formData.lastname}
-                                onChange={handleChange}
-                                required
-                            />
+                            <input type="text" name="lastname" value={formData.lastname} onChange={handleChange} required />
                         </div>
                         <div className="input-field full-width">
                             <label>Phone Number</label>
-                            <input
-                                type="text"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                placeholder="+91 00000 00000"
-                            />
+                            <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="+91 00000 00000" />
                         </div>
+
+                        {/* Father's Details */}
+                        <div className="input-field">
+                            <label>Father's Name</label>
+                            <input type="text" name="fathername" value={formData.fathername} onChange={handleChange} />
+                        </div>
+                        <div className="input-field">
+                            <label>Father's Phone</label>
+                            <input type="text" name="fatherphone" value={formData.fatherphone} onChange={handleChange} />
+                        </div>
+
+                        {/* Course Detail */}
+                        <div className="input-field full-width">
+                            <label>Course</label>
+                            <select name="course" value={formData.course} onChange={handleChange}>
+                                <option value="" disabled>Select Course</option>
+                                <option value="BCA">BCA</option>
+                                <option value="MCA">MCA</option>
+                                <option value="BTech">B.Tech</option>
+                                <option value="Diploma">Diploma</option>
+                            </select>
+                        </div>
+
+                        {/* Bio Detail */}
                         <div className="input-field full-width">
                             <label>Bio</label>
                             <textarea

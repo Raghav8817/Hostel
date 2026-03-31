@@ -1,108 +1,122 @@
 import { useState } from "react";
+import { Link, useNavigate } from 'react-router-dom';
 import "../../styles/Register.css";
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+
 function StudentRegister() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "",
-        middlename:"",
         firstname: "",
+        middlename: "",
         lastname: "",
-        gender:"",
+        gender: "",
         email: "",
         phone: "",
+        fathername: "",      // New Field
+        fatherphone: "",     // New Field
+        course: "",          // New Field
+        year: "",            // New Field
         password: "",
-        confirmpassword:"",
+        confirmpassword: "",
     });
+
     const [errorMessage, setErrorMessage] = useState("");
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
-        if (formData.phone.length !== 10) {
-            // window.alert("provide valid phone");
-        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
+        // Basic validation: Check if passwords match before sending to backend
+        if (formData.password !== formData.confirmpassword) {
+            setErrorMessage("Passwords do not match!");
+            return;
+        }
+
         try {
             const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-            const response = await fetch(`${BASE_URL}/register/student`, { 
-                method: 'POST', 
-                headers: { 
-                    'Content-Type': 'application/json' 
-                }, 
+            const response = await fetch(`${BASE_URL}/register/student`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 credentials: 'include',
-                body: JSON.stringify(formData) 
-            })
+                body: JSON.stringify(formData)
+            });
+
             const data = await response.json();
-            
+
             if (!response.ok) {
                 setErrorMessage(data.error || "Failed to register.");
                 return;
             }
 
             setErrorMessage("");
-            console.log("passed to backend", data);
-            
-            // Automatically log the user in by navigating to dashboard
+            console.log("Registration successful:", data);
+
+            // Redirect to dashboard (or login)
             navigate('/');
-            
+
         } catch (error) {
             setErrorMessage("Error connecting to the server.");
-            console.error("error sending form data to backend", error);
+            console.error("Registration error:", error);
         }
-    
     };
 
-    // A readable variable: TRUE if user started typing a confirmation password AND it doesn't match the original
     const showPasswordError = formData.confirmpassword && formData.password !== formData.confirmpassword;
 
     return (
-        <div>
+        <div className="register-page">
             <div className="bg-overlay"></div>
             <div className="register-container">
                 <div className="form-box">
                     <h2>Student Registration</h2>
 
-                    <form action="#" onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
                         {errorMessage && (
-                            <div style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
+                            <div className="error-banner">
                                 {errorMessage}
                             </div>
                         )}
-                        <div className="form-grid">
 
+                        <div className="form-grid">
+                            {/* Account Details */}
                             <div className="input-group">
                                 <i className="fas fa-user"></i>
-                                <input type="text" placeholder="Username"  name="username" onChange={handleChange} required/>
+                                <input type="text" placeholder="Username" name="username" onChange={handleChange} required />
+                            </div>
+
+                            <div className="input-group">
+                                <i className="fas fa-envelope"></i>
+                                <input type="email" placeholder="Email Address" name="email" onChange={handleChange} required />
+                            </div>
+
+                            {/* Personal Details */}
+                            <div className="input-group">
+                                <i className="fas fa-user-tag"></i>
+                                <input type="text" placeholder="First Name" name="firstname" onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
-                                <input type="text" placeholder="First Name" name="firstname" required onChange={handleChange} />
+                                <input type="text" placeholder="Middle Name (Opt)" name="middlename" onChange={handleChange} />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
-                                <input type="text" placeholder="Middle Name" name="middlename" onChange={handleChange}/>
-                            </div>
-
-                            <div className="input-group">
-                                <i className="fas fa-user-tag"></i>
-                                <input type="text" placeholder="Last Name" name="lastname" required  onChange={handleChange}/>
+                                <input type="text" placeholder="Last Name" name="lastname" onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-venus-mars"></i>
-                                <select name="gender" defaultValue="" onChange={handleChange} required>
-                                    <option value="" disabled>
-                                        Select Gender
-                                    </option>
+                                <select name="gender" value={formData.gender} onChange={handleChange} required>
+                                    <option value="" disabled>Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                     <option value="other">Other</option>
@@ -110,40 +124,54 @@ function StudentRegister() {
                             </div>
 
                             <div className="input-group">
-                                <i className="fas fa-envelope"></i>
-                                <input type="email" placeholder="Email Address" name="email" required  onChange={handleChange}/>
-                            </div>
-
-                            <div className="input-group">
                                 <i className="fas fa-phone"></i>
-                                <input type="number" placeholder="Phone Number" name="phone" required  onChange={handleChange}/>
+                                <input type="number" placeholder="Your Phone Number" name="phone" onChange={handleChange} required />
+                            </div>
+
+                            {/* Parent Details */}
+                            <div className="input-group">
+                                <i className="fas fa-user-friends"></i>
+                                <input type="text" placeholder="Father's Name" name="fathername" onChange={handleChange} required />
+                            </div>
+
+                            <div className="input-group">
+                                <i className="fas fa-phone-alt"></i>
+                                <input type="number" placeholder="Father's Phone" name="fatherphone" onChange={handleChange} required />
+                            </div>
+
+                            {/* Academic Details */}
+                            <div className="input-group">
+                                <i className="fas fa-graduation-cap"></i>
+                                <select name="course" value={formData.course} onChange={handleChange} required>
+                                    <option value="" disabled>Select Course</option>
+                                    <option value="BCA">BCA</option>
+                                    <option value="MCA">MCA</option>
+                                    <option value="BTech">B.Tech</option>
+                                    <option value="Diploma">Diploma</option>
+                                </select>
+                            </div>
+
+                            {/* Passwords */}
+                            <div className="input-group">
+                                <i className="fas fa-lock"></i>
+                                <input type="password" placeholder="Password" name="password" onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
-                                <input type="password" placeholder="Password" name="password"required onChange={handleChange} />
+                                <input type="password" placeholder="Confirm Password" name="confirmpassword" onChange={handleChange} required />
+                                {showPasswordError && (
+                                    <span className="inline-error">Passwords do not match!</span>
+                                )}
                             </div>
-
-                            <div className="input-group">
-                                <i className="fas fa-lock"></i>
-                                
-                                <input type="password" placeholder="Confirm Password" name="confirmpassword" required  onChange={handleChange}/>
-                                
-                                {showPasswordError ? (
-                                    <div style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>
-                                        Passwords do not match!
-                                    </div>
-                                ) : null}
-                            </div>
-
                         </div>
 
                         <button type="submit" className="register-btn">
-                            Register Admin
+                            Apply
                         </button>
 
                         <p className="switch">
-                            Already registered? <Link to="/Dashboard">Login</Link>
+                            Already registered? <Link to="/login">Login</Link>
                         </p>
                     </form>
                 </div>

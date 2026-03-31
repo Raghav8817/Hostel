@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/Leave.css';
+import { useOutletContext } from 'react-router-dom';
+
 
 function Leave (){
+    const userData = useOutletContext();
     // State for Leave Records
     const [leaves, setLeaves] = useState(() => {
         const saved = localStorage.getItem("leaves");
@@ -10,7 +13,7 @@ function Leave (){
 
     // State for Form Inputs
     const [formData, setFormData] = useState({
-        name: '', room: '', from: '', to: '', type: 'Full Day', destination: '', reason: ''
+        name: '', room: '', from: '', to: '', destination: '', reason: ''
     });
 
     // State for Search
@@ -50,7 +53,7 @@ function Leave (){
         setLeaves([...leaves, newLeave]);
 
         // Reset Form
-        setFormData({ name: '', room: '', from: '', to: '', type: 'Full Day', destination: '', reason: '' });
+        setFormData({ name: '', room: '', from: '', to: '',  destination: '', reason: '' });
     };
 
     const updateStatus = (id, newStatus) => {
@@ -94,14 +97,10 @@ function Leave (){
                     <div className="leave-form-box">
                         <h3>Apply Leave</h3>
                         <form className="leave-form-grid" onSubmit={applyLeave}>
-                            <input type="text" id="name" placeholder="Name" value={formData.name} onChange={handleInputChange} />
+                            <input type="text" id="name" placeholder="Name" value={userData ? `${userData.firstname} ${userData.middlename || ''} ${userData.lastname}`.trim() : ""} onChange={handleInputChange} />
                             <input type="text" id="room" placeholder="Room" value={formData.room} onChange={handleInputChange} />
                             <input type="date" id="from" value={formData.from} onChange={handleInputChange} />
                             <input type="date" id="to" value={formData.to} onChange={handleInputChange} />
-                            <select id="type" value={formData.type} onChange={handleInputChange}>
-                                <option>Full Day</option>
-                                <option>Half Day</option>
-                            </select>
                             <input type="text" id="destination" placeholder="Destination" value={formData.destination} onChange={handleInputChange} />
                             <textarea id="reason" placeholder="Reason" value={formData.reason} onChange={handleInputChange}></textarea>
                             <button type="submit" className="l-btn submit-btn">Submit Application</button>
@@ -109,14 +108,7 @@ function Leave (){
                     </div>
 
                     {/* SEARCH */}
-                    <div className="leave-search">
-                        <input
-                            type="text"
-                            placeholder="Search by student name..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+
 
                     {/* TABLE */}
                     <div className="leave-table-box">
