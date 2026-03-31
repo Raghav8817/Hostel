@@ -37,9 +37,9 @@ function Navigation({ user, onMenuClick }) {
                     <span className="badge-dot"></span>
                 </button>
 
-                <button className="btn cyan hide-mobile" onClick={() => navigate('/leave')}>
+                {/* <button className="btn cyan hide-mobile" onClick={() => navigate('/leave')}>
                     Leave
-                </button>
+                </button> */}
 
                 <button className="btn red" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt"></i> <span className="hide-mobile">Logout</span>

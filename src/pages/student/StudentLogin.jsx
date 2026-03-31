@@ -76,6 +76,14 @@ const Login = () => {
                 <button type="submit" className="login-button">
                     Login
                 </button>
+                <div className="switch">
+                <div onClick={()=>{navigate('/register/student')}} >
+                    Create New Account 
+                </div>
+                <div onClick={()=>{navigate('/forgot')}} >
+                    Forgot Password 
+                </div>
+                </div>
             </form>
         </div>
     );

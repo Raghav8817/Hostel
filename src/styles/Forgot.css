@@ -1,0 +1,126 @@
+@import url('./Login.css'); /* reuse variables + base styles */
+
+/* Container */
+.forgot-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Card */
+.form-box {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    padding: 50px;
+    border-radius: 30px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    animation: fadeInUp 0.8s ease;
+}
+
+/* Title */
+.form-box h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #10b981, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Subtitle */
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 25px;
+}
+
+/* Input */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 14px 14px 40px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Button */
+.forgot-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.forgot-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+/* Back link */
+.switch {
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.switch span {
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.switch span:hover {
+    color: var(--primary);
+}
+
+/* Messages */
+.error {
+    color: #f87171;
+    margin-bottom: 10px;
+}
+
+.success {
+    color: #34d399;
+    margin-bottom: 10px;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

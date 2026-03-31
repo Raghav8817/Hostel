@@ -40,11 +40,11 @@ function Sidebar({ user }) {
               <i className="fas fa-user"></i> Profile
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>
-              <i className="fas fa-bell"></i> Notifications
+          { <li>
+            <NavLink to="/leave" className={({ isActive }) => isActive ? "active" : ""}>
+              <i className="fas fa-bell"></i> Leave
             </NavLink>
-          </li>
+          </li> }
           <li>
             <NavLink to="/fees" className={({ isActive }) => isActive ? "active" : ""}>
               <i className="fas fa-file-invoice-dollar"></i> Fees

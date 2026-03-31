@@ -147,6 +147,7 @@ function StudentRegister() {
                                     <option value="BCA">BCA</option>
                                     <option value="MCA">MCA</option>
                                     <option value="BTech">B.Tech</option>
+                                    <option value="MTech">M.Tech</option>
                                     <option value="Diploma">Diploma</option>
                                 </select>
                             </div>

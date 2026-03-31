@@ -1,4 +1,9 @@
 /* Premium Login Theme mirroring LoginSelector */
+*{
+    margin: 0;
+    padding: 0;
+    border-style: none;
+}
 
 .login-container {
     min-height: 100vh;
@@ -99,4 +104,22 @@
     margin-bottom: 1.5rem;
     text-align: center;
     font-weight: 500;
+}
+.switch {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    justify-content: space-between;
+    display: flex;
+}
+
+.switch a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch a:hover {
+    text-decoration: underline;
 }

@@ -18,6 +18,7 @@ import EditProfile from "./pages/student/EditProfile";
 import AdminRegister from "./pages/admin/AdminRegister";
 import StaffRegister from "./pages/staff/StaffRegister";
 import StudentRegister from "./pages/student/StudentRegister";
+import ForgotPassword from "./pages/student/Forgot";
 import Layout from "./pages/student/Layout";
 function App() {
     return (
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/register/admin" element={<AdminRegister />} />
                 <Route path="/register/staff" element={<StaffRegister />} />
                 <Route path="/register/student" element={<StudentRegister />} />
+                <Route path="/forgot" element={<ForgotPassword />} />
             </Routes>
         </BrowserRouter>
     );
