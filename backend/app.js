@@ -19,7 +19,8 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
-app.use(express.json())
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ limit: '5mb', extended: true }));
 app.use(cookieparser())
 
 app.get('/verify', (req, res) => {
@@ -42,24 +43,32 @@ app.get('/verify', (req, res) => {
 
 // Inside your backend app.js
 app.get('/user-data', (req, res) => {
-    const token = req.cookies.authToken;
+    // Note: Ensure the cookie name matches exactly (authToken vs authtoken)
+    const token = req.cookies.authToken || req.cookies.authtoken;
+
     if (!token) return res.status(401).json({ error: "Unauthorized" });
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).json({ error: "Invalid Token" });
-        console.log("decoded",decoded);
-        
-        // decoded contains { username, password, role } 
-        // We use decoded.role (the table name) to run the query
-        console.log("decoded.role",decoded.role);
-        
-        const tableName = decoded.role;
-        const sql = `SELECT firstname, lastname, username FROM ${tableName} WHERE username = ?`;
 
-        db.query(sql, [decoded.username], (err, result) => {
-            if (err || result.length === 0) return res.status(404).json({ error: "User not found" });
+        const tableName = decoded.role; // e.g., 'students'
 
-            res.json(result[0]); // Sends back { firstname, lastname, username }
+        // Added profile_pic to the SELECT statement
+        const sql = `SELECT firstname, lastname, username, profile_pic FROM ?? WHERE username = ?`;
+
+        // Using ?? for table names is a security best practice to prevent SQL injection
+        db.query(sql, [tableName, decoded.username], (err, result) => {
+            if (err) {
+                console.error("Database error:", err);
+                return res.status(500).json({ error: "Internal Server Error" });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            // result[0] now contains { firstname, lastname, username, profile_pic }
+            res.json(result[0]);
         });
     });
 });
@@ -370,4 +379,57 @@ app.post('/login/staff', (req, res) => {
     });
 });
 
+app.put('/edit', async (req, res) => {
+    const { firstname, lastname, phone, bio, profilePhoto } = req.body;
+
+    // 1. Get the username from the existing cookie
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized: No token found" });
+    }
+
+    try {
+        // 2. Verify the token to get the current username
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const username = decoded.username;
+
+        // 3. Update the 'students' table
+        const query = `
+            UPDATE students 
+            SET firstname = ?, lastname = ?, phone = ?, bio = ?, profile_pic = ? 
+            WHERE username = ?
+        `;
+
+        await db.execute(query, [firstname, lastname, phone, bio, profilePhoto, username]);
+
+        // 4. Create a NEW token with updated info (so the UI updates immediately)
+        const newToken = jwt.sign(
+            {
+                username: decoded.username,
+                password: decoded.password,
+                role: decoded.role
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        // 5. Send the updated cookie back to the Brave browser
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.cookie('authToken', newToken, {
+            httpOnly: true,
+            secure: isProduction, // true on Render, false on Localhost
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 86400000
+        });
+
+        return res.status(200).json({
+            message: "Profile and Cookie updated!",
+            user: { firstname, lastname }
+        });
+
+    } catch (error) {
+        console.error("JWT or DB Error:", error);
+        return res.status(403).json({ message: "Invalid token or server error" });
+    }
+});
 app.listen(3000)

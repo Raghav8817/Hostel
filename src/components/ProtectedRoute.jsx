@@ -1,6 +1,6 @@
 import React from 'react';
 import { data, Navigate } from 'react-router-dom';
-
+import PuppyAnimation from './PuppyAnimation';
 const ProtectedRoute = ({ children }) => {
     const [isAuthorized, setIsAuthorized] = React.useState(null);
 
@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children }) => {
     }, []);
 
     if (isAuthorized === null) {
-        return <div>Verifying Session...</div>;
+        return <PuppyAnimation></PuppyAnimation>;
     }
 
     if (!isAuthorized) {

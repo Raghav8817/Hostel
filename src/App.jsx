@@ -13,6 +13,7 @@ import Leave from "./pages/student/Leave";
 import Notification from "./pages/student/Notification";
 import Complaints from "./pages/student/Complaints";
 import Fees from "./pages/student/Fees";
+import EditProfile from "./pages/student/EditProfile";
 // Registration Pages
 import AdminRegister from "./pages/admin/AdminRegister";
 import StaffRegister from "./pages/staff/StaffRegister";
@@ -29,11 +30,12 @@ function App() {
                 }>
                     {/* All these automatically become protected because they are children of Layout */}
                     <Route index element={<div>Welcome to Dashboard</div>} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/leave" element={<Leave />} />
-                    <Route path="/complaints" element={<Complaints />} />
-                    <Route path="/notifications" element={<Notification />} />
-                    <Route path="/fees" element={<Fees></Fees>}></Route>
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="leave" element={<Leave />} />
+                    <Route path="complaints" element={<Complaints />} />
+                    <Route path="notifications" element={<Notification />} />
+                    <Route path="fees" element={<Fees></Fees>}></Route>
+                    <Route path="edit" element={<EditProfile></EditProfile>}></Route>
                 </Route>
 
                 {/* 3. Auth pages (No Sidebar/Header here) */}

@@ -1,0 +1,162 @@
+.puppy-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: transparent;
+}
+
+.puppy-container {
+    position: relative;
+    width: 200px;
+    height: 180px;
+}
+
+/* Floating Zs Animation */
+.z-inputs {
+    position: absolute;
+    top: 0;
+    right: 40px;
+    animation: hideZs 8s ease-in-out forwards;
+}
+
+.z {
+    position: absolute;
+    color: #64748b;
+    font-weight: bold;
+    opacity: 0;
+    animation: floatZ 4s ease-in-out infinite;
+}
+
+.z-1 { font-size: 18px; animation-delay: 0s; }
+.z-2 { font-size: 24px; animation-delay: 1.2s; left: 15px; top: -20px; }
+.z-3 { font-size: 32px; animation-delay: 2.4s; left: 30px; top: -45px; }
+
+@keyframes floatZ {
+    0% { opacity: 0; transform: translate(0, 0); }
+    20% { opacity: 1; }
+    80% { opacity: 0; transform: translate(20px, -40px); }
+    100% { opacity: 0; }
+}
+
+@keyframes hideZs {
+    0%, 55% { opacity: 1; }
+    60%, 100% { opacity: 0; visibility: hidden; }
+}
+
+/* Puppy Body Parts */
+.puppy {
+    position: relative;
+    width: 140px;
+    height: 100px;
+    margin: 50px auto;
+    animation: breathe 3s ease-in-out infinite, stretch 8s ease-in-out forwards;
+}
+
+.face {
+    position: absolute;
+    width: 90px;
+    height: 80px;
+    background: #fff;
+    border-radius: 45px 45px 35px 35px;
+    left: 25px;
+    z-index: 5;
+    border: 3px solid #e2e8f0;
+}
+
+.ear {
+    position: absolute;
+    width: 30px;
+    height: 60px;
+    background: #fff;
+    border: 3px solid #e2e8f0;
+    border-radius: 30px;
+    top: -15px;
+}
+
+.ear-l { left: 25px; transform: rotate(-15deg); }
+.ear-r { right: 25px; transform: rotate(15deg); }
+
+.eye {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #1e293b;
+    border-radius: 50%;
+    top: 35px;
+    animation: wakeUpEyes 8s ease-in-out forwards;
+}
+
+.eye-l { left: 20px; }
+.eye-r { right: 20px; }
+
+.nose {
+    position: absolute;
+    width: 12px;
+    height: 8px;
+    background: #1e293b;
+    border-radius: 50%;
+    top: 55px;
+    left: 39px;
+}
+
+.puppy-body {
+    position: absolute;
+    width: 110px;
+    height: 70px;
+    background: #fff;
+    border: 3px solid #e2e8f0;
+    border-radius: 50px;
+    top: 40px;
+    left: 15px;
+    z-index: 2;
+}
+
+.tail {
+    position: absolute;
+    width: 10px;
+    height: 40px;
+    background: #fff;
+    border: 3px solid #e2e8f0;
+    border-radius: 10px;
+    bottom: 20px;
+    left: 5px;
+    transform-origin: bottom center;
+    transform: rotate(-45deg);
+    animation: tailWag 8s ease-in-out forwards;
+}
+
+/* Waking Animations */
+@keyframes wakeUpEyes {
+    0%, 55% { height: 2px; top: 42px; } /* Closed */
+    60% { height: 14px; top: 35px; } /* Open */
+    65% { height: 2px; top: 42px; }  /* Blink */
+    70%, 100% { height: 14px; top: 35px; } /* Fully Awake */
+}
+
+@keyframes stretch {
+    0%, 55% { transform: scale(1); }
+    60% { transform: scale(1.15, 0.85) translateY(5px); }
+    65% { transform: scale(0.9, 1.1) translateY(-5px); }
+    75%, 100% { transform: scale(1); }
+}
+
+@keyframes tailWag {
+    0%, 65% { transform: rotate(-45deg); }
+    70%, 80%, 90%, 100% { transform: rotate(-60deg); }
+    75%, 85%, 95% { transform: rotate(-30deg); }
+}
+
+@keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.loading-text {
+    margin-top: 20px;
+    color: #94a3b8;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import '../../styles/Navigation.css'; 
-function Navigation({ user }) {
+import '../../styles/Navigation.css';
+
+function Navigation({ user, onMenuClick }) {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -9,7 +10,6 @@ function Navigation({ user }) {
                 method: 'POST',
                 credentials: 'include'
             });
-            // Clear any local storage if you use it, then redirect
             navigate('/login');
         } catch (error) {
             console.error("Logout failed:", error);
@@ -17,23 +17,32 @@ function Navigation({ user }) {
     };
 
     return (
-        <header className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px' }}>
-            <div className="user-info">
-                {/* Renders the name from the database table passed down from Layout */}
-                <span style={{ color: '#00c6ff', fontWeight: 'bold' }}>
-                    Welcome, {user ? `${user.firstname} ${user.lastname}` : "Loading..."}
-                </span>
+        <header className="header">
+            <div className="nav-left">
+                {/* Hamburger Menu Button - Only visible on Mobile */}
+                <button className="mobile-menu-btn" onClick={onMenuClick}>
+                    <i className="fas fa-bars"></i>
+                </button>
+
+                <div className="user-info">
+                    <span className="welcome-text">
+                        Welcome, <span className="user-name">{user ? `${user.firstname}` : "..."}</span>
+                    </span>
+                </div>
             </div>
 
-            <div className="actions" style={{ display: 'flex', gap: '10px' }}>
-                <button className="btn blue">Notifications</button>
+            <div className="actions">
+                <button className="nav-icon-btn" onClick={() => navigate('/notifications')} title="Notifications">
+                    <i className="fas fa-bell"></i>
+                    <span className="badge-dot"></span>
+                </button>
 
-                <button className="btn cyan" onClick={() => navigate('/leave')}>
+                <button className="btn cyan hide-mobile" onClick={() => navigate('/leave')}>
                     Leave
                 </button>
 
                 <button className="btn red" onClick={handleLogout}>
-                    Logout
+                    <i className="fas fa-sign-out-alt"></i> <span className="hide-mobile">Logout</span>
                 </button>
             </div>
         </header>

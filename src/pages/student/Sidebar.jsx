@@ -1,41 +1,58 @@
 import { NavLink } from "react-router-dom";
-// Optional: If you want icons, ensure you have font-awesome linked in index.html
 import '../../styles/Sidebar.css'
+
 function Sidebar({ user }) {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <div className="avatar">
-          {user?.firstname?.charAt(0) || "K"}
+        <div className="avatar-container">
+          {/* 
+              If user has a profile_pic, show it. 
+              Otherwise, show the first letter of their name.
+          */}
+          {user?.profile_pic ? (
+            <img
+              src={user.profile_pic}
+              alt="User Avatar"
+              className="sidebar-avatar-img"
+            />
+          ) : (
+            <div className="avatar-letter">
+              {user?.firstname?.charAt(0) || "U"}
+            </div>
+          )}
         </div>
-        <h2 className="logo-text">{user ? `${user.firstname}` : "User"}</h2>
+        <div className="user-meta">
+          <h2 className="logo-text">{user ? `${user.firstname} ${user.lastname}` : "Guest User"}</h2>
+          <span className="user-role">{user?.role || 'Student'}</span>
+        </div>
       </div>
 
       <nav className="sidebar-nav">
         <ul>
           <li>
             <NavLink to="/" end className={({ isActive }) => isActive ? "active" : ""}>
-              Dashboard
+              <i className="fas fa-th-large"></i> Dashboard
             </NavLink>
           </li>
           <li>
             <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
-              Profile
+              <i className="fas fa-user"></i> Profile
             </NavLink>
           </li>
           <li>
             <NavLink to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>
-              Notifications
+              <i className="fas fa-bell"></i> Notifications
             </NavLink>
           </li>
           <li>
             <NavLink to="/fees" className={({ isActive }) => isActive ? "active" : ""}>
-              Fees
+              <i className="fas fa-file-invoice-dollar"></i> Fees
             </NavLink>
           </li>
           <li>
             <NavLink to="/complaints" className={({ isActive }) => isActive ? "active" : ""}>
-              Complaints
+              <i className="fas fa-exclamation-circle"></i> Complaints
             </NavLink>
           </li>
         </ul>

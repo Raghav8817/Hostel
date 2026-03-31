@@ -77,7 +77,7 @@ function Leave (){
     return (
         <div className="leave-page">
             <header className="leave-header">
-                <h2>Advanced Leave Panel</h2>
+                <h2>Leave Panel</h2>
             </header>
 
             <div className="leave-layout">

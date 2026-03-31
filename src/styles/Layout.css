@@ -4,17 +4,65 @@
   display: flex;
   flex-direction: column;
   background: #0f172a;
+  color: white;
+  overflow: hidden;
 }
 
 .Sidebar-container {
   display: flex;
-  flex: 1; 
-  overflow: hidden; /* This keeps the sidebar from scrolling with the page */
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sidebar Wrapper Logic */
+.sidebar-wrapper {
+  width: 260px; /* Standard sidebar width */
+  background: #1e293b;
+  transition: transform 0.3s ease;
+  z-index: 1000;
 }
 
 .main {
   flex: 1;
   padding: 30px;
-  overflow-y: auto; /* This allows ONLY the profile/dashboard to scroll */
-  background: transparent;
+  overflow-y: auto;
+  background: #0f172a;
+}
+
+/* --- MOBILE RESPONSIVENESS (Screens smaller than 768px) --- */
+@media (max-width: 768px) {
+  .sidebar-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%); /* Hide sidebar off-screen */
+    box-shadow: 10px 0 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-wrapper.open {
+    transform: translateX(0); /* Slide in when open */
+  }
+
+  .sidebar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .main {
+    padding: 20px 15px; /* Less padding on mobile */
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

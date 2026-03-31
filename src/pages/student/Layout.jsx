@@ -6,10 +6,12 @@ import { Outlet } from 'react-router-dom';
 
 function Layout() {
   const [userData, setUserData] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   useEffect(() => {
     const fetchUser = async () => {
-      
       try {
         const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
         const response = await fetch(`${BASE_URL}/user-data`, {
@@ -18,21 +20,29 @@ function Layout() {
         const data = await response.json();
         if (response.ok) {
           setUserData(data);
-          console.log("data",data);
         }
       } catch (error) {
         console.error("Layout fetch error:", error);
       }
     };
-
     fetchUser();
   }, []);
 
   return (
     <div className="layout">
-      <Navigation user={userData} />
-      <div className="Sidebar-container"> {/* This class MUST have display: flex in CSS */}
-        <Sidebar user={userData} />
+      {/* Pass toggleSidebar to Navigation so the hamburger menu can use it */}
+      <Navigation user={userData} onMenuClick={toggleSidebar} />
+
+      <div className="Sidebar-container">
+        {/* Overlay for mobile: clicks outside the sidebar will close it */}
+        {isSidebarOpen && (
+          <div className="sidebar-overlay" onClick={toggleSidebar}></div>
+        )}
+
+        <div className={`sidebar-wrapper ${isSidebarOpen ? 'open' : ''}`}>
+          <Sidebar user={userData} closeMobileMenu={() => setIsSidebarOpen(false)} />
+        </div>
+
         <main className="main">
           <Outlet context={userData} />
         </main>
