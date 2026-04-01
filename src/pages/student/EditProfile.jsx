@@ -12,26 +12,26 @@ const EditProfile = () => {
         lastname: '',
         phone: '',
         bio: '',
-        fathername: '',   // New field
-        fatherphone: '',  // New field
-        course: '',       // New field
-        profilePhoto: null
+        fathername: '',
+        fatherphone: '',
+        course: '',
+        profile_pic: null // Updated name to match DB/Backend
     });
 
     const [isSaving, setIsSaving] = useState(false);
 
-    // Sync initial data from Layout context (User-Data API)
+    // Sync data from Layout context
     useEffect(() => {
         if (userData) {
             setFormData({
                 firstname: userData.firstname || '',
                 lastname: userData.lastname || '',
-                phone: userData.phone || '',
-                bio: userData.bio || '',
-                fathername: userData.fathername || '',
-                fatherphone: userData.fatherphone || '',
-                course: userData.course || '',
-                profilePhoto: userData.profile_pic || null
+                phone: userData.phone === "Not Provided" ? "" : userData.phone,
+                bio: userData.bio === "No bio added yet." ? "" : userData.bio,
+                fathername: userData.fathername === "Not Provided" ? "" : userData.fathername,
+                fatherphone: userData.fatherphone === "Not Provided" ? "" : userData.fatherphone,
+                course: userData.course === "Not Provided" ? "" : userData.course,
+                profile_pic: userData.profile_pic || null
             });
         }
     }, [userData]);
@@ -43,9 +43,13 @@ const EditProfile = () => {
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert("File is too large! Please choose an image under 5MB.");
+                return;
+            }
             const reader = new FileReader();
             reader.onloadend = () => {
-                setFormData({ ...formData, profilePhoto: reader.result });
+                setFormData({ ...formData, profile_pic: reader.result });
             };
             reader.readAsDataURL(file);
         }
@@ -65,7 +69,7 @@ const EditProfile = () => {
             });
 
             if (response.ok) {
-                // Refresh to update the global user state across the app
+                // Refreshing forces the Layout to re-fetch fresh JOINed data
                 window.location.reload();
             } else {
                 alert("Failed to update profile.");
@@ -80,72 +84,47 @@ const EditProfile = () => {
     return (
         <div className="settings-page">
             <div className="settings-container">
-                {/* Left Sidebar Menu */}
                 <aside className="settings-sidebar">
-                    <div className="sidebar-header">
-                        <h3>Settings</h3>
-                    </div>
+                    <div className="sidebar-header"><h3>Settings</h3></div>
                     <nav className="settings-nav">
-                        <button className="nav-item active">
-                            <i className="fas fa-user"></i> My Profile
-                        </button>
-                        <button className="nav-item">
-                            <i className="fas fa-lock"></i> Security
-                        </button>
-                        <button className="nav-item">
-                            <i className="fas fa-bell"></i> Notifications
-                        </button>
+                        <button className="nav-item active"><i className="fas fa-user"></i> My Profile</button>
+                        <button className="nav-item"><i className="fas fa-lock"></i> Security</button>
+                        <button className="nav-item"><i className="fas fa-bell"></i> Notifications</button>
                     </nav>
                 </aside>
 
-                {/* Right Content Area */}
                 <main className="settings-content">
                     <header className="content-header">
                         <div>
                             <h1>Profile Information</h1>
-                            <p>Update your photo and personal details here.</p>
+                            <p>Update your photo and personal details.</p>
                         </div>
                         <div className="header-actions">
-                            <button type="button" className="btn-secondary" onClick={() => navigate('/profile')}>
-                                Cancel
-                            </button>
+                            <button type="button" className="btn-secondary" onClick={() => navigate('/profile')}>Cancel</button>
                             <button type="submit" form="profile-form" className="btn-primary" disabled={isSaving}>
                                 {isSaving ? "Saving..." : "Save Changes"}
                             </button>
                         </div>
                     </header>
 
-                    {/* Photo Upload Section */}
                     <section className="profile-upload-zone">
                         <div className="avatar-wrapper">
                             <img
-                                src={formData.profilePhoto || "https://ui-avatars.com/api/?name=User"}
+                                src={formData.profile_pic || "https://ui-avatars.com/api/?name=User"}
                                 alt="Avatar"
                             />
                             <button className="change-photo-btn" onClick={() => fileInputRef.current.click()}>
                                 <i className="fas fa-camera"></i>
                             </button>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handlePhotoChange}
-                                hidden
-                                accept="image/*"
-                            />
+                            <input type="file" ref={fileInputRef} onChange={handlePhotoChange} hidden accept="image/*" />
                         </div>
                         <div className="upload-info">
                             <h4>Your Profile Picture</h4>
                             <p>PNG or JPG no larger than 5MB.</p>
-                            <button className="text-btn" onClick={() => fileInputRef.current.click()}>
-                                Upload new image
-                            </button>
                         </div>
                     </section>
 
-                    {/* Form Section */}
                     <form id="profile-form" onSubmit={handleSubmit} className="form-grid">
-
-                        {/* Personal Details */}
                         <div className="input-field">
                             <label>First Name</label>
                             <input type="text" name="firstname" value={formData.firstname} onChange={handleChange} required />
@@ -158,8 +137,6 @@ const EditProfile = () => {
                             <label>Phone Number</label>
                             <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="+91 00000 00000" />
                         </div>
-
-                        {/* Father's Details */}
                         <div className="input-field">
                             <label>Father's Name</label>
                             <input type="text" name="fathername" value={formData.fathername} onChange={handleChange} />
@@ -168,8 +145,6 @@ const EditProfile = () => {
                             <label>Father's Phone</label>
                             <input type="text" name="fatherphone" value={formData.fatherphone} onChange={handleChange} />
                         </div>
-
-                        {/* Course Detail */}
                         <div className="input-field full-width">
                             <label>Course</label>
                             <select name="course" value={formData.course} onChange={handleChange}>
@@ -180,17 +155,9 @@ const EditProfile = () => {
                                 <option value="Diploma">Diploma</option>
                             </select>
                         </div>
-
-                        {/* Bio Detail */}
                         <div className="input-field full-width">
                             <label>Bio</label>
-                            <textarea
-                                name="bio"
-                                rows="4"
-                                value={formData.bio}
-                                onChange={handleChange}
-                                placeholder="Write a short introduction..."
-                            ></textarea>
+                            <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} placeholder="Write a short introduction..."></textarea>
                         </div>
                     </form>
                 </main>

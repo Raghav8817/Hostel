@@ -19,8 +19,9 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ limit: '5mb', extended: true }));
+// Replace your old app.use(express.json()) with this:
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieparser())
 
 app.get('/verify', (req, res) => {
@@ -50,17 +51,20 @@ app.get('/user-data', (req, res) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) return res.status(401).json({ error: "Invalid Token" });
 
-        const tableName = "students";
+        const username = decoded.username;
 
-        // Removed 'year' from the SELECT statement
+        // JOIN the main table with the new profile pic table
         const sql = `
             SELECT 
-                firstname, lastname, username, email,phone, bio, profile_pic, 
-                fathername, fatherphone, course 
-            FROM ?? WHERE username = ?
+                s.firstname, s.lastname, s.username, s.email, s.phone, s.bio, 
+                s.fathername, s.fatherphone, s.course,
+                p.profile_pic 
+            FROM students s
+            LEFT JOIN students_profile_pic p ON s.username = p.username
+            WHERE s.username = ?
         `;
 
-        db.query(sql, [tableName, decoded.username], (err, result) => {
+        db.query(sql, [username], (err, result) => {
             if (err) {
                 console.error("Database error:", err);
                 return res.status(500).json({ error: "Internal Server Error" });
@@ -72,19 +76,19 @@ app.get('/user-data', (req, res) => {
 
             const user = result[0];
 
-            // Sanitizing to handle NULLs from the database
+            // Sanitize and handle NULL values
             const sanitizedUser = {
                 firstname: user.firstname || "",
                 lastname: user.lastname || "",
                 username: user.username || "",
+                email: user.email || "Not Provided",
                 phone: user.phone || "Not Provided",
                 bio: user.bio || "No bio added yet.",
-                profile_pic: user.profile_pic || null,
+                profile_pic: user.profile_pic || null, // Sent to frontend
                 fathername: user.fathername || "Not Provided",
                 fatherphone: user.fatherphone || "Not Provided",
                 course: user.course || "Not Provided",
-                email:user.email||"Not Provided",
-                role: tableName
+                role: "students"
             };
 
             res.json(sanitizedUser);
@@ -402,93 +406,212 @@ app.post('/login/staff', (req, res) => {
 });
 
 app.put('/edit', async (req, res) => {
-    // 1. Destructure all fields including the new Father's info and Course
+    // 1. Destructure using 'profile_pic' to match your DB column
     const {
         firstname,
         lastname,
         phone,
         bio,
-        profilePhoto,
+        profile_pic,
         fathername,
         fatherphone,
         course
     } = req.body;
 
-    // 2. Get the token (checking both casing versions for safety)
     const token = req.cookies.authToken || req.cookies.authtoken;
-
-    if (!token) {
-        return res.status(401).json({ message: "Unauthorized: No token found" });
-    }
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
 
     try {
-        // 3. Verify the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const username = decoded.username;
-        const tableName = decoded.role || 'students'; // Dynamic table name based on role
 
-        // 4. Update the SQL query with the new columns
-        // Use ?? for the table name to allow students/admins/teachers to use the same route
-        const query = `
-            UPDATE ?? 
-            SET 
-                firstname = ?, 
-                lastname = ?, 
-                phone = ?, 
-                bio = ?, 
-                profile_pic = ?, 
-                fathername = ?, 
-                fatherphone = ?, 
-                course = ? 
+        // 2. Update Student Table (Text Data)
+        const updateInfoSql = `
+            UPDATE students 
+            SET firstname = ?, lastname = ?, phone = ?, bio = ?, fathername = ?, fatherphone = ?, course = ? 
             WHERE username = ?
         `;
-
-        // Execute query (Ensure your DB connection uses .query or .execute consistently)
-        db.query(query, [
-            "students",
-            firstname,
-            lastname,
-            phone,
-            bio,
-            profilePhoto,
-            fathername,
-            fatherphone,
-            course,
-            username
-        ], (err, result) => {
+        db.query(updateInfoSql, [firstname, lastname, phone, bio, fathername, fatherphone, course, username], (err) => {
             if (err) {
-                console.error("Database Error:", err);
-                return res.status(500).json({ message: "Database update failed" });
+                console.error("Info Update Error:", err);
+                return res.status(500).json({ message: "Error updating student info" });
             }
 
-            // 5. Re-sign the JWT to keep the session alive
-            const newToken = jwt.sign(
-                {
-                    username: decoded.username,
-                    role: decoded.role
-                },
-                process.env.JWT_SECRET,
-                { expiresIn: '24h' }
-            );
+            // 3. Conditional Photo Update
+            // Only run this if profile_pic has a value (isn't null or empty string)
+            if (profile_pic) {
+                const updatePicSql = `
+                    INSERT INTO students_profile_pic (username, profile_pic) 
+                    VALUES (?, ?) 
+                    ON DUPLICATE KEY UPDATE profile_pic = ?
+                `;
 
-            // 6. Set the updated cookie
-            const isProduction = process.env.NODE_ENV === 'production';
-            res.cookie('authToken', newToken, {
-                httpOnly: true,
-                secure: isProduction,
-                sameSite: isProduction ? 'none' : 'lax',
-                maxAge: 86400000 // 24 hours
-            });
-
-            return res.status(200).json({
-                message: "Profile updated successfully!",
-                user: { firstname, lastname, course }
-            });
+                db.query(updatePicSql, [username, profile_pic, profile_pic], (err) => {
+                    if (err) {
+                        console.error("Pic Update Error:", err);
+                        return res.status(500).json({ message: "Error updating profile picture" });
+                    }
+                    sendFinalResponse(res, decoded);
+                });
+            } else {
+                // No new photo provided, skip to response
+                sendFinalResponse(res, decoded);
+            }
         });
 
     } catch (error) {
-        console.error("JWT Verification Error:", error);
-        return res.status(403).json({ message: "Session expired or invalid token" });
+        return res.status(403).json({ message: "Invalid session" });
+    }
+});
+
+// Helper to handle the cookie/response
+const sendFinalResponse = (res, decoded) => {
+    const newToken = jwt.sign(
+        { username: decoded.username, role: decoded.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+    );
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('authToken', newToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 86400000
+    });
+
+    return res.status(200).json({ message: "Profile updated successfully!" });
+};
+// Get notifications for logged-in student
+app.get('/notifications', (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const sql = `SELECT * FROM students_notification WHERE username = ? ORDER BY created_at DESC`;
+    db.query(sql, [decoded.username], (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json(results);
+    });
+});
+
+// Mark specific notification as read
+app.put('/notifications/read/:id', (req, res) => {
+    const sql = `UPDATE students_notification SET is_read = TRUE WHERE id = ?`;
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) return res.status(500).json(err);
+        res.json({ success: true });
+    });
+});
+
+// Clear all notifications for a student
+app.delete('/notifications/clear', (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const sql = `DELETE FROM students_notification WHERE username = ?`;
+    db.query(sql, [decoded.username], (err, result) => {
+        if (err) return res.status(500).json(err);
+        res.json({ success: true });
+    });
+});
+// 1. GET: Fetch all complaints for the logged-in user
+app.get('/complaints', (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const sql = `SELECT * FROM students_complaint WHERE username = ? ORDER BY created_at DESC`;
+
+        db.query(sql, [decoded.username], (err, results) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            res.json(results);
+        });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid session" });
+    }
+});
+
+// 2. POST: Submit a new complaint
+app.post('/complaints', (req, res) => {
+    const { category, room_number, description, photo } = req.body;
+
+    // FIX: Check for both cases like you did in the GET route
+    const token = req.cookies.authToken || req.cookies.authtoken;
+
+    if (!token) {
+        console.log("No token found in cookies");
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const username = decoded.username;
+
+        const sql = `INSERT INTO students_complaint (username, category, room_number, description, photo) VALUES (?, ?, ?, ?, ?)`;
+
+        db.query(sql, [username, category, room_number, description, photo], (err, result) => {
+            if (err) {
+                // THIS LINE is critical to see the error in your terminal
+                console.error("DATABASE ERROR:", err);
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+
+            const msg = `New ${category} complaint registered for Room ${room_number}.`;
+            db.query(`INSERT INTO students_notification (username, message) VALUES (?, ?)`, [username, msg]);
+
+            res.json({ success: true, message: "Complaint filed!" });
+        });
+    } catch (error) {
+        console.error("JWT VERIFY ERROR:", error);
+        res.status(403).json({ error: "Invalid session" });
+    }
+});
+// 1. GET: Fetch leave history for logged-in user
+app.get('/leave', (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const sql = `SELECT * FROM students_leave WHERE username = ? ORDER BY created_at DESC`;
+
+        db.query(sql, [decoded.username], (err, results) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            res.json(results);
+        });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid session" });
+    }
+});
+
+// 2. POST: Submit a new leave application
+app.post('/leave', (req, res) => {
+    const { room_number, from_date, to_date, destination, reason } = req.body;
+    const token = req.cookies.authToken || req.cookies.authtoken;
+
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const username = decoded.username;
+
+        const sql = `INSERT INTO students_leave (username, room_number, from_date, to_date, destination, reason) VALUES (?, ?, ?, ?, ?, ?)`;
+
+        db.query(sql, [username, room_number, from_date, to_date, destination, reason], (err, result) => {
+            if (err) {
+                console.error("MYSQL ERROR:", err);
+                return res.status(500).json({ error: "Database error" });
+            }
+
+            // Notification for the student
+            const msg = `Leave application for ${destination} submitted successfully.`;
+            db.query(`INSERT INTO students_notification (username, message) VALUES (?, ?)`, [username, msg]);
+
+            res.json({ success: true, message: "Leave applied successfully!" });
+        });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid session" });
     }
 });
 app.listen(3000)

@@ -2,27 +2,31 @@ import React, { useState, useEffect } from 'react';
 import '../../styles/Leave.css';
 import { useOutletContext } from 'react-router-dom';
 
-
-function Leave (){
+function Leave() {
     const userData = useOutletContext();
-    // State for Leave Records
-    const [leaves, setLeaves] = useState(() => {
-        const saved = localStorage.getItem("leaves");
-        return saved ? JSON.parse(saved) : [];
-    });
-
-    // State for Form Inputs
+    const [leaves, setLeaves] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
-        name: '', room: '', from: '', to: '', destination: '', reason: ''
+        room_number: '', from_date: '', to_date: '', destination: '', reason: ''
     });
 
-    // State for Search
-    const [searchTerm, setSearchTerm] = useState('');
+    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-    // Sync with LocalStorage whenever leaves state changes
+    const fetchLeaves = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/leave`, { credentials: 'include' });
+            const data = await response.json();
+            if (response.ok) setLeaves(data);
+        } catch (error) {
+            console.error("Fetch error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        localStorage.setItem("leaves", JSON.stringify(leaves));
-    }, [leaves]);
+        fetchLeaves();
+    }, []);
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -35,40 +39,29 @@ function Leave (){
         return diff > 0 ? diff : 0;
     };
 
-    const applyLeave = (e) => {
+    const applyLeave = async (e) => {
         e.preventDefault();
-        const { name, room, from, to } = formData;
-
-        if (!name || !room || !from || !to) {
-            alert("Please fill in all required fields");
-            return;
+        if (!formData.room_number || !formData.from_date || !formData.to_date) {
+            return alert("Please fill in required fields");
         }
 
-        if (new Date(from) > new Date(to)) {
-            alert("Invalid date range");
-            return;
-        }
+        try {
+            const response = await fetch(`${BASE_URL}/leave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+                credentials: 'include'
+            });
 
-        const newLeave = { ...formData, id: Date.now(), status: "Pending" };
-        setLeaves([...leaves, newLeave]);
-
-        // Reset Form
-        setFormData({ name: '', room: '', from: '', to: '',  destination: '', reason: '' });
-    };
-
-    const updateStatus = (id, newStatus) => {
-        setLeaves(leaves.map(l => l.id === id ? { ...l, status: newStatus } : l));
-    };
-
-    const deleteLeave = (id) => {
-        if (window.confirm("Delete this leave record?")) {
-            setLeaves(leaves.filter(l => l.id !== id));
+            if (response.ok) {
+                setFormData({ room_number: '', from_date: '', to_date: '', destination: '', reason: '' });
+                fetchLeaves();
+                alert("Leave Applied!");
+            }
+        } catch (error) {
+            console.error("Submit error:", error);
         }
     };
-
-    const filteredLeaves = leaves.filter(l =>
-        l.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     const stats = {
         total: leaves.length,
@@ -77,15 +70,13 @@ function Leave (){
         rejected: leaves.filter(l => l.status === "Rejected").length
     };
 
+    if (loading) return <div className="leave-page">Loading...</div>;
+
     return (
         <div className="leave-page">
-            <header className="leave-header">
-                <h2>Leave Panel</h2>
-            </header>
-
+            <header className="leave-header"><h2>Leave Panel</h2></header>
             <div className="leave-layout">
                 <main className="leave-main">
-                    {/* STATS CARDS */}
                     <div className="leave-cards">
                         <div className="l-card blue">Total <h2>{stats.total}</h2></div>
                         <div className="l-card orange">Pending <h2>{stats.pending}</h2></div>
@@ -93,51 +84,38 @@ function Leave (){
                         <div className="l-card red">Rejected <h2>{stats.rejected}</h2></div>
                     </div>
 
-                    {/* APPLY FORM */}
                     <div className="leave-form-box">
                         <h3>Apply Leave</h3>
                         <form className="leave-form-grid" onSubmit={applyLeave}>
-                            <input type="text" id="name" placeholder="Name" value={userData ? `${userData.firstname} ${userData.middlename || ''} ${userData.lastname}`.trim() : ""} onChange={handleInputChange} />
-                            <input type="text" id="room" placeholder="Room" value={formData.room} onChange={handleInputChange} />
-                            <input type="date" id="from" value={formData.from} onChange={handleInputChange} />
-                            <input type="date" id="to" value={formData.to} onChange={handleInputChange} />
+                            <input type="text" value={userData ? `${userData.firstname} ${userData.lastname}` : "Loading..."} readOnly disabled />
+                            <input type="text" id="room_number" placeholder="Room No." value={formData.room_number} onChange={handleInputChange} />
+                            <input type="date" id="from_date" value={formData.from_date} onChange={handleInputChange} />
+                            <input type="date" id="to_date" value={formData.to_date} onChange={handleInputChange} />
                             <input type="text" id="destination" placeholder="Destination" value={formData.destination} onChange={handleInputChange} />
                             <textarea id="reason" placeholder="Reason" value={formData.reason} onChange={handleInputChange}></textarea>
                             <button type="submit" className="l-btn submit-btn">Submit Application</button>
                         </form>
                     </div>
 
-                    {/* SEARCH */}
-
-
-                    {/* TABLE */}
                     <div className="leave-table-box">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Room</th>
-                                    <th>From</th>
                                     <th>To</th>
+                                    <th>From</th>
                                     <th>Days</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    <th>Date Applied</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredLeaves.map((l) => (
+                                {leaves.map((l) => (
                                     <tr key={l.id}>
-                                        <td>{l.name}</td>
-                                        <td>{l.room}</td>
-                                        <td>{l.from}</td>
-                                        <td>{l.to}</td>
-                                        <td>{getDays(l.from, l.to)}</td>
+                                        <td>{l.destination}</td>
+                                        <td>{new Date(l.from_date).toLocaleDateString()}</td>
+                                        <td>{getDays(l.from_date, l.to_date)}</td>
                                         <td className={`status-${l.status.toLowerCase()}`}>{l.status}</td>
-                                        <td>
-                                            <button className="l-btn approve" onClick={() => updateStatus(l.id, 'Approved')}>✔</button>
-                                            <button className="l-btn reject" onClick={() => updateStatus(l.id, 'Rejected')}>✖</button>
-                                            <button className="l-btn delete" onClick={() => deleteLeave(l.id)}>🗑</button>
-                                        </td>
+                                        <td>{new Date(l.created_at).toLocaleDateString()}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -147,6 +125,6 @@ function Leave (){
             </div>
         </div>
     );
-};
+}
 
 export default Leave;

@@ -1,138 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/Complaints.css';
 
 const Complaints = () => {
-    const [complaints, setComplaints] = useState([
-        { id: 1, title: "Fan not working", type: "Electricity", status: "Pending", photo: null },
-        { id: 2, title: "Water issue", type: "Water", status: "Resolved", photo: null }
-    ]);
+    const [complaints, setComplaints] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [form, setForm] = useState({
+        description: '',
+        category: 'Electricity',
+        room_number: '',
+        photo: null
+    });
 
-    const [form, setForm] = useState({ title: '', type: 'Electricity', photo: null });
+    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-    // Calculate Stats
-    const total = complaints.length;
-    const pending = complaints.filter(c => c.status === "Pending").length;
-    const resolved = complaints.filter(c => c.status === "Resolved").length;
+    // Load data from the GET /complaints route
+    const fetchComplaints = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/complaints`, { credentials: 'include' });
+            const data = await response.json();
+            if (response.ok) setComplaints(data);
+        } catch (error) {
+            console.error("Fetch error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchComplaints();
+    }, []);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setForm({ ...form, photo: reader.result });
-            };
+            reader.onloadend = () => setForm({ ...form, photo: reader.result });
             reader.readAsDataURL(file);
         }
     };
 
-    const addComplaint = () => {
-        if (!form.title.trim()) return alert("Please enter a title");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!form.description.trim() || !form.room_number.trim()) return alert("Fill all fields");
 
-        const newComplaint = {
-            id: Date.now(),
-            ...form,
-            status: "Pending"
-        };
+        try {
+            const response = await fetch(`${BASE_URL}/complaints`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form),
+                credentials: 'include'
+            });
 
-        setComplaints([newComplaint, ...complaints]);
-        setForm({ title: '', type: 'Electricity', photo: null }); // Reset form
-    };
-
-    const updateStatus = (id) => {
-        setComplaints(complaints.map(c => {
-            if (c.id === id) {
-                if (c.status === "Pending") return { ...c, status: "In Progress" };
-                if (c.status === "In Progress") return { ...c, status: "Resolved" };
+            if (response.ok) {
+                setForm({ description: '', category: 'Electricity', room_number: '', photo: null });
+                fetchComplaints(); // Refresh table immediately
+                alert("Complaint filed!");
             }
-            return c;
-        }));
+        } catch (error) {
+            console.error("Submit error:", error);
+        }
     };
 
-    const getStatusClass = (status) => {
-        return status.toLowerCase().replace(" ", "-");
-    };
+    const total = complaints.length;
+    const pending = complaints.filter(c => c.status === "Pending").length;
+    const resolved = complaints.filter(c => c.status === "Resolved").length;
+
+    if (loading) return <div className="complaints-container">Loading...</div>;
 
     return (
         <div className="complaints-container">
-            {/* STAT CARDS */}
             <div className="complaint-cards">
-                <div className="c-card blue-gradient">
-                    <span>Total</span>
-                    <h2>{total}</h2>
-                </div>
-                <div className="c-card orange-gradient">
-                    <span>Pending</span>
-                    <h2>{pending}</h2>
-                </div>
-                <div className="c-card green-gradient">
-                    <span>Resolved</span>
-                    <h2>{resolved}</h2>
-                </div>
+                <div className="c-card blue-gradient"><span>Total</span><h2>{total}</h2></div>
+                <div className="c-card orange-gradient"><span>Pending</span><h2>{pending}</h2></div>
+                <div className="c-card green-gradient"><span>Resolved</span><h2>{resolved}</h2></div>
             </div>
 
             <div className="complaint-content">
-                {/* SUBMISSION FORM */}
                 <div className="complaint-form-box">
                     <h3>Submit New Complaint</h3>
-                    <div className="form-group">
-                        <label>Complaint Title</label>
-                        <input
-                            type="text"
-                            placeholder="Briefly describe the issue..."
-                            value={form.title}
-                            onChange={(e) => setForm({ ...form, title: e.target.value })}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Category</label>
-                        <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                            <option>Electricity</option>
-                            <option>Internet</option>
-                            <option>Water</option>
-                            <option>Room</option>
-                            <option>Food</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-                    <div className="form-group">
-                        <label>Attachment (Optional)</label>
-                        <input type="file" accept="image/*" onChange={handleFileChange} />
-                    </div>
-                    <button className="submit-btn" onClick={addComplaint}>Submit Complaint</button>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>Room No.</label>
+                            <input type="text" value={form.room_number} onChange={(e) => setForm({ ...form, room_number: e.target.value })} required />
+                        </div>
+                        <div className="form-group">
+                            <label>Category</label>
+                            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+                                <option>Electricity</option><option>Water</option><option>Internet</option><option>Cleaning</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Description</label>
+                            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+                        </div>
+                        <div className="form-group">
+                            <label>Photo</label>
+                            <input type="file" onChange={handleFileChange} />
+                        </div>
+                        <button type="submit" className="submit-btn">Submit</button>
+                    </form>
                 </div>
 
-                {/* TABLE */}
                 <div className="complaint-table-box">
-                    <h3>Recent Complaints</h3>
+                    <h3>History</h3>
                     <div className="table-wrapper">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Photo</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    <th>Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {complaints.map((c) => (
+                                {complaints.map(c => (
                                     <tr key={c.id}>
-                                        <td>{c.title}</td>
-                                        <td><span className="type-tag">{c.type}</span></td>
-                                        <td>
-                                            {c.photo ? <img src={c.photo} className="preview-img" alt="issue" /> : "None"}
-                                        </td>
-                                        <td>
-                                            <span className={`status-pill ${getStatusClass(c.status)}`}>
-                                                {c.status}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button className="update-btn" onClick={() => updateStatus(c.id)}>
-                                                Next Step
-                                            </button>
-                                        </td>
+                                        <td>{c.description.substring(0, 25)}...</td>
+                                        <td>{c.category}</td>
+                                        <td><span className={`status-pill ${c.status.toLowerCase()}`}>{c.status}</span></td>
+                                        <td>{new Date(c.created_at).toLocaleDateString()}</td>
                                     </tr>
                                 ))}
                             </tbody>
