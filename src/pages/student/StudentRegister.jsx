@@ -15,7 +15,6 @@ function StudentRegister() {
         fathername: "",      // New Field
         fatherphone: "",     // New Field
         course: "",          // New Field
-        year: "",            // New Field
         password: "",
         confirmpassword: "",
     });
@@ -52,6 +51,9 @@ function StudentRegister() {
 
             const data = await response.json();
 
+            
+            
+
             if (!response.ok) {
                 setErrorMessage(data.error || "Failed to register.");
                 return;
@@ -64,6 +66,7 @@ function StudentRegister() {
             navigate('/');
 
         } catch (error) {
+            console.log(formData);
             setErrorMessage("Error connecting to the server.");
             console.error("Registration error:", error);
         }

@@ -102,6 +102,9 @@ app.post('/register/student', (req, res) => {
         email,
         phone,
         password,
+        fathername,
+        fatherphone,
+        course,
         role="student"
     } = req.body;
 
@@ -109,7 +112,7 @@ app.post('/register/student', (req, res) => {
                  (username, middlename, firstname, lastname, gender, email, phone, password,role,fathername,fatherphone,course) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`;
 
-    const values = [username, middlename, firstname, lastname, gender, email, phone, password, role, fatherphone, course];
+    const values = [username, middlename, firstname, lastname, gender, email, phone, password, role,fathername, fatherphone, course];
 
     db.query(sql, values, (err, result) => {
         if (err) {
