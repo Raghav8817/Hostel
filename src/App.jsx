@@ -8,6 +8,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import StaffLogin from "./pages/staff/StaffLogin";
 import StudentLogin from "./pages/student/StudentLogin";
 //  Student Dashboard pages
+import Default from "./pages/student/Default";
 import Profile from "./pages/student/Profile";
 import Leave from "./pages/student/Leave";
 import Notification from "./pages/student/Notification";
@@ -24,6 +25,7 @@ import Layout from "./pages/student/Layout";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProfile from "./pages/admin/AdminProfile";
+
 function App() {
     return (
         <BrowserRouter>
@@ -34,7 +36,7 @@ function App() {
                     </ProtectedRoute>
                 }>
                     {/* All these automatically become protected because they are children of Layout */}
-                    <Route index element={<div>Welcome to Dashboard</div>} />
+                    <Route index element={<Default></Default>} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="leave" element={<Leave />} />
                     <Route path="complaints" element={<Complaints />} />

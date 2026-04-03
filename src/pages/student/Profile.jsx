@@ -74,23 +74,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* STATS SECTION */}
-            <div className="stats">
-                <div className="stat">
-                    <span>Attendance</span>
-                    <h2>85%</h2>
-                </div>
-
-                <div className="stat">
-                    <span>Fees Paid</span>
-                    <h2>₹50,000</h2>
-                </div>
-
-                <div className="stat">
-                    <span>Pending</span>
-                    <h2>₹10,000</h2>
-                </div>
-            </div>
+            
         </div>
     );
 };
