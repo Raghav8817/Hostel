@@ -1,0 +1,334 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+:root {
+  --bg-primary: #0a0f1d;
+  --bg-secondary: #131b2f;
+  --bg-card: rgba(19, 27, 47, 0.7);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-color: #00c6ff;
+  --accent-glow: rgba(0, 198, 255, 0.2);
+  --danger-color: #ef4444;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --shadow-md: 0 8px 15px rgba(0, 0, 0, 0.2);
+  --transition-med: 0.3s ease;
+}
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 280px;
+  background: var(--bg-secondary);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-color);
+  object-fit: cover;
+}
+
+.sidebar-header h3 {
+  font-size: 1.2rem;
+  background: linear-gradient(90deg, #fff, var(--accent-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.menu {
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all var(--transition-med);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.menu:hover,
+.menu.active {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-color);
+  transform: translateX(4px);
+  box-shadow: 0 0 10px var(--accent-glow, rgba(0, 198, 255, 0.2));
+}
+
+/* MAIN CONTENT */
+.main {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  align-items: center;
+  height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.topbar h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition-med);
+  color: white;
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.btn.logout {
+  background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+}
+
+/* PROFILE CARD */
+.profile-card {
+  background: var(--bg-secondary);
+  padding: 55px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 800px;
+  border: 1px solid var(--border-color);
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+  pointer-events: none;
+  transition: transform 0.5s ease;
+}
+
+.profile-card:hover::before {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.profile-top {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-top img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-color);
+  object-fit: cover;
+  cursor: pointer;
+  transition: all var(--transition-med);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.profile-top img:hover {
+  transform: scale(1.05);
+}
+
+.profile-top h2 {
+  margin-top: 15px;
+  font-size: 1.8rem;
+  color: var(--accent-color);
+}
+
+.profile-top p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.profile-info {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.profile-info div {
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 1.1rem;
+}
+
+/* FORM */
+.edit-form {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.edit-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all var(--transition-med);
+}
+
+.edit-form input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.edit-btn {
+  margin-top: 25px;
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 12px;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 1024px) {
+  .profile-card {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 15px;
+  }
+
+  .sidebar-header {
+    border-bottom: none;
+    margin-bottom: 10px;
+    padding-bottom: 0;
+  }
+
+  .sidebar-menu-items {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+
+  .sidebar-menu-items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .menu {
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+
+  .main {
+    padding: 10px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .topbar {
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .btn {
+    margin-left: 0;
+    flex: 1;
+  }
+
+  .profile-card {
+    padding: 20px;
+  }
+}

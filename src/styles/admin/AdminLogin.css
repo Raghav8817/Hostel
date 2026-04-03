@@ -1,29 +1,55 @@
-/* Premium Login Theme mirroring LoginSelector */
+/* Mirrored Student Login CSS mapped for Admin & Staff Login structures */
 * {
     margin: 0;
     padding: 0;
     border-style: none;
     box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
-.login-container, .login-page-body {
+.login-page-body {
     min-height: 100vh;
+    width: 100%;
     background: linear-gradient(135deg, #1e1e2f 0%, #151522 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Inter', sans-serif;
     padding: 2rem;
     color: #ffffff;
     animation: fadeIn var(--transition-med, 0.5s ease);
 }
 
-.login-page-body .bg-overlay {
+.bg-overlay {
     display: none;
 }
 
-.login-container h2, .form-box h2 {
+.login-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.form-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 3.5rem;
+    width: 100%;
+    max-width: 550px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    text-align: left;
+}
+
+.form-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    border-color: rgba(79, 172, 254, 0.4);
+}
+
+.form-box h2 {
     font-size: 2.5rem;
     font-weight: 800;
     margin-bottom: 2rem;
@@ -35,32 +61,14 @@
     text-align: center;
 }
 
-.login-form, .login-page-body .form-box {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    padding: 3.5rem;
-    width: 100%;
-    max-width: 550px !important;
-    backdrop-filter: blur(15px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.login-form:hover, .login-page-body .form-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
-    border-color: rgba(79, 172, 254, 0.4);
-}
-
-.login-input-group, .login-page-body .input-group {
+.input-group {
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     position: relative;
 }
 
-.login-page-body .input-group i {
+.input-group i {
     position: absolute;
     top: 50%;
     left: 17px;
@@ -70,16 +78,9 @@
     transition: color 0.3s ease;
 }
 
-.login-input-group label {
-    font-size: 0.9rem;
-    color: #a0a0b2;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.login-input, .login-page-body .input-group input {
+.input-group input {
     width: 100%;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.5rem 1rem 3rem;
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -88,27 +89,23 @@
     transition: all 0.3s ease;
 }
 
-.login-page-body .input-group input {
-    padding-left: 3rem;
-}
-
-.login-input:hover, .login-page-body .input-group input:hover {
+.input-group input:hover {
     background: rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-.login-input:focus, .login-page-body .input-group input:focus {
+.input-group input:focus {
     outline: none;
     border-color: #4facfe;
     box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.15);
     background: rgba(0, 0, 0, 0.4);
 }
 
-.login-page-body .input-group:focus-within i {
+.input-group:focus-within i {
     color: #4facfe;
 }
 
-.login-button, .login-btn {
+.login-btn {
     width: 100%;
     padding: 1.2rem;
     margin-top: 1rem;
@@ -123,13 +120,13 @@
     box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
 }
 
-.login-button:hover, .login-btn:hover {
+.login-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 15px 30px rgba(79, 172, 254, 0.5);
     filter: brightness(1.1);
 }
 
-.login-button:active, .login-btn:active {
+.login-btn:active {
     transform: translateY(0);
 }
 
@@ -169,11 +166,11 @@
 }
 
 @media (max-width: 480px) {
-    .login-container, .login-page-body {
+    .login-page-body {
         padding: 0;
     }
     
-    .login-form, .login-page-body .form-box {
+    .form-box {
         padding: 2rem 1.5rem;
         border-radius: 0;
         border-right: none;
@@ -181,7 +178,7 @@
         box-shadow: none;
     }
     
-    .login-container h2, .form-box h2 {
+    .form-box h2 {
         font-size: 2rem;
     }
     

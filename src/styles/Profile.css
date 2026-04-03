@@ -3,7 +3,7 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideUp var(--transition-med);
 }
 
 @keyframes slideUp {
@@ -13,16 +13,23 @@
 
 /* PROFILE CARD */
 .profile-card {
-    background: #1e293b;
+    background: var(--bg-secondary, #1e293b);
     padding: 40px;
     border-radius: 20px;
     display: flex;
     gap: 40px;
     align-items: center;
-    border: 1px solid #334155;
+    border: 1px solid var(--border-color, #334155);
     margin-bottom: 30px;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+
+.profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glass);
 }
 
 /* Subtle background glow effect */
@@ -31,21 +38,32 @@
     position: absolute;
     top: -50%;
     left: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(0, 198, 255, 0.05) 0%, transparent 70%);
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, var(--accent-glow, rgba(0, 198, 255, 0.05)) 0%, transparent 60%);
     pointer-events: none;
+    transition: transform 0.5s ease;
+}
+
+.profile-card:hover::before {
+    transform: rotate(15deg) scale(1.1);
 }
 
 .profile-avatar {
     width: 160px;
     height: 160px;
     border-radius: 50%;
-    border: 4px solid #0f172a;
-    outline: 2px solid #00c6ff;
+    border: 4px solid var(--bg-primary, #0f172a);
+    outline: 2px solid var(--accent-color, #00c6ff);
+    outline-offset: 4px;
     object-fit: cover;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     z-index: 1;
+    transition: transform var(--transition-med);
+}
+
+.profile-card:hover .profile-avatar {
+    transform: scale(1.05);
 }
 
 .profile-info {
@@ -56,12 +74,12 @@
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 8px;
-    color: #fff;
-    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
 .profile-info p {
-    color: #94a3b8;
+    color: var(--text-secondary);
     margin: 6px 0;
     display: flex;
     align-items: center;
@@ -81,12 +99,12 @@
 
 .edit-btn {
     margin-top: 20px;
-    background: #00c6ff;
-    color: #0f172a;
+    background: var(--accent-color, #00c6ff);
+    color: var(--bg-primary, #0f172a);
     font-weight: 600;
     padding: 10px 24px;
     border-radius: 10px;
-    transition: all 0.3s ease;
+    transition: all var(--transition-med);
     border: none;
     cursor: pointer;
     display: inline-flex;
@@ -97,26 +115,33 @@
 .edit-btn:hover {
     background: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+    box-shadow: 0 5px 15px var(--accent-glow, rgba(0, 198, 255, 0.3));
 }
 
 /* BIO SECTION */
 .bio-section {
-    background: #1e293b;
+    background: var(--bg-secondary, #1e293b);
     padding: 30px;
     border-radius: 16px;
-    border: 1px solid #334155;
+    border: 1px solid var(--border-color, #334155);
     margin-bottom: 30px;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+
+.bio-section:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .bio-section h3 {
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 12px;
     font-size: 1.1rem;
 }
 
 .bio-section p {
-    color: #94a3b8;
+    color: var(--text-secondary);
     line-height: 1.6;
 }
 
@@ -128,21 +153,22 @@
 }
 
 .info-box {
-    background: #0f172a;
+    background: var(--bg-primary, #0f172a);
     padding: 24px;
     border-radius: 16px;
-    border: 1px solid #334155;
-    transition: all 0.3s ease;
+    border: 1px solid var(--border-color, #334155);
+    transition: all var(--transition-med);
 }
 
 .info-box:hover {
-    border-color: #00c6ff;
+    border-color: var(--accent-color, #00c6ff);
     transform: translateY(-5px);
-    background: #1e293b;
+    background: var(--bg-secondary, #1e293b);
+    box-shadow: var(--shadow-md);
 }
 
 .info-box h4 {
-    color: #64748b;
+    color: var(--text-secondary, #64748b);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -152,57 +178,73 @@
 .info-box p {
     font-size: 1rem;
     font-weight: 500;
-    color: #f8fafc;
+    color: var(--text-primary, #f8fafc);
 }
 
 /* STATS SECTION */
 .stats {
     margin-top: 30px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 20px;
 }
 
 .stat {
-    background: #1e293b;
+    background: var(--bg-secondary, #1e293b);
     padding: 30px 20px;
     text-align: center;
     border-radius: 16px;
-    border: 1px solid #334155;
-    transition: 0.3s ease;
+    border: 1px solid var(--border-color, #334155);
+    transition: all var(--transition-med);
 }
 
 .stat:hover {
-    background: #0f172a;
-    border-color: #475569;
+    background: var(--bg-primary, #0f172a);
+    border-color: var(--accent-color, #00c6ff);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
 }
 
 .stat span {
-    color: #94a3b8;
+    color: var(--text-secondary, #94a3b8);
     font-size: 0.85rem;
     font-weight: 500;
 }
 
 .stat h2 {
     margin-top: 12px;
-    color: #00c6ff;
+    color: var(--accent-color, #00c6ff);
     font-size: 2.2rem;
     font-weight: 800;
 }
 
 /* MOBILE RESPONSIVENESS */
 @media (max-width: 768px) {
+    .profile-container {
+        padding: 10px;
+    }
+    
     .profile-card {
         flex-direction: column;
         text-align: center;
-        padding: 30px;
-    }
-    
-    .stats {
-        grid-template-columns: 1fr;
+        padding: 20px 15px;
+        gap: 15px;
     }
     
     .profile-info h2 {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+
+    .profile-info p {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .bio-section, .info-box, .stat {
+        padding: 20px 15px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
     }
 }

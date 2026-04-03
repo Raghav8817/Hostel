@@ -1,25 +1,24 @@
 /* Sidebar Container */
 .sidebar {
-  width: 280px;
-  background: #0f172a; /* Deep dark blue */
-  border-right: 1px solid #1e293b;
+  width: 100%;
+  background: transparent;
   display: flex;
   flex-direction: column;
   height: 100vh;
   position: sticky;
   top: 0;
   padding: 30px 0;
-  transition: all 0.3s ease;
+  transition: all var(--transition-med);
 }
 
 /* User Profile Section in Sidebar */
 .sidebar-header {
   padding: 0 24px 30px 24px;
   display: flex;
-  flex-direction: column; /* Stacked layout for professional look */
+  flex-direction: column;
   align-items: center;
   gap: 15px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 25px;
   text-align: center;
 }
@@ -29,31 +28,38 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 3px solid #1e293b;
-  outline: 2px solid #00c6ff;
+  border: 3px solid var(--bg-secondary);
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1e293b;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-  transition: transform 0.3s ease;
+  background: var(--bg-primary);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
 }
 
 .avatar-container:hover {
-  transform: scale(1.05);
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 10px 25px var(--accent-glow);
 }
 
 .sidebar-avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--transition-med);
+}
+
+.avatar-container:hover .sidebar-avatar-img {
+  transform: scale(1.1);
 }
 
 .avatar-letter {
   font-size: 2rem;
   font-weight: 800;
-  color: #00c6ff;
+  color: var(--accent-color);
   text-transform: uppercase;
 }
 
@@ -66,13 +72,14 @@
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin: 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .user-role {
     font-size: 0.7rem;
-    color: #64748b;
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     font-weight: 600;
@@ -94,57 +101,64 @@
   display: flex;
   align-items: center;
   padding: 12px 18px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   text-decoration: none;
   border-radius: 12px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
   font-weight: 500;
   font-size: 0.95rem;
   gap: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Icon styling inside links */
 .sidebar-nav a i {
     font-size: 1.1rem;
     width: 24px;
-    transition: color 0.3s ease;
+    transition: color var(--transition-med), transform var(--transition-fast);
 }
 
 /* Hover Effect */
 .sidebar-nav a:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: #00c6ff;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  transform: translateX(4px);
 }
 
 .sidebar-nav a:hover i {
-    color: #00c6ff;
+    color: var(--accent-color);
+    transform: scale(1.1);
 }
 
 /* ACTIVE CLASS: Refined Gradient and Glow */
 .sidebar-nav a.active {
-  background: rgba(0, 198, 255, 0.1); /* Subtle background instead of heavy gradient */
-  color: #00c6ff;
+  background: var(--accent-glow);
+  color: var(--accent-color);
   font-weight: 600;
   border: 1px solid rgba(0, 198, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .sidebar-nav a.active i {
-    color: #00c6ff;
+    color: var(--accent-color);
 }
 
 /* Indicator line for active state */
 .sidebar-nav a.active::after {
   content: "";
   position: absolute;
-  right: 25px;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 4px;
-  height: 4px;
-  background: #00c6ff;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #00c6ff;
+  height: 60%;
+  background: var(--accent-color);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 8px var(--accent-color);
 }
 
 /* Hide scrollbar for clean look */
 .sidebar::-webkit-scrollbar {
     display: none;
-}
+}

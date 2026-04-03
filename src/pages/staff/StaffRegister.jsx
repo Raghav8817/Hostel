@@ -1,18 +1,19 @@
 import { useState } from "react";
-import "../../styles/Register.css";
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-function AdminRegistration() {
+import { Link, useNavigate } from 'react-router-dom';
+import "../../styles/staff/staff_reg.css";
+
+function StaffRegistration() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        username: "",
-        middlename:"",
         firstname: "",
+        middlename: "",
         lastname: "",
-        gender:"",
+        gender: "",
+        role: "",
         email: "",
         phone: "",
         password: "",
-        confirmpassword:"",
+        confirmpassword: "",
     });
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -21,14 +22,16 @@ function AdminRegistration() {
             ...formData,
             [e.target.name]: e.target.value
         });
-        if (formData.phone.length !== 10) {
-            // window.alert("provide valid phone");
-        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        if (formData.password !== formData.confirmpassword) {
+            setErrorMessage("Passwords do not match!");
+            return;
+        }
+
         try {
             const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
             const response = await fetch(`${BASE_URL}/register/staff`, { 
@@ -38,7 +41,7 @@ function AdminRegistration() {
                 }, 
                 credentials: 'include',
                 body: JSON.stringify(formData) 
-            })
+            });
             const data = await response.json();
             
             if (!response.ok) {
@@ -47,62 +50,49 @@ function AdminRegistration() {
             }
 
             setErrorMessage("");
-            console.log("passed to backend", data);
-            
-            // Automatically log the user in by navigating to dashboard
-            navigate('/');
+            navigate('/login/staff');
             
         } catch (error) {
             setErrorMessage("Error connecting to the server.");
             console.error("error sending form data to backend", error);
         }
-    
     };
 
-    // A readable variable: TRUE if user started typing a confirmation password AND it doesn't match the original
     const showPasswordError = formData.confirmpassword && formData.password !== formData.confirmpassword;
 
     return (
-        <div>
+        <div className="register-page-body">
             <div className="bg-overlay"></div>
             <div className="register-container">
                 <div className="form-box">
                     <h2>Staff Registration</h2>
 
-                    <form action="#" onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
                         {errorMessage && (
                             <div style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
                                 {errorMessage}
                             </div>
                         )}
                         <div className="form-grid">
-
                             <div className="input-group">
-                                <i className="fas fa-user"></i>
-                                <input type="text" placeholder="Username"  name="username" onChange={handleChange} required/>
+                                <i className="fas fa-user-tag"></i>
+                                <input type="text" placeholder="First Name" name="firstname" value={formData.firstname} onChange={handleChange} required />
+                            </div>
+                            
+                            <div className="input-group">
+                                <i className="fas fa-user-tag"></i>
+                                <input type="text" placeholder="Middle Name" name="middlename" value={formData.middlename} onChange={handleChange} />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
-                                <input type="text" placeholder="First Name" name="firstname" required onChange={handleChange} />
-                            </div>
-
-                            <div className="input-group">
-                                <i className="fas fa-user-tag"></i>
-                                <input type="text" placeholder="Middle Name" name="middlename" onChange={handleChange}/>
-                            </div>
-
-                            <div className="input-group">
-                                <i className="fas fa-user-tag"></i>
-                                <input type="text" placeholder="Last Name" name="lastname" required  onChange={handleChange}/>
+                                <input type="text" placeholder="Last Name" name="lastname" value={formData.lastname} onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-venus-mars"></i>
-                                <select name="gender" defaultValue="" onChange={handleChange} required>
-                                    <option value="" disabled>
-                                        Select Gender
-                                    </option>
+                                <select name="gender" value={formData.gender} onChange={handleChange} required>
+                                    <option value="" disabled>Select Gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                     <option value="other">Other</option>
@@ -110,40 +100,53 @@ function AdminRegistration() {
                             </div>
 
                             <div className="input-group">
+                                <i className="fas fa-venus-mars"></i>
+                                <select name="role" value={formData.role} onChange={handleChange} required>
+                                    <option value="" disabled>Select Role</option>
+                                    <option value="Mess">Mess</option>
+                                    <option value="Electrician">Electrician</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Cleaning">Cleaning</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div className="input-group full-width">
                                 <i className="fas fa-envelope"></i>
-                                <input type="email" placeholder="Email Address" name="email" required  onChange={handleChange}/>
+                                <input type="email" placeholder="Email Address" name="email" value={formData.email} onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-phone"></i>
-                                <input type="number" placeholder="Phone Number" name="phone" required  onChange={handleChange}/>
+                                <input type="tel" placeholder="Phone Number" name="phone" value={formData.phone} onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
-                                <input type="password" placeholder="Password" name="password"required onChange={handleChange} />
+                                <input type="password" placeholder="Password" name="password" value={formData.password} onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
-                                
-                                <input type="password" placeholder="Confirm Password" name="confirmpassword" required  onChange={handleChange}/>
-                                
-                                {showPasswordError ? (
-                                    <div style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>
-                                        Passwords do not match!
-                                    </div>
-                                ) : null}
+                                <input type="password" placeholder="Confirm Password" name="confirmpassword" value={formData.confirmpassword} onChange={handleChange} required />
                             </div>
-
+                            
+                            <div className="input-group">
+                                <i className="fas fa-image"></i>
+                                <input type="file" name="photo" />
+                            </div>
                         </div>
 
-                        <button type="submit" className="register-btn">
-                            Register Admin
-                        </button>
+                        {showPasswordError && (
+                            <div style={{ color: "red", fontSize: "12px", marginTop: "-10px", marginBottom: "15px", textAlign: "center" }}>
+                                Passwords do not match!
+                            </div>
+                        )}
+
+                        <button type="submit" className="register-btn">Register Now</button>
 
                         <p className="switch">
-                            Already registered? <Link to="/Dashboard">Login</Link>
+                            Already registered? <Link to="/login/staff">Login</Link>
                         </p>
                     </form>
                 </div>
@@ -152,4 +155,4 @@ function AdminRegistration() {
     );
 }
 
-export default AdminRegistration;
+export default StaffRegistration;

@@ -20,6 +20,10 @@ import StaffRegister from "./pages/staff/StaffRegister";
 import StudentRegister from "./pages/student/StudentRegister";
 import ForgotPassword from "./pages/student/Forgot";
 import Layout from "./pages/student/Layout";
+// import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminStudents from "./pages/admin/AdminStudents";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProfile from "./pages/admin/AdminProfile";
 function App() {
     return (
         <BrowserRouter>
@@ -40,6 +44,7 @@ function App() {
                 </Route>
 
                 {/* 3. Auth pages (No Sidebar/Header here) */}
+                <Route path="/AdminDashboard" element={<AdminDashboard></AdminDashboard>}></Route>
                 <Route path="/login" element={<LoginSelector />} />
                 <Route path="/register" element={<RegisterSelector />} />
                 <Route path="/login/admin" element={<AdminLogin />} />
@@ -49,6 +54,9 @@ function App() {
                 <Route path="/register/staff" element={<StaffRegister />} />
                 <Route path="/register/student" element={<StudentRegister />} />
                 <Route path="/forgot" element={<ForgotPassword />} />
+                <Route path="/AdminStudents" element={<AdminStudents />}></Route>
+                <Route path="/AdminDashboard" element={<AdminDashboard />}></Route>
+                <Route path="/AdminProfile" element={<AdminProfile></AdminProfile>}></Route>
             </Routes>
         </BrowserRouter>
     );
