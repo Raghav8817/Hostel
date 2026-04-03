@@ -10,7 +10,7 @@ require('dotenv').config({ path: path.resolve(__dirname, './config/.env') });
 
 const allowedOrigins = [
     "http://localhost:5173",           // Your local React app
-    "https://velvety-scone-4a9a17.netlify.app"    // Your deployed Netlify app
+    "https://hostel-virid.vercel.app"    // Your deployed Netlify app
 ];
 
 app.use(cors({
@@ -18,7 +18,7 @@ app.use(cors({
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
-
+//swift , itos,aura,
 // Replace your old app.use(express.json()) with this:
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -93,6 +93,23 @@ app.get('/user-data', (req, res) => {
 
             res.json(sanitizedUser);
         });
+    });
+});
+app.post('/logout', (req, res) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // 1. Clear the cookie
+    res.clearCookie('authToken', {
+        httpOnly: true,
+        secure: isProduction, // Must match the original cookie settings
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/' // Ensure it clears for the entire domain
+    });
+
+    // 2. Send response
+    res.status(200).json({
+        success: true,
+        message: "Logged out successfully. See you soon!"
     });
 });
 
