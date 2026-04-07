@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "../../styles/admin/AdminStudents.css";
 
 const AdminStudents = () => {
-  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -75,98 +73,81 @@ const AdminStudents = () => {
   const female = students.filter(s => s.gender === "Female").length;
 
   return (
-    <div className="dashboard-container">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <img src="https://i.pravatar.cc/100" alt="profile" />
-          <h3>Admin Panel</h3>
+    <div className="student-management-content">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+         <h2 style={{ color: 'white' }}>Student Management</h2>
+      </div>
+
+      {/* STAT CARDS */}
+      <div className="cards">
+        <div className="card">
+          <span>Total Students</span>
+          <h2>{total}</h2>
         </div>
-        <div className="sidebar-menu-items">
-          <div className="menu" onClick={() => navigate("/AdminDashboard")}>🏠 Dashboard</div>
-          <div className="menu" onClick={() => navigate("/AdminProfile")}>👤 Profile</div>
-          <div className="menu active" onClick={() => navigate("/AdminStudents")}>👥 Students</div>
-          <div className="menu">🛏 Rooms</div>
-          <div className="menu">💰 Fees</div>
-          <div className="menu">⚠ Complaints</div>
-          <div className="menu">👥 Staff</div>
-
+        <div className="card">
+          <span>Male</span>
+          <h2 style={{ color: "#00c6ff" }}>{male}</h2>
         </div>
-      </aside>
-
-      {/* MAIN */}
-      <main className="main">
-        {/* TOPBAR */}
-        <header className="topbar">
-          <h2>Student Management</h2>
-          <div className="header-actions">
-            <button className="btn logout">Logout</button>
-          </div>
-        </header>
-
-        {/* CARDS */}
-        <div className="cards">
-          <div className="card">
-            <span>Total Students</span>
-            <h2>{total}</h2>
-          </div>
-          <div className="card">
-            <span>Male</span>
-            <h2>{male}</h2>
-          </div>
-          <div className="card">
-            <span>Female</span>
-            <h2>{female}</h2>
-          </div>
+        <div className="card">
+          <span>Female</span>
+          <h2 style={{ color: "#ff4bb4" }}>{female}</h2>
         </div>
+      </div>
 
-        {/* TOP / ACTIONS */}
-        <div className="table-actions">
-          <input
-            type="text"
-            placeholder="Search student..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <button className="btn" onClick={() => setShowModal(true)}>
-            + Add Student
-          </button>
-        </div>
+      {/* TOP / ACTIONS */}
+      <div className="table-actions">
+        <input
+          type="text"
+          placeholder="Search student by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+        <button className="btn" onClick={() => setShowModal(true)}>
+          + Add New Student
+        </button>
+      </div>
 
-        {/* TABLE */}
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Room</th>
-                <th>Gender</th>
-                <th>Status</th>
-                <th>Action</th>
+      {/* TABLE */}
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Room</th>
+              <th>Gender</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((s, i) => (
+              <tr key={i}>
+                <td>{s.name}</td>
+                <td>{s.room}</td>
+                <td>{s.gender}</td>
+                <td>
+                  <span className={`status ${s.status.toLowerCase()}`}>
+                    {s.status}
+                  </span>
+                </td>
+                <td className="action">
+                  {s.status === "Pending" && (
+                    <>
+                      <button className="approve" title="Approve" onClick={() => approve(i)}>✔</button>
+                      <button className="reject" title="Reject" onClick={() => reject(i)}>✖</button>
+                    </>
+                  )}
+                  <button className="delete" title="Delete" onClick={() => del(i)}>🗑</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.map((s, i) => (
-                <tr key={i}>
-                  <td>{s.name}</td>
-                  <td>{s.room}</td>
-                  <td>{s.gender}</td>
-                  <td>
-                    <span className={`status ${s.status.toLowerCase()}`}>
-                      {s.status}
-                    </span>
-                  </td>
-                  <td className="action">
-                    <button className="approve" onClick={() => approve(i)}>✔</button>
-                    <button className="reject" onClick={() => reject(i)}>✖</button>
-                    <button className="delete" onClick={() => del(i)}>🗑</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <p style={{ textAlign: 'center', color: '#888', padding: '20px' }}>No students found.</p>
+        )}
+      </div>
 
       {/* MODAL */}
       {showModal && (
@@ -181,7 +162,7 @@ const AdminStudents = () => {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
             <input
-              placeholder="Room"
+              placeholder="Room Number"
               value={form.room}
               onChange={(e) => setForm({ ...form, room: e.target.value })}
             />
@@ -190,8 +171,8 @@ const AdminStudents = () => {
               onChange={(e) => setForm({ ...form, gender: e.target.value })}
             >
               <option value="">Select Gender</option>
-              <option>Male</option>
-              <option>Female</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
             </select>
 
             <button className="btn" onClick={saveStudent}>Save Student</button>

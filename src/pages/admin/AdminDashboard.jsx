@@ -1,17 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../../styles/admin/AdminDashboard.css";
 import { Chart } from "chart.js/auto";
-import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    room: "",
+    room: "", 
     gender: "",
   });
 
@@ -35,7 +33,6 @@ const AdminDashboard = () => {
     setShowModal(false);
   };
 
-
   const data = {
     students: 150,
     rooms: 110,
@@ -52,8 +49,6 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const ctx = canvasRef.current;
-
-    // 🔥 destroy previous chart
     if (chartRef.current) {
       chartRef.current.destroy();
     }
@@ -73,137 +68,88 @@ const AdminDashboard = () => {
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            labels: {
-              color: "white",
-            },
-          },
+          legend: { labels: { color: "white" } },
         },
         scales: {
-          x: {
-            ticks: { color: "white" },
-          },
-          y: {
-            ticks: { color: "white" },
-          },
+          x: { ticks: { color: "white" } },
+          y: { ticks: { color: "white" } },
         },
       },
     });
 
     return () => {
-      if (chartRef.current) {
-        chartRef.current.destroy();
-      }
+      if (chartRef.current) chartRef.current.destroy();
     };
   }, []);
 
   return (
-    <div className="dashboard-container">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <img src="https://i.pravatar.cc/100" alt="profile" />
-          <h3>Admin Panel</h3>
+    <div className="admin-dashboard-content">
+      {/* ACTION HEADER (Specific to Dashboard) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+         <h2 style={{ color: 'white' }}>Dashboard Overview</h2>
+         <button className="btn" onClick={() => setShowModal(true)}>+ Add Student</button>
+      </div>
+
+      {/* CARDS */}
+      <div className="cards">
+        <div className="card">
+          <span>Total Students</span>
+          <h2>{data.students}</h2>
+        </div>
+        <div className="card">
+          <span>Rooms Occupied</span>
+          <h2>{data.rooms}</h2>
+        </div>
+        <div className="card">
+          <span>Fees Collected</span>
+          <h2>₹{data.fees}</h2>
+        </div>
+        <div className="card">
+          <span>Complaints</span>
+          <h2>{data.complaints}</h2>
+        </div>
+      </div>
+
+      {/* GRID */}
+      <div className="dashboard-grid">
+        <div className="chart-box">
+          <h3>Hostel Overview</h3>
+          <canvas ref={canvasRef}></canvas>
         </div>
 
-        <div className="sidebar-menu-items">
-          <div className="menu active" onClick={() => navigate("/AdminDashboard")}>🏠 Dashboard</div>
-           <div className="menu" onClick={() => navigate("/AdminProfile")}>👤 Profile</div>
-          <div className="menu" onClick={() => navigate("/AdminStudents")}>👤 Students</div>
-          <div className="menu">🛏 Rooms</div>
-          <div className="menu">💰 Fees</div>
-          <div className="menu">⚠ Complaints</div>
-          <div className="menu">👥 Staff</div>
-         
-        </div>
-      </aside>
-
-      {/* MAIN */}
-      <main className="main">
-        {/* TOPBAR */}
-        <header className="topbar">
-          <h2>Hostel Admin Dashboard</h2>
-          <div className="header-actions">
-            <button className="btn">Notifications</button>
-            <button className="btn" onClick={() => setShowModal(true)}>Add Student</button>
-            <button className="btn logout">Logout</button>
-          </div>
-        </header>
-
-        {/* CARDS */}
-        <div className="cards">
-          <div className="card">
-            <span>Total Students</span>
-            <h2>{data.students}</h2>
-          </div>
-
-          <div className="card">
-            <span>Rooms Occupied</span>
-            <h2>{data.rooms}</h2>
-          </div>
-
-          <div className="card">
-            <span>Fees Collected</span>
-            <h2>₹{data.fees}</h2>
-          </div>
-
-          <div className="card">
-            <span>Complaints</span>
-            <h2>{data.complaints}</h2>
-          </div>
-        </div>
-
-        {/* GRID */}
-        <div className="dashboard-grid">
-          {/* CHART */}
-          <div className="chart-box">
-            <h3>Hostel Overview</h3>
-            <canvas ref={canvasRef}></canvas>
-          </div>
-
-          {/* TABLE */}
-          <div className="table-box">
-            <h3>Student Records</h3>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Room</th>
-                  <th>Fees</th>
+        <div className="table-box">
+          <h3>Recent Student Records</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Fees</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.list.map((s, index) => (
+                <tr key={index}>
+                  <td>{s.name}</td>
+                  <td>{s.room}</td>
+                  <td>
+                    <span style={{ color: s.fees === "Paid" ? "#22c55e" : "#ef4444" }}>
+                      {s.fees}
+                    </span>
+                  </td>
                 </tr>
-              </thead>
-
-              <tbody>
-                {data.list.map((s, index) => (
-                  <tr key={index}>
-                    <td>{s.name}</td>
-                    <td>{s.room}</td>
-                    <td>
-                      <span
-                        style={{
-                          color:
-                            s.fees === "Paid" ? "#22c55e" : "#ef4444",
-                        }}
-                      >
-                        {s.fees}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </main>
+      </div>
 
       {/* MODAL */}
       {showModal && (
         <div className="modal">
           <div className="modal-box">
             <span className="close" onClick={() => setShowModal(false)}>✖</span>
-            <h3>Add Student</h3>
-
+            <h3>Add New Student</h3>
             <input
               placeholder="Name"
               value={form.name}
@@ -222,7 +168,6 @@ const AdminDashboard = () => {
               <option>Male</option>
               <option>Female</option>
             </select>
-
             <button className="btn" onClick={saveStudent}>Save Student</button>
           </div>
         </div>

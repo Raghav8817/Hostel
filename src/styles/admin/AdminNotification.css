@@ -1,0 +1,156 @@
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+}
+
+.layout{display:flex;}
+
+.sidebar{
+    width:230px;
+    background:#020617;
+    height:100vh;
+    padding:20px;
+}
+
+.menu{
+    padding:10px;
+    margin:8px 0;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+.menu:hover,.active{
+    background:#00c6ff;
+    color:black;
+}
+
+.main{
+    flex:1;
+    padding:20px;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:15px;
+    border-radius:8px;
+    text-align:center;
+}
+
+.card h2{color:#00c6ff}
+
+/* FILTER */
+.top{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+
+input,select{
+    padding:8px;
+    border:none;
+    border-radius:5px;
+}
+
+/* BUTTON */
+button{
+    padding:6px 10px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.add{background:#00c6ff;}
+.delete{background:red;color:white;}
+.edit{background:orange;color:black;}
+
+/* TABLE */
+table{
+    width:100%;
+    background:#1e293b;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#00c6ff;
+    color:black;
+}
+
+/* STATUS */
+.activeStatus{
+    background:#28a745;
+    padding:4px 8px;
+    border-radius:5px;
+}
+
+.expiredStatus{
+    background:#dc3545;
+    padding:4px 8px;
+    border-radius:5px;
+}
+
+/* PRIORITY */
+.high{background:red;padding:4px 8px;border-radius:5px;}
+.medium{background:orange;padding:4px 8px;border-radius:5px;}
+.low{background:green;padding:4px 8px;border-radius:5px;}
+
+/* MODAL */
+.modal{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:#0008;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-box{
+    background:#1e293b;
+    padding:20px;
+    border-radius:10px;
+    width:300px;
+}
+
+.modal-box input,
+.modal-box textarea,
+.modal-box select{
+    width:100%;
+    margin:8px 0;
+    padding:8px;
+}
+
+/* CHART */
+.chart{
+    margin-top:20px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+}
+
+/* TOAST */
+.toast{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#00c6ff;
+    color:black;
+    padding:10px;
+    border-radius:5px;
+}

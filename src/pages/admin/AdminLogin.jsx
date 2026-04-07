@@ -27,7 +27,7 @@ const AdminLogin = () => {
             });
 
             if (response.ok) {
-                navigate('/AdminDashboard'); 
+                navigate('/admin/dashboard'); 
             } else {
                 const data = await response.json();
                 setError(data.error || 'Invalid credentials');
