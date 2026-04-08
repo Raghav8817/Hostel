@@ -42,7 +42,6 @@ function Layout() {
         <div className={`sidebar-wrapper ${isSidebarOpen ? 'open' : ''}`}>
           <Sidebar user={userData} closeMobileMenu={() => setIsSidebarOpen(false)} />
         </div>
-
         <main className="main">
           <Outlet context={userData} />
         </main>

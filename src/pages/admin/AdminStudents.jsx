@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "../../styles/admin/AdminStudents.css";
 
 const AdminStudents = () => {
@@ -77,87 +76,112 @@ const AdminStudents = () => {
   const female = students.filter(s => s.gender?.toLowerCase() === "female").length;
 
   return (
-    <div className="dashboard-container">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h3>Admin Panel</h3>
-        </div>
-        <div className="sidebar-menu-items">
-          <div className="menu" onClick={() => navigate("/AdminDashboard")}>🏠 Dashboard</div>
-          <div className="menu" onClick={() => navigate("/AdminProfile")}>👤 Profile</div>
-          <div className="menu active">👥 Students</div>
-          <div className="menu">🛏 Rooms</div>
-          <div className="menu">💰 Fees</div>
-        </div>
-      </aside>
+    <div className="student-management-content">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+         <h2 style={{ color: 'white' }}>Student Management</h2>
+      </div>
 
-      <main className="main">
-        <header className="topbar">
-          <h2>Student Management</h2>
-          <button className="btn logout" onClick={() => navigate("/login")}>Logout</button>
-        </header>
+      {/* STAT CARDS */}
+      <div className="cards">
+        <div className="card">
+          <span>Total Students</span>
+          <h2>{total}</h2>
+        </div>
+        <div className="card">
+          <span>Male</span>
+          <h2 style={{ color: "#00c6ff" }}>{male}</h2>
+        </div>
+        <div className="card">
+          <span>Female</span>
+          <h2 style={{ color: "#ff4bb4" }}>{female}</h2>
+        </div>
+      </div>
 
-        <div className="cards">
-          <div className="card">
-            <span>Total Students</span>
-            <h2>{total}</h2>
+      {/* TOP / ACTIONS */}
+      <div className="table-actions">
+        <input
+          type="text"
+          placeholder="Search student by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+        <button className="btn" onClick={() => setShowModal(true)}>
+          + Add New Student
+        </button>
+      </div>
+
+      {/* TABLE */}
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Room</th>
+              <th>Gender</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((s, i) => (
+              <tr key={i}>
+                <td>{s.name}</td>
+                <td>{s.room}</td>
+                <td>{s.gender}</td>
+                <td>
+                  <span className={`status ${s.status.toLowerCase()}`}>
+                    {s.status}
+                  </span>
+                </td>
+                <td className="action">
+                  {s.status === "Pending" && (
+                    <>
+                      <button className="approve" title="Approve" onClick={() => approve(i)}>✔</button>
+                      <button className="reject" title="Reject" onClick={() => reject(i)}>✖</button>
+                    </>
+                  )}
+                  <button className="delete" title="Delete" onClick={() => del(i)}>🗑</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <p style={{ textAlign: 'center', color: '#888', padding: '20px' }}>No students found.</p>
+        )}
+      </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-box">
+            <span className="close" onClick={() => setShowModal(false)}>✖</span>
+            <h3>Add Student</h3>
+
+            <input
+              placeholder="Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input
+              placeholder="Room Number"
+              value={form.room}
+              onChange={(e) => setForm({ ...form, room: e.target.value })}
+            />
+            <select
+              value={form.gender}
+              onChange={(e) => setForm({ ...form, gender: e.target.value })}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+
+            <button className="btn" onClick={saveStudent}>Save Student</button>
           </div>
-          <div className="card">
-            <span>Male</span>
-            <h2>{male}</h2>
-          </div>
-          <div className="card">
-            <span>Female</span>
-            <h2>{female}</h2>
-          </div>
         </div>
-
-        <div className="table-actions">
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="table-container">
-          {loading ? <p>Loading Students...</p> : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Username</th>
-                  <th>Gender</th>
-                  <th>Course</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((s) => (
-                  <tr key={s.username}>
-                    <td>{s.firstname} {s.lastname}</td>
-                    <td>{s.username}</td>
-                    <td>{s.gender}</td>
-                    <td>{s.course || "N/A"}</td>
-                    <td>
-                      <span className={`status ${(s.status || 'pending').toLowerCase()}`}>
-                        {s.status || 'Pending'}
-                      </span>
-                    </td>
-                    <td className="action">
-                      <button className="approve" onClick={() => updateStatus(s.username, "Approved")}>✔</button>
-                      <button className="reject" onClick={() => updateStatus(s.username, "Rejected")}>✖</button>
-                      <button className="delete" onClick={() => deleteStudent(s.username)}>🗑</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </main>
+      )}
     </div>
   );
 };

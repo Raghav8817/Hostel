@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "../../styles/admin/AdminProfile.css";
 
 const AdminProfile = () => {
@@ -82,74 +81,57 @@ const AdminProfile = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <img src={profile.img} alt="admin-head" />
-          <h3>Admin Panel</h3>
-        </div>
-        <div className="sidebar-menu-items">
-          <div className="menu" onClick={() => navigate("/AdminDashboard")}>🏠 Dashboard</div>
-          <div className="menu active">👤 Profile</div>
-          <div className="menu" onClick={() => navigate("/AdminStudents")}>👥 Students</div>
-          <div className="menu">🛏 Rooms</div>
-          <div className="menu">💰 Fees</div>
-          <div className="menu">⚠ Complaints</div>
-        </div>
-      </aside>
+    <div className="profile-card">
+      <div className="profile-top">
+        <label style={{ cursor: "pointer" }}>
+          <img src={profile.img} alt="profile" />
+          <input type="file" hidden onChange={handleImage} />
+          <p style={{ fontSize: "12px", color: "#888" }}>Click image to change</p>
+        </label>
+        <h2>{profile.name}</h2>
+        <p>Hostel Administrator</p>
+      </div>
 
-      <main className="main">
-        <header className="topbar">
-          <h2>Admin Profile</h2>
-          <div className="header-actions">
-            <button className="btn logout" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
+      <div className="profile-info">
+        <div><strong>Email:</strong> {profile.email}</div>
+        <div><strong>Phone:</strong> {profile.phone}</div>
+        <div><strong>Role:</strong> Admin</div>
+        <div><strong>Position:</strong> Hostel Warden</div>
+      </div>
 
-        <div className="profile-card">
-          <div className="profile-top">
-            <img src={profile.img} alt="profile" />
-            {/* Displaying name with safety fallback */}
-            <h2>{profile.firstname || "Admin"} {profile.lastname || ""}</h2>
-            <p>Hostel Warden & Administrator</p>
-          </div>
+      <button
+        className="btn edit-btn"
+        onClick={() => setShowForm(!showForm)}
+      >
+        {showForm ? "Cancel" : "Edit Profile"}
+      </button>
 
-          <div className="profile-info">
-            <div><strong>Email:</strong> {profile.email || "No email set"}</div>
-            <div><strong>Phone:</strong> {profile.phone || "No phone set"}</div>
-            <div><strong>Gender:</strong> {profile.gender || "Not specified"}</div>
-            <div><strong>Access Level:</strong> Full Admin</div>
-          </div>
-
-          <button className="btn edit-btn" onClick={() => setShowForm(!showForm)}>
-            {showForm ? "Cancel Edit" : "Update Profile Info"}
+      {/* FORM */}
+      {showForm && (
+        <div className="edit-form">
+          <input
+            type="text"
+            id="name"
+            placeholder="New Name"
+            onChange={handleChange}
+          />
+          <input
+            type="email"
+            id="email"
+            placeholder="New Email"
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            id="phone"
+            placeholder="New Phone"
+            onChange={handleChange}
+          />
+          <button className="btn" onClick={saveProfile}>
+            Save Changes
           </button>
-
-          {showForm && (
-            <div className="edit-form">
-              <div className="input-group">
-                <label>First Name</label>
-                <input type="text" id="firstname" defaultValue={profile.firstname} onChange={handleChange} />
-              </div>
-              <div className="input-group">
-                <label>Last Name</label>
-                <input type="text" id="lastname" defaultValue={profile.lastname} onChange={handleChange} />
-              </div>
-              <div className="input-group">
-                <label>Email</label>
-                <input type="email" id="email" defaultValue={profile.email} onChange={handleChange} />
-              </div>
-              <div className="input-group">
-                <label>Phone</label>
-                <input type="text" id="phone" defaultValue={profile.phone} onChange={handleChange} />
-              </div>
-              <button className="btn save-btn" onClick={saveProfile}>
-                Confirm & Save to DB
-              </button>
-            </div>
-          )}
         </div>
-      </main>
+      )}
     </div>
   );
 };

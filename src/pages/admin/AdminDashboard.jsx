@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../../styles/admin/AdminDashboard.css";
 import { Chart } from "chart.js/auto";
-import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -72,77 +70,95 @@ const AdminDashboard = () => {
   if (loading) return <div className="loading">Loading Dashboard Data...</div>;
 
   return (
-    <div className="dashboard-container">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h3>Admin Panel</h3>
-        </div>
-        <div className="sidebar-menu-items">
-          <div className="menu active">🏠 Dashboard</div>
-          <div className="menu" onClick={() => navigate("/AdminProfile")}>👤 Profile</div>
-          <div className="menu" onClick={() => navigate("/AdminStudents")}>👥 Students</div>
-          <div className="menu">🛏 Rooms</div>
-          <div className="menu">💰 Fees</div>
-          <div className="menu">⚠ Complaints</div>
-        </div>
-      </aside>
+    <div className="admin-dashboard-content">
+      {/* ACTION HEADER (Specific to Dashboard) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+         <h2 style={{ color: 'white' }}>Dashboard Overview</h2>
+         <button className="btn" onClick={() => setShowModal(true)}>+ Add Student</button>
+      </div>
 
-      <main className="main">
-        <header className="topbar">
-          <h2>Hostel Analytics</h2>
-          <div className="header-actions">
-            <button className="btn logout" onClick={() => navigate("/login")}>Logout</button>
-          </div>
-        </header>
+      {/* CARDS */}
+      <div className="cards">
+        <div className="card">
+          <span>Total Students</span>
+          <h2>{data.students}</h2>
+        </div>
+        <div className="card">
+          <span>Rooms Occupied</span>
+          <h2>{data.rooms}</h2>
+        </div>
+        <div className="card">
+          <span>Fees Collected</span>
+          <h2>₹{data.fees}</h2>
+        </div>
+        <div className="card">
+          <span>Complaints</span>
+          <h2>{data.complaints}</h2>
+        </div>
+      </div>
 
-        <div className="cards">
-          <div className="card">
-            <span>Total Students</span>
-            <h2>{stats.students}</h2>
-          </div>
-          <div className="card">
-            <span>Occupancy</span>
-            <h2>{stats.rooms} Rooms</h2>
-          </div>
-          <div className="card">
-            <span>Revenue</span>
-            <h2>₹{stats.fees.toLocaleString('en-IN')}</h2>
-          </div>
-          <div className="card">
-            <span>Active Complaints</span>
-            <h2>{stats.complaints}</h2>
-          </div>
+      {/* GRID */}
+      <div className="dashboard-grid">
+        <div className="chart-box">
+          <h3>Hostel Overview</h3>
+          <canvas ref={canvasRef}></canvas>
         </div>
 
-        <div className="dashboard-grid">
-          <div className="chart-box">
-            <h3>Usage Statistics</h3>
-            <canvas ref={canvasRef}></canvas>
-          </div>
-
-          <div className="table-box">
-            <h3>Recent Registrations</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Course</th>
-                  <th>Status</th>
+        <div className="table-box">
+          <h3>Recent Student Records</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Fees</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.list.map((s, index) => (
+                <tr key={index}>
+                  <td>{s.name}</td>
+                  <td>{s.room}</td>
+                  <td>
+                    <span style={{ color: s.fees === "Paid" ? "#22c55e" : "#ef4444" }}>
+                      {s.fees}
+                    </span>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {stats.list.map((s, index) => (
-                  <tr key={index}>
-                    <td>{s.firstname} {s.lastname}</td>
-                    <td>{s.course || "N/A"}</td>
-                    <td><span style={{ color: "#22c55e" }}>New</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-box">
+            <span className="close" onClick={() => setShowModal(false)}>✖</span>
+            <h3>Add New Student</h3>
+            <input
+              placeholder="Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input
+              placeholder="Room"
+              value={form.room}
+              onChange={(e) => setForm({ ...form, room: e.target.value })}
+            />
+            <select
+              value={form.gender}
+              onChange={(e) => setForm({ ...form, gender: e.target.value })}
+            >
+              <option value="">Select Gender</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+            <button className="btn" onClick={saveStudent}>Save Student</button>
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
 };
