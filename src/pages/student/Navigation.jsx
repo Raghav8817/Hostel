@@ -15,7 +15,7 @@ function Navigation({ user, onMenuClick }) {
             if (response.ok) {
                 // Force a full page reload to the login page
                 // This clears all React memory and forces ProtectedRoute to re-verify
-                window.location.href = "/Login";
+                window.location.href = "/login";
             }
         } catch (err) {
             console.error("Logout failed:", err);
