@@ -1,9 +1,9 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Layouts
 import Layout from "./pages/student/Layout";
-import AdminLayout from "./pages/admin/AdminLayout"; // Import your new layout
+import AdminLayout from "./pages/admin/AdminLayout";
 
 // Selectors & Auth
 import LoginSelector from "./pages/selectors/LoginSelector";
@@ -36,13 +36,26 @@ import AdminProfile from "./pages/admin/AdminProfile";
 import AdminRoom from "./pages/admin/AdminRoom";
 import AdminComplain from "./pages/admin/AdminComplain";
 import AdminFees from "./pages/admin/AdminFees";
-// ... (imports remain the same)
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* 1. STUDENT ROUTES */}
+                {/* --- PUBLIC AUTH ROUTES --- */}
+                {/* These must be OUTSIDE ProtectedRoute so users can see them to log in */}
+                <Route path="/login" element={<LoginSelector />} />
+                <Route path="/login/admin" element={<AdminLogin />} />
+                <Route path="/login/student" element={<StudentLogin />} />
+                <Route path="/login/staff" element={<StaffLogin />} />
+
+                <Route path="/register" element={<RegisterSelector />} />
+                <Route path="/register/admin" element={<AdminRegister />} />
+                <Route path="/register/student" element={<StudentRegister />} />
+                <Route path="/register/staff" element={<StaffRegister />} />
+
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+
+                {/* --- STUDENT ROUTES (Protected) --- */}
                 <Route path="/" element={
                     <ProtectedRoute>
                         <Layout />
@@ -51,21 +64,19 @@ function App() {
                     <Route index element={<Default />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="leave" element={<Leave />} />
-                    <Route path="complaints" element={<Complaints />} /> {/* Path: /complaints */}
+                    <Route path="complaints" element={<Complaints />} />
                     <Route path="notifications" element={<Notification />} />
                     <Route path="fees" element={<Fees />} />
                     <Route path="edit" element={<EditProfile />} />
                 </Route>
 
-                {/* 2. ADMIN ROUTES - Nested under /admin */}
+                {/* --- ADMIN ROUTES (Protected) --- */}
                 <Route path="/admin" element={
                     <ProtectedRoute>
                         <AdminLayout />
                     </ProtectedRoute>
                 }>
                     <Route index element={<AdminDashboard />} />
-
-                    {/* Relative paths: these result in /admin/dashboard, /admin/students, etc. */}
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="students" element={<AdminStudents />} />
                     <Route path="profile" element={<AdminProfile />} />
@@ -74,16 +85,8 @@ function App() {
                     <Route path="complaints" element={<AdminComplain />} />
                 </Route>
 
-                {/* 3. PUBLIC AUTH PAGES */}
-                <Route path="/login" element={<LoginSelector />} />
-                <Route path="/register" element={<RegisterSelector />} />
-                <Route path="/login/admin" element={<AdminLogin />} />
-                <Route path="/login/staff" element={<StaffLogin />} />
-                <Route path="/login/student" element={<StudentLogin />} />
-                <Route path="/register/admin" element={<AdminRegister />} />
-                <Route path="/register/staff" element={<StaffRegister />} />
-                <Route path="/register/student" element={<StudentRegister />} />
-                <Route path="/forgot" element={<ForgotPassword />} />
+                {/* FALLBACK: Redirect any unknown URL to the login selector */}
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </BrowserRouter>
     );

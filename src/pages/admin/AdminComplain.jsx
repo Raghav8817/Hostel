@@ -6,39 +6,36 @@ const AdminComplain = () => {
   const [complaints, setComplaints] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [staff, setStaff] = useState("");
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-  const [stats, setStats] = useState({
-    Pending: 0,
-    Assigned: 0,
-    Solved: 0
-  });
-
+  const [stats, setStats] = useState({ Pending: 0, Assigned: 0, Solved: 0 });
   const [months, setMonths] = useState(new Array(12).fill(0));
 
-  /* LOAD DATA */
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("complaints")) || [
-      { name: "Rahul", room: "101", type: "Cleaning", msg: "Dirty", img: "https://via.placeholder.com/100", status: "Pending", date: "2026-04-01" },
-      { name: "Priya", room: "202", type: "Electric", msg: "Light issue", img: "https://via.placeholder.com/100", status: "Assigned", date: "2026-04-02" },
-      { name: "Aman", room: "103", type: "Water", msg: "No water", img: "https://via.placeholder.com/100", status: "Solved", date: "2026-03-25" }
-    ];
-    setComplaints(data);
-  }, []);
-
-  /* SAVE */
-  const updateStorage = (data) => {
-    setComplaints(data);
-    localStorage.setItem("complaints", JSON.stringify(data));
+  // 1. FETCH DATA FROM MYSQL
+  const fetchComplaints = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/complaints`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setComplaints(data);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
   };
+
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
 
   /* FILTER DATA */
   const getFiltered = () => {
     const today = new Date();
     return complaints.filter(c => {
-      const d = new Date(c.date);
-      if (!(c.name + c.room + c.type).toLowerCase().includes(search.toLowerCase()))
-        return false;
+      const d = new Date(c.created_at);
+      const searchStr = (c.username + c.room_number + c.category + c.description).toLowerCase();
+
+      if (!searchStr.includes(search.toLowerCase())) return false;
       if (filter === "today" && d.toDateString() !== today.toDateString()) return false;
       if (filter === "week") {
         const diff = (today - d) / (1000 * 60 * 60 * 24);
@@ -56,28 +53,32 @@ const AdminComplain = () => {
     let stat = { Pending: 0, Assigned: 0, Solved: 0 };
     let m = new Array(12).fill(0);
     complaints.forEach(c => {
-      stat[c.status]++;
-      m[new Date(c.date).getMonth()]++;
+      const s = c.status.charAt(0).toUpperCase() + c.status.slice(1);
+      if (stat[s] !== undefined) stat[s]++;
+      m[new Date(c.created_at).getMonth()]++;
     });
     setStats(stat);
     setMonths(m);
   }, [complaints]);
 
-  /* CHART */
+  /* CHART RENDERING */
   useEffect(() => {
-    const bar = new Chart(document.getElementById("barChart"), {
+    const barCtx = document.getElementById("barChart");
+    const pieCtx = document.getElementById("pieChart");
+
+    const bar = new Chart(barCtx, {
       type: "bar",
       data: {
-        labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-        datasets: [{ label: "Complaints", data: months }]
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{ label: "Complaints", data: months, backgroundColor: "#00c6ff" }]
       }
     });
 
-    const pie = new Chart(document.getElementById("pieChart"), {
+    const pie = new Chart(pieCtx, {
       type: "pie",
       data: {
         labels: Object.keys(stats),
-        datasets: [{ data: Object.values(stats) }]
+        datasets: [{ data: Object.values(stats), backgroundColor: ["#ff4d4d", "#ffcc00", "#00ff88"] }]
       }
     });
 
@@ -87,54 +88,51 @@ const AdminComplain = () => {
     };
   }, [months, stats]);
 
-  /* ACTIONS */
-  const assign = (i) => {
-    if (!staff) return alert("Select staff");
-    const updated = [...complaints];
-    updated[i].status = "Assigned";
-    updated[i].staff = staff;
-    updateStorage(updated);
+  // 2. UPDATE STATUS ONLY
+  const updateComplaint = async (id, newStatus) => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/complaints/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }), // Removed remark from payload
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchComplaints();
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+    }
   };
 
-  const solve = (i) => {
-    const updated = [...complaints];
-    updated[i].status = "Solved";
-    updateStorage(updated);
-  };
-
-  const del = (i) => {
-    const updated = complaints.filter((_, index) => index !== i);
-    updateStorage(updated);
+  const del = async (id) => {
+    if (!window.confirm("Delete this complaint?")) return;
+    try {
+      const res = await fetch(`${BASE_URL}/admin/complaints/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) fetchComplaints();
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   return (
     <div className="complaint-container">
-      <h2>Complaint Management</h2>
+      <h2 style={{ color: 'white' }}>Complaint Management</h2>
 
-      {/* FILTER SECTION */}
       <div className="top">
-        <input
-          type="text"
-          placeholder="Search..."
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
+        <input type="text" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
         <select onChange={(e) => setFilter(e.target.value)}>
           <option value="all">All Time</option>
           <option value="today">Today</option>
           <option value="week">This Week</option>
           <option value="month">This Month</option>
         </select>
-
-        <select onChange={(e) => setStaff(e.target.value)}>
-          <option value="">Assign Staff</option>
-          <option>Cleaning</option>
-          <option>Electrician</option>
-          <option>Plumber</option>
-        </select>
+        {/* Remark input removed from here */}
       </div>
 
-      {/* STAT CARDS */}
       <div className="cards">
         <div className="card">Total <h2>{complaints.length}</h2></div>
         <div className="card">Pending <h2>{stats.Pending}</h2></div>
@@ -142,39 +140,37 @@ const AdminComplain = () => {
         <div className="card">Solved <h2>{stats.Solved}</h2></div>
       </div>
 
-      {/* COMPLAINTS TABLE */}
       <table className="complaint-table">
         <thead>
           <tr>
-            <th>Name</th>
+            <th>User</th>
             <th>Room</th>
-            <th>Type</th>
-            <th>Msg</th>
-            <th>Image</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Photo</th>
             <th>Status</th>
-            <th>Staff</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {filtered.map((c, i) => (
-            <tr key={i}>
-              <td>{c.name}</td>
-              <td>{c.room}</td>
-              <td>{c.type}</td>
-              <td>{c.msg}</td>
-              <td><img src={c.img} alt="issue" style={{width: '50px', borderRadius: '4px'}} /></td>
+          {filtered.map((c) => (
+            <tr key={c.id}>
+              <td>{c.username}</td>
+              <td>{c.room_number}</td>
+              <td>{c.category}</td>
+              <td>{c.description}</td>
               <td>
-                <span className={`status ${c.status.toLowerCase()}`}>
-                  {c.status}
-                </span>
+                {c.photo ? (
+                  <img src={c.photo} alt="issue" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
+                ) : "No Image"}
               </td>
-              <td>{c.staff || "-"}</td>
+              <td><span className={`status ${(c.status || "Pending").toLowerCase()}`}>{c.status}</span></td>
+              {/* Remark table cell removed from here */}
               <td>
                 <div className="action-btns">
-                    <button className="assign" onClick={() => assign(i)}>Assign</button>
-                    <button className="solve" onClick={() => solve(i)}>Solve</button>
-                    <button className="delete" onClick={() => del(i)}>Delete</button>
+                  <button className="assign" onClick={() => updateComplaint(c.id, "Assigned")}>Assign</button>
+                  <button className="solve" onClick={() => updateComplaint(c.id, "Solved")}>Solve</button>
+                  <button className="delete" onClick={() => del(c.id)}>🗑</button>
                 </div>
               </td>
             </tr>
@@ -182,16 +178,9 @@ const AdminComplain = () => {
         </tbody>
       </table>
 
-      {/* ANALYTICS CHARTS */}
       <div className="chart-section">
-        <div className="chart-box">
-          <h3>Monthly Trend</h3>
-          <canvas id="barChart"></canvas>
-        </div>
-        <div className="chart-box">
-          <h3>Status Breakdown</h3>
-          <canvas id="pieChart"></canvas>
-        </div>
+        <div className="chart-box"><h3>Monthly Trend</h3><canvas id="barChart"></canvas></div>
+        <div className="chart-box"><h3>Status Breakdown</h3><canvas id="pieChart"></canvas></div>
       </div>
     </div>
   );

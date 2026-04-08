@@ -26,41 +26,31 @@ app.use(cookieparser())
 
 // --- MIDDLEWARE TO VERIFY ADMIN TOKEN ---
 const verifyAdmin = (req, res, next) => {
-    // Check both potential cookie names
-    const token = req.cookies.authToken || req.cookies.authtoken;
+    const token = req.cookies.authToken;
+    if (!token) return res.status(401).json({ message: "No token" });
 
-    if (!token) {
-        return res.status(401).json({ message: "Access Denied: No token provided" });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Ensure the role in the token is actually admin
-        if (decoded.role !== 'admins' && decoded.role !== 'admin') {
-            return res.status(403).json({ message: "Access Denied: Not an admin" });
-        }
-
-        req.user = decoded; // Contains username and role
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(401).json({ message: "Invalid token" });
+        req.user = decoded; // This makes req.user.username available
         next();
-    } catch (err) {
-        return res.status(401).json({ message: "Invalid or expired token" });
-    }
+    });
 };
 
 app.get('/verify', (req, res) => {
-    const token = req.cookies.authToken; // Needs cookie-parser installed
-    // console.log(token);
+    const token = req.cookies.authToken;
 
     if (!token) {
-        console.log("-----------------------", "no token");
-
         return res.status(401).json({ authenticated: false });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        res.status(200).json({ authenticated: true, user: decoded });
+        // We send authenticated AND the role so the frontend can redirect properly
+        res.status(200).json({
+            authenticated: true,
+            role: decoded.role,  // Extraction from the token
+            user: decoded
+        });
     } catch (err) {
         res.status(401).json({ authenticated: false });
     }
@@ -678,23 +668,53 @@ app.get("/admin-profile", verifyAdmin, (req, res) => {
 });
 
 // 2. PUT: Update Admin Data in Database
-app.put("/update-admin-profile", verifyAdmin, (req, res) => {
-    const { firstname, lastname, email, phone } = req.body;
-    
-    // Safety check for empty data
-    if (!firstname || !email) {
-        return res.status(400).json({ message: "Firstname and Email are required" });
-    }
+// GET Image using username
+app.get('/api/get-profile-pic', verifyAdmin, (req, res) => {
+    const username = req.user.username; // Use username to match your profile route
+    const sql = "SELECT image_data FROM admin_profile_pics WHERE admin_username = ?";
 
-    const sql = "UPDATE admins SET firstname = ?, lastname = ?, email = ?, phone = ? WHERE username = ?";
-    
-    db.query(sql, [firstname, lastname, email, phone, req.user.username], (err, result) => {
+    db.query(sql, [username], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ image: results.length > 0 ? results[0].image_data : null });
+    });
+});
+
+// UPLOAD Image using username
+app.post('/api/upload-profile-pic', verifyAdmin, (req, res) => {
+    const { image } = req.body;
+    const username = req.user.username; // Ensure this is what your middleware provides
+
+    if (!image) return res.status(400).json({ error: "No image provided" });
+
+    // Ensure the column name here matches the CREATE TABLE script above
+    const sql = `
+        INSERT INTO admin_profile_pics (admin_username, image_data) 
+        VALUES (?, ?) 
+        ON DUPLICATE KEY UPDATE image_data = VALUES(image_data)
+    `;
+
+    db.query(sql, [username, image], (err, result) => {
         if (err) {
-            console.error("Update Error:", err);
-            return res.status(500).json({ error: "Failed to update profile" });
+            console.error("SQL Error:", err); // This will show in your terminal
+            return res.status(500).json({ error: err.message });
         }
-        
-        res.status(200).json({ message: "Profile updated successfully" });
+        res.status(200).json({ message: "Success" });
+    });
+});
+
+// 2. Retrieval Route
+app.get('/api/get-profile-pic', verifyAdmin, (req, res) => {
+    const email = req.user.email;
+    const sql = "SELECT image_data FROM admin_profile_pics WHERE admin_email = ?";
+
+    db.query(sql, [email], (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+
+        if (results.length > 0) {
+            res.status(200).json({ image: results[0].image_data });
+        } else {
+            res.status(200).json({ image: null });
+        }
     });
 });
 // --- server.js / routes ---
@@ -762,5 +782,33 @@ app.get("/admin/dashboard-stats", verifyAdmin, (req, res) => {
             console.error(err);
             res.status(500).json({ error: "Failed to fetch stats" });
         });
+});
+// 1. Get all complaints
+app.get("/admin/complaints", verifyAdmin, (req, res) => {
+    const sql = "SELECT * FROM students_complaint ORDER BY created_at DESC";
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json(results);
+    });
+});
+
+// 2. Update status and remark
+app.put("/admin/complaints/:id", verifyAdmin, (req, res) => {
+    const { status, remark } = req.body;
+    const { id } = req.params;
+    const sql = "UPDATE students_complaint SET status = ?, admin_remark = ? WHERE id = ?";
+    db.query(sql, [status, remark, id], (err, result) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: "Updated successfully" });
+    });
+});
+
+// 3. Delete complaint
+app.delete("/admin/complaints/:id", verifyAdmin, (req, res) => {
+    const sql = "DELETE FROM students_complaint WHERE id = ?";
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: "Deleted" });
+    });
 });
 app.listen(3000)

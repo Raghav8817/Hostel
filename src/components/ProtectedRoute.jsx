@@ -1,47 +1,68 @@
-import React from 'react';
-import { data, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import PuppyAnimation from './PuppyAnimation';
-const ProtectedRoute = ({ children }) => {
-    const [isAuthorized, setIsAuthorized] = React.useState(null);
 
-    React.useEffect(() => {
+const ProtectedRoute = ({ children }) => {
+    const [auth, setAuth] = useState({
+        isAuthorized: null,
+        role: null
+    });
+    const location = useLocation();
+
+    useEffect(() => {
         const verifyToken = async () => {
             try {
-                // Securely ask the BACKEND if the token is valid! Let Chrome securely ferry the encrypted cookie dynamically!
-                // const response = await fetch((import.meta.env.VITE_API_URL+"/verify" || "http://localhost:3000") + '/verify', {
-                //     method: 'GET',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     credentials: 'include'
-                // });
-                // ✅ Correct concatenation
                 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
                 const response = await fetch(`${BASE_URL}/verify`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include'
                 });
-                
+
                 const data = await response.json();
-                console.log("protected called");
-                
-                setIsAuthorized(data.authenticated === true);
+                console.log("Auth Check:", data);
+
+                if (data.authenticated) {
+                    setAuth({
+                        isAuthorized: true,
+                        role: data.role // Ensure backend returns 'admins' or 'students'
+                    });
+                } else {
+                    setAuth({ isAuthorized: false, role: null });
+                }
             } catch (error) {
                 console.error("Token verification failed:", error);
-                setIsAuthorized(false);
+                setAuth({ isAuthorized: false, role: null });
             }
         };
 
         verifyToken();
-    }, []);
+    }, [location.pathname]); // Re-verify on navigation
 
-    if (isAuthorized === null) {
-        return <PuppyAnimation></PuppyAnimation>;
+    // 1. Show loading while checking auth
+    if (auth.isAuthorized === null) {
+        return <PuppyAnimation />;
     }
 
-    if (!isAuthorized) {
-        return <Navigate to="/Login" replace />;
+    // 2. If NOT logged in, send to the login selector
+    if (!auth.isAuthorized) {
+        return <Navigate to="/login" replace />;
     }
 
+    // 3. ROLE-BASED ACCESS CONTROL
+    const path = location.pathname;
+
+    // Block Admins from Student routes (Redirect them to Admin Dashboard)
+    if (auth.role === 'admins' && !path.startsWith('/admin')) {
+        return <Navigate to="/admin/dashboard" replace />;
+    }
+
+    // Block Students from Admin routes (Redirect them to Student Home)
+    if (auth.role === 'students' && path.startsWith('/admin')) {
+        return <Navigate to="/" replace />;
+    }
+
+    // 4. Authorized: Render the requested page
     return children;
 };
 

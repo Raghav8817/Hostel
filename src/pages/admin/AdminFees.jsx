@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/admin/AdminFees.css";
-
 const AdminFees = () => {
   const [fees, setFees] = useState([]);
   const [search, setSearch] = useState("");
