@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../styles/admin/Navigation.css'
-const Navigation = () => {
+
+const Navigation = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("Admin");
   const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -41,9 +42,12 @@ const Navigation = () => {
 
   return (
     <header className="topbar">
-      <h2>Admin Panel</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <button className="hamburger-btn" onClick={onMenuClick}>☰</button>
+        <h2 style={{ color: "var(--text-primary)" }}>Admin Panel</h2>
+      </div>
       <div className="header-actions">
-        <span style={{ color: "white", marginRight: "15px" }}>Welcome, {adminName}</span>
+        {/* <span style={{ color: "var(--text-primary)", marginRight: "15px", display: 'flex', alignItems: 'center' }}>Welcome, {adminName}</span> */}
         <button className="btn">Notifications</button>
         <button className="btn logout" onClick={handleLogout}>
           Logout

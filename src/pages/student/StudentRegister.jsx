@@ -32,6 +32,34 @@ function StudentRegister() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const nameRegex = /^[A-Za-z\s]+$/;
+        if (!nameRegex.test(formData.firstname) || (formData.middlename && !nameRegex.test(formData.middlename)) || !nameRegex.test(formData.lastname)) {
+            setErrorMessage("Names should only contain alphabets and spaces.");
+            return;
+        }
+
+        if (!nameRegex.test(formData.fathername)) {
+            setErrorMessage("Father's Name should only contain alphabets and spaces.");
+            return;
+        }
+
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (formData.username && !usernameRegex.test(formData.username)) {
+            setErrorMessage("Username can only contain alphanumeric characters and underscores.");
+            return;
+        }
+
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            setErrorMessage("Your phone number must be exactly 10 digits.");
+            return;
+        }
+
+        if (!phoneRegex.test(formData.fatherphone)) {
+            setErrorMessage("Father's phone number must be exactly 10 digits.");
+            return;
+        }
+
         // Basic validation: Check if passwords match before sending to backend
         if (formData.password !== formData.confirmpassword) {
             setErrorMessage("Passwords do not match!");
@@ -128,7 +156,7 @@ function StudentRegister() {
 
                             <div className="input-group">
                                 <i className="fas fa-phone"></i>
-                                <input type="number" placeholder="Your Phone Number" name="phone" onChange={handleChange} required />
+                                <input type="tel" placeholder="Your Phone Number" name="phone" maxLength="10" onChange={handleChange} required />
                             </div>
 
                             {/* Parent Details */}
@@ -139,7 +167,7 @@ function StudentRegister() {
 
                             <div className="input-group">
                                 <i className="fas fa-phone-alt"></i>
-                                <input type="number" placeholder="Father's Phone" name="fatherphone" onChange={handleChange} required />
+                                <input type="tel" placeholder="Father's Phone" name="fatherphone" maxLength="10" onChange={handleChange} required />
                             </div>
 
                             {/* Academic Details */}

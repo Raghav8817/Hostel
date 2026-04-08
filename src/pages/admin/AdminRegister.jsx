@@ -27,6 +27,24 @@ function AdminRegistration() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        const nameRegex = /^[A-Za-z\s]+$/;
+        if (!nameRegex.test(formData.firstname) || (formData.middlename && !nameRegex.test(formData.middlename)) || !nameRegex.test(formData.lastname)) {
+            setErrorMessage("Names should only contain alphabets and spaces.");
+            return;
+        }
+
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (formData.username && !usernameRegex.test(formData.username)) {
+            setErrorMessage("Username can only contain alphanumeric characters and underscores.");
+            return;
+        }
+
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            setErrorMessage("Phone number must be exactly 10 digits.");
+            return;
+        }
+
         if (formData.password !== formData.confirmpassword) {
             setErrorMessage("Passwords do not match!");
             return;
@@ -112,7 +130,7 @@ function AdminRegistration() {
 
                             <div className="input-group">
                                 <i className="fas fa-phone"></i>
-                                <input type="tel" placeholder="Phone Number" name="phone" value={formData.phone} onChange={handleChange} required />
+                                <input type="tel" placeholder="Phone Number" name="phone" value={formData.phone} maxLength="10" onChange={handleChange} required />
                             </div>
 
                             <div className="input-group">

@@ -18,6 +18,17 @@ const AdminProfile = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({});
 
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark-mode');
+
+  useEffect(() => {
+    document.body.className = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark-mode' ? 'light-mode' : 'dark-mode');
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -92,15 +103,24 @@ const AdminProfile = () => {
         <h2 style={{ color: "white", marginTop: "15px" }}>{profile.firstname} {profile.lastname}</h2>
       </div>
 
-      <div className="profile-info" style={{ color: "white", margin: "20px 0" }}>
+      <div className="profile-info" style={{ color: "var(--text-primary)", margin: "20px 0" }}>
         <p><strong>Email:</strong> {profile.email}</p>
         <p><strong>Phone:</strong> {profile.phone}</p>
         <p><strong>Gender:</strong> {profile.gender}</p>
       </div>
 
-      <button className="btn logout-btn" onClick={handleLogout} style={{ background: "#ff4d4d", color: "white", border: "none", padding: "10px 20px", borderRadius: "5px", cursor: "pointer" }}>
-        Logout
-      </button>
+      <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '25px', flexWrap: 'wrap' }}>
+        <div className="theme-switch-wrapper">
+          <span style={{color: 'var(--text-primary)', fontWeight: 'bold'}}>{theme === 'light-mode' ? '☀️ Light' : '🌙 Dark'}</span>
+          <label className="theme-switch" htmlFor="checkbox">
+            <input type="checkbox" id="checkbox" checked={theme === 'dark-mode'} onChange={toggleTheme} />
+            <div className="slider round"></div>
+          </label>
+        </div>
+        <button className="btn logout-btn" onClick={handleLogout} style={{ background: "var(--danger-color)", color: "white", border: "none", padding: "10px 20px", borderRadius: "5px", cursor: "pointer" }}>
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import '../../styles/Profile.css';
 
 const Profile = () => {
-    // This gets the user data passed from Layout's <Outlet context={userData} />
     const user = useOutletContext();
     const navigate = useNavigate();
+
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark-mode');
+
+    useEffect(() => {
+        document.body.className = theme;
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'dark-mode' ? 'light-mode' : 'dark-mode');
+    };
 
     if (!user) {
         return (
@@ -37,9 +47,18 @@ const Profile = () => {
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Role:</strong> {user.role || 'Student'}</p>
 
-                    <button className="btn edit-btn" onClick={() => navigate('/edit')}>
-                        <i className="fas fa-edit"></i> Edit Profile
-                    </button>
+                    <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div className="theme-switch-wrapper">
+                            <span style={{color: 'var(--text-primary)', fontWeight: 'bold'}}>{theme === 'light-mode' ? '☀️' : '🌙'}</span>
+                            <label className="theme-switch" htmlFor="student-checkbox">
+                                <input type="checkbox" id="student-checkbox" checked={theme === 'dark-mode'} onChange={toggleTheme} />
+                                <div className="slider round"></div>
+                            </label>
+                        </div>
+                        <button className="btn edit-btn" onClick={() => navigate('/edit')}>
+                            <i className="fas fa-edit"></i> Edit Profile
+                        </button>
+                    </div>
                 </div>
             </div>
 

@@ -100,12 +100,12 @@ const AdminStudents = () => {
   const male = students.filter(s => s.gender?.toLowerCase() === "male").length;
   const female = students.filter(s => s.gender?.toLowerCase() === "female").length;
 
-  if (loading) return <div style={{ color: 'white', padding: '20px' }}>Loading Students...</div>;
+  if (loading) return <div style={{ color: 'var(--text-primary)', padding: '20px' }}>Loading Students...</div>;
 
   return (
     <div className="student-management-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ color: 'white' }}>Student Management</h2>
+        <h2 style={{ color: 'var(--text-primary)' }}>Student Management</h2>
       </div>
 
       <div className="cards">
@@ -125,7 +125,7 @@ const AdminStudents = () => {
         <button className="btn" onClick={() => setShowModal(true)}>+ Add New Student</button>
       </div>
 
-      <div className="table-container">
+      <div className="table-container table-responsive">
         <table>
           <thead>
             <tr>

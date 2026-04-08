@@ -1,36 +1,21 @@
-/* --- BASE & UTILITIES --- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', system-ui, sans-serif;
-}
-
-:root {
-  --bg-primary: #0a0f1d;
-  --bg-secondary: #131b2f;
-  --bg-card: rgba(19, 27, 47, 0.7);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent-color: #00c6ff;
-  --accent-glow: rgba(0, 198, 255, 0.2);
-  --danger-color: #ef4444;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --shadow-md: 0 8px 15px rgba(0, 0, 0, 0.2);
-  --transition-med: 0.3s ease;
-  --sidebar-width: 280px;
-}
+/* --- ALREADY STRIPPED :root, AS IT LIVES IN INDEX.CSS --- */
 
 .dashboard-container {
   display: flex;
   min-height: 100vh;
   background: var(--bg-primary);
   color: var(--text-primary);
+  position: relative;
 }
 
-/* --- SIDEBAR --- */
+/* --- SIDEBAR WRAPPER --- */
+.sidebar-wrapper {
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
 .sidebar {
-  width: var(--sidebar-width);
+  width: 280px;
   background: var(--bg-secondary);
   padding: 20px;
   display: flex;
@@ -38,8 +23,6 @@
   height: 100vh;
   position: sticky;
   top: 0;
-  transition: all var(--transition-med);
-  z-index: 1000;
 }
 
 .sidebar-header {
@@ -65,7 +48,7 @@
   border: 1px solid transparent;
   cursor: pointer;
   border-radius: 8px;
-  transition: all var(--transition-med);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -74,7 +57,7 @@
 }
 
 .menu:hover, .menu.active {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(128, 128, 128, 0.1);
   border-color: var(--accent-color);
   color: var(--text-primary);
 }
@@ -87,7 +70,6 @@
   min-width: 0; 
 }
 
-/* Topbar wrapper remains but visual styles removed so Navigation.jsx controls it */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -101,7 +83,7 @@
   margin: 0 auto;
 }
 
-/* --- PROFILE CARD --- */
+/* --- PROFILE CARD CONTROLS --- */
 .profile-card {
   background: var(--bg-secondary);
   padding: 2rem;
@@ -111,55 +93,56 @@
   box-shadow: var(--shadow-md);
 }
 
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
 /* --- MEDIA QUERIES --- */
 
-@media (max-width: 1024px) {
-  :root {
-    --sidebar-width: 240px;
-  }
+/* Only display Hamburger button on mobile */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 24px;
+  cursor: pointer;
+  padding-right: 10px;
 }
 
 @media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
+  .hamburger-btn {
+    display: block;
+  }
+
+  .sidebar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+  }
+
+  .sidebar-wrapper.open {
+    transform: translateX(0);
   }
 
   .sidebar {
-    width: 100%;
-    height: auto;
-    position: fixed;
-    bottom: 0;
-    top: auto;
-    flex-direction: row;
-    padding: 10px;
-    justify-content: space-around;
-    border-top: 1px solid var(--border-color);
+    width: 260px;
   }
 
-  .sidebar-header {
-    display: none;
-  }
-
-  .menu {
-    flex-direction: column;
-    gap: 4px;
-    font-size: 0.75rem;
-    padding: 8px;
-    margin-bottom: 0;
-  }
-
-  .main {
-    padding-bottom: 80px; /* Space for bottom nav */
+  .sidebar-overlay {
+    display: block;
   }
 
   .content-area {
     padding: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .profile-info div {
-    font-size: 0.9rem;
-    padding: 10px;
   }
 }

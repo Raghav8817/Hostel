@@ -5,103 +5,7 @@
   font-family: 'Inter', system-ui, sans-serif;
 }
 
-:root {
-  --bg-primary: #0a0f1d;
-  --bg-secondary: #131b2f;
-  --bg-card: rgba(19, 27, 47, 0.7);
-  --bg-modal: rgba(10, 15, 29, 0.85);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent-color: #00c6ff;
-  --success-color: #22c55e;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --shadow-md: 0 8px 15px rgba(0, 0, 0, 0.2);
-  --transition-med: 0.3s ease;
-}
-
-.dashboard-container {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  overflow-x: hidden;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 280px;
-  background: var(--bg-secondary);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  overflow-y: auto;
-}
-
-.sidebar::-webkit-scrollbar {
-  display: none;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-header img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px solid var(--accent-color);
-  object-fit: cover;
-}
-
-.sidebar-header h3 {
-  font-size: 1.2rem;
-  background: linear-gradient(90deg, #fff, var(--accent-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.menu {
-  padding: 12px 15px;
-  margin-bottom: 10px;
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  border-radius: 8px;
-  transition: all var(--transition-med);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-}
-
-.menu:hover,
-.menu.active {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--accent-color);
-  transform: translateX(4px);
-  box-shadow: 0 0 10px rgba(0, 198, 255, 0.2);
-}
-
-/* MAIN CONTENT */
-.main {
-  flex: 1;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  height: 100vh;
-}
+/* Layout is handled by AdminLayout.css */
 
 .topbar {
   display: flex;
@@ -390,45 +294,7 @@ tr:hover td {
 }
 
 @media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    padding: 15px;
-  }
-
-  .sidebar-header {
-    border-bottom: none;
-    margin-bottom: 10px;
-    padding-bottom: 0;
-  }
-
-  .sidebar-menu-items {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    padding-bottom: 10px;
-  }
-
-  .sidebar-menu-items::-webkit-scrollbar {
-    display: none;
-  }
-
-  .menu {
-    white-space: nowrap;
-    margin-bottom: 0;
-  }
-
-  .main {
-    padding: 10px;
-    width: 100%;
-    overflow-x: hidden;
-  }
+/* Responsive removed for layout classes */
 
   .topbar {
     padding: 10px;

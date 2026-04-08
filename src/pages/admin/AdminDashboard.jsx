@@ -16,6 +16,12 @@ const AdminDashboard = () => {
     list: [],
   });
 
+  const [foodStats, setFoodStats] = useState({
+    todayAvg: 0,
+    monthAvg: 0,
+    recentReviews: []
+  });
+
   const [loading, setLoading] = useState(true);
 
   // States for UI control and adding new students
@@ -32,6 +38,14 @@ const AdminDashboard = () => {
         if (response.ok) {
           const data = await response.json();
           setStats(data);
+        }
+
+        const foodRes = await fetch(`${BASE_URL}/admin/food-reviews`, {
+          credentials: "include"
+        });
+        if (foodRes.ok) {
+          const foodData = await foodRes.json();
+          setFoodStats(foodData);
         }
       } catch (err) {
         console.error("Dashboard fetch error:", err);
@@ -97,13 +111,13 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading Dashboard Data...</div>;
+  if (loading) return <div className="loading" style={{ color: 'var(--text-primary)' }}>Loading Dashboard Data...</div>;
 
   return (
     <div className="admin-dashboard-content">
       {/* ACTION HEADER */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ color: 'white' }}>Dashboard Overview</h2>
+        <h2 style={{ color: 'var(--text-primary)' }}>Dashboard Overview</h2>
         <button className="btn" onClick={() => setShowModal(true)}>+ Add Student</button>
       </div>
 
@@ -125,6 +139,10 @@ const AdminDashboard = () => {
           <span>Complaints</span>
           <h2>{stats.complaints}</h2>
         </div>
+        <div className="card" style={{ background: 'linear-gradient(135deg, #eab308, #ca8a04)' }}>
+          <span>Food Rating (Today)</span>
+          <h2>{foodStats.todayAvg} ★</h2>
+        </div>
       </div>
 
       {/* GRID LAYOUT */}
@@ -136,34 +154,66 @@ const AdminDashboard = () => {
 
         <div className="table-box">
           <h3>Recent Student Records</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Room</th>
-                <th>Fees Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.list && stats.list.length > 0 ? (
-                stats.list.map((s, index) => (
-                  <tr key={index}>
-                    <td>{s.name}</td>
-                    <td>{s.room}</td>
-                    <td>
-                      <span style={{ color: s.fees === "Paid" ? "#22c55e" : "#ef4444" }}>
-                        {s.fees}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <div className="table-responsive">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="3" style={{ textAlign: 'center', padding: '20px' }}>No records found</td>
+                  <th>Name</th>
+                  <th>Room</th>
+                  <th>Fees Status</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {stats.list && stats.list.length > 0 ? (
+                  stats.list.map((s, index) => (
+                    <tr key={index}>
+                      <td>{s.name}</td>
+                      <td>{s.room}</td>
+                      <td>
+                        <span style={{ color: s.fees === "Paid" ? "#22c55e" : "#ef4444" }}>
+                          {s.fees}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: 'center', padding: '20px' }}>No records found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="table-box" style={{ gridColumn: '1 / -1' }}>
+          <h3>Recent Food Reviews</h3>
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Rating</th>
+                  <th>Review</th>
+                </tr>
+              </thead>
+              <tbody>
+                {foodStats.recentReviews && foodStats.recentReviews.length > 0 ? (
+                  foodStats.recentReviews.map((r, index) => (
+                    <tr key={index}>
+                      <td>{r.username}</td>
+                      <td style={{ color: '#f59e0b', fontSize: '18px' }}>{'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}</td>
+                      <td>{r.review_text || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: 'center', padding: '20px' }}>No reviews yet</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

@@ -30,11 +30,7 @@ function Navigation({ user, onMenuClick }) {
                     <i className="fas fa-bars"></i>
                 </button>
 
-                <div className="user-info">
-                    <span className="welcome-text">
-                        Welcome, <span className="user-name">{user ? `${user.firstname}` : "..."}</span>
-                    </span>
-                </div>
+                
             </div>
 
             <div className="actions">
