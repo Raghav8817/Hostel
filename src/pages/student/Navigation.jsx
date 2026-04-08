@@ -6,13 +6,19 @@ function Navigation({ user, onMenuClick }) {
 
     const handleLogout = async () => {
         try {
-            await fetch((import.meta.env.VITE_API_URL || "http://localhost:3000") + '/logout', {
-                method: 'POST',
-                credentials: 'include'
+            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const response = await fetch(`${BASE_URL}/logout`, {
+                method: "POST",
+                credentials: "include",
             });
-            navigate('/login');
-        } catch (error) {
-            console.error("Logout failed:", error);
+
+            if (response.ok) {
+                // Force a full page reload to the login page
+                // This clears all React memory and forces ProtectedRoute to re-verify
+                window.location.href = "/Login";
+            }
+        } catch (err) {
+            console.error("Logout failed:", err);
         }
     };
 

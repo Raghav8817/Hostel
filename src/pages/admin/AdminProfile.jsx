@@ -4,138 +4,147 @@ import "../../styles/admin/AdminProfile.css";
 
 const AdminProfile = () => {
   const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+  // State matches your database columns
   const [profile, setProfile] = useState({
-    name: "Karan Kumar",
-    email: "admin@gmail.com",
-    phone: "9876543210",
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    gender: "",
     img: "https://i.pravatar.cc/150",
   });
 
   const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({});
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
-
-  /* LOAD FROM LOCALSTORAGE */
+  // 1. FETCH PROFILE DATA
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("adminProfile"));
-    if (saved) {
-      setProfile(saved);
-    }
-  }, []);
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/admin-profile`, {
+          credentials: "include" // Essential for sending the authToken cookie
+        });
 
-  /* HANDLE INPUT */
+        if (response.ok) {
+          const data = await response.json();
+          setProfile((prev) => ({ ...prev, ...data }));
+          setFormData(data);
+        } else if (response.status === 401) {
+          navigate("/login"); // Redirect if token expired
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
+    };
+    fetchProfile();
+  }, [BASE_URL, navigate]);
+
+  // Handle input changes in the edit form
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  /* SAVE PROFILE */
-  const saveProfile = () => {
-    const updated = {
-      name: formData.name || profile.name,
-      email: formData.email || profile.email,
-      phone: formData.phone || profile.phone,
-      img: profile.img,
-    };
+  // 2. SAVE UPDATED DATA TO DATABASE
+  const saveProfile = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/update-admin-profile`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+        credentials: "include",
+      });
 
-    setProfile(updated);
-    localStorage.setItem("adminProfile", JSON.stringify(updated));
-    alert("Profile Saved!");
-    setShowForm(false);
+      if (response.ok) {
+        setProfile({ ...profile, ...formData });
+        alert("Success: Profile updated in the database!");
+        setShowForm(false);
+      } else {
+        alert("Update failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+    }
   };
 
-  /* IMAGE UPLOAD */
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      setProfile({ ...profile, img: reader.result });
-    };
-
-    if (file) reader.readAsDataURL(file);
+  // 3. LOGOUT HANDLER
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/logout`, {
+        method: "POST",
+        credentials: "include"
+      });
+      if (res.ok) navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   return (
     <div className="dashboard-container">
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <img src={profile.img} alt="top" />
+          <img src={profile.img} alt="admin-head" />
           <h3>Admin Panel</h3>
         </div>
         <div className="sidebar-menu-items">
           <div className="menu" onClick={() => navigate("/AdminDashboard")}>🏠 Dashboard</div>
-          <div className="menu active" onClick={() => navigate("/AdminProfile")}>👤 Profile</div>
+          <div className="menu active">👤 Profile</div>
           <div className="menu" onClick={() => navigate("/AdminStudents")}>👥 Students</div>
           <div className="menu">🛏 Rooms</div>
           <div className="menu">💰 Fees</div>
           <div className="menu">⚠ Complaints</div>
-          <div className="menu">👨‍💼 Staff</div>
         </div>
       </aside>
 
-      {/* MAIN */}
       <main className="main">
-        {/* TOPBAR */}
         <header className="topbar">
           <h2>Admin Profile</h2>
           <div className="header-actions">
-            <button className="btn">Notifications</button>
-            <button className="btn logout">Logout</button>
+            <button className="btn logout" onClick={handleLogout}>Logout</button>
           </div>
         </header>
 
         <div className="profile-card">
           <div className="profile-top">
-            <label>
-              <img src={profile.img} alt="profile" />
-              <input type="file" hidden onChange={handleImage} />
-            </label>
-            <h2>{profile.name}</h2>
-            <p>Hostel Administrator</p>
+            <img src={profile.img} alt="profile" />
+            {/* Displaying name with safety fallback */}
+            <h2>{profile.firstname || "Admin"} {profile.lastname || ""}</h2>
+            <p>Hostel Warden & Administrator</p>
           </div>
 
           <div className="profile-info">
-            <div>Email: {profile.email}</div>
-            <div>Phone: {profile.phone}</div>
-            <div>Role: Admin</div>
-            <div>Position: Hostel Warden</div>
+            <div><strong>Email:</strong> {profile.email || "No email set"}</div>
+            <div><strong>Phone:</strong> {profile.phone || "No phone set"}</div>
+            <div><strong>Gender:</strong> {profile.gender || "Not specified"}</div>
+            <div><strong>Access Level:</strong> Full Admin</div>
           </div>
 
-          <button
-            className="btn edit-btn"
-            onClick={() => setShowForm(!showForm)}
-          >
-            Edit Profile
+          <button className="btn edit-btn" onClick={() => setShowForm(!showForm)}>
+            {showForm ? "Cancel Edit" : "Update Profile Info"}
           </button>
 
-          {/* FORM */}
           {showForm && (
             <div className="edit-form">
-              <input
-                type="text"
-                id="name"
-                placeholder="Enter Name"
-                onChange={handleChange}
-              />
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter Email"
-                onChange={handleChange}
-              />
-              <input
-                type="text"
-                id="phone"
-                placeholder="Enter Phone"
-                onChange={handleChange}
-              />
-              <button className="btn" onClick={saveProfile}>
-                Save
+              <div className="input-group">
+                <label>First Name</label>
+                <input type="text" id="firstname" defaultValue={profile.firstname} onChange={handleChange} />
+              </div>
+              <div className="input-group">
+                <label>Last Name</label>
+                <input type="text" id="lastname" defaultValue={profile.lastname} onChange={handleChange} />
+              </div>
+              <div className="input-group">
+                <label>Email</label>
+                <input type="email" id="email" defaultValue={profile.email} onChange={handleChange} />
+              </div>
+              <div className="input-group">
+                <label>Phone</label>
+                <input type="text" id="phone" defaultValue={profile.phone} onChange={handleChange} />
+              </div>
+              <button className="btn save-btn" onClick={saveProfile}>
+                Confirm & Save to DB
               </button>
             </div>
           )}

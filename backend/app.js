@@ -24,6 +24,30 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieparser())
 
+// --- MIDDLEWARE TO VERIFY ADMIN TOKEN ---
+const verifyAdmin = (req, res, next) => {
+    // Check both potential cookie names
+    const token = req.cookies.authToken || req.cookies.authtoken;
+
+    if (!token) {
+        return res.status(401).json({ message: "Access Denied: No token provided" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Ensure the role in the token is actually admin
+        if (decoded.role !== 'admins' && decoded.role !== 'admin') {
+            return res.status(403).json({ message: "Access Denied: Not an admin" });
+        }
+
+        req.user = decoded; // Contains username and role
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+    }
+};
+
 app.get('/verify', (req, res) => {
     const token = req.cookies.authToken; // Needs cookie-parser installed
     // console.log(token);
@@ -630,5 +654,113 @@ app.post('/leave', (req, res) => {
     } catch (error) {
         res.status(403).json({ error: "Invalid session" });
     }
+});
+// --- ADMIN PROFILE ROUTES ---
+
+// 1. GET: Fetch Admin Data from Database
+app.get("/admin-profile", verifyAdmin, (req, res) => {
+    // We use the username decoded from the JWT by our middleware
+    const sql = "SELECT firstname, lastname, email, phone, gender FROM admins WHERE username = ?";
+    
+    db.query(sql, [req.user.username], (err, result) => {
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+        
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Admin profile not found in database" });
+        }
+        
+        // Send the database row back to React
+        res.status(200).json(result[0]);
+    });
+});
+
+// 2. PUT: Update Admin Data in Database
+app.put("/update-admin-profile", verifyAdmin, (req, res) => {
+    const { firstname, lastname, email, phone } = req.body;
+    
+    // Safety check for empty data
+    if (!firstname || !email) {
+        return res.status(400).json({ message: "Firstname and Email are required" });
+    }
+
+    const sql = "UPDATE admins SET firstname = ?, lastname = ?, email = ?, phone = ? WHERE username = ?";
+    
+    db.query(sql, [firstname, lastname, email, phone, req.user.username], (err, result) => {
+        if (err) {
+            console.error("Update Error:", err);
+            return res.status(500).json({ error: "Failed to update profile" });
+        }
+        
+        res.status(200).json({ message: "Profile updated successfully" });
+    });
+});
+// --- server.js / routes ---
+
+// 1. GET all students
+app.get("/admin/students", verifyAdmin, (req, res) => {
+    // We select necessary fields from the students table
+    const sql = "SELECT username, firstname, lastname, gender, role, status, course FROM students";
+    
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).json({ error: "Failed to fetch students" });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// 2. UPDATE student status (Approve/Reject)
+app.put("/admin/students/status", verifyAdmin, (req, res) => {
+    const { username, status } = req.body;
+
+    const sql = "UPDATE students SET status = ? WHERE username = ?";
+    db.query(sql, [status, username], (err, result) => {
+        if (err) return res.status(500).json({ error: "Update failed" });
+        res.status(200).json({ message: `Student ${status}` });
+    });
+});
+
+// 3. DELETE student
+app.delete("/admin/students/:username", verifyAdmin, (req, res) => {
+    const username = req.params.username;
+
+    const sql = "DELETE FROM students WHERE username = ?";
+    db.query(sql, [username], (err, result) => {
+        if (err) return res.status(500).json({ error: "Delete failed" });
+        res.status(200).json({ message: "Student removed from database" });
+    });
+});
+// GET Dashboard Statistics
+app.get("/admin/dashboard-stats", verifyAdmin, (req, res) => {
+    // Queries to get counts from different tables
+    const studentCountSql = "SELECT COUNT(*) as total FROM students";
+    const roomCountSql = "SELECT COUNT(*) as total FROM rooms WHERE status = 'Occupied'"; // Assuming you have a rooms table
+    const complaintCountSql = "SELECT COUNT(*) as total FROM students_complaint";
+    const recentStudentsSql = "SELECT firstname, lastname, course FROM students ORDER BY created_at DESC LIMIT 5";
+
+    // Run all queries
+    const p1 = new Promise((resolve, reject) => db.query(studentCountSql, (err, r) => err ? reject(err) : resolve(r[0].total)));
+    const p2 = new Promise((resolve, reject) => db.query(roomCountSql, (err, r) => err ? reject(err) : resolve(r[0].total)));
+    const p3 = new Promise((resolve, reject) => db.query(complaintCountSql, (err, r) => err ? reject(err) : resolve(r[0].total)));
+    const p4 = new Promise((resolve, reject) => db.query(recentStudentsSql, (err, r) => err ? reject(err) : resolve(r)));
+
+    Promise.all([p1, p2, p3, p4])
+        .then(([students, rooms, complaints, list]) => {
+            res.json({
+                students,
+                rooms,
+                fees: 0, // You can add a fee sum query here later
+                complaints,
+                list
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: "Failed to fetch stats" });
+        });
 });
 app.listen(3000)
