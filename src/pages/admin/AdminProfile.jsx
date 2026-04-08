@@ -18,17 +18,6 @@ const AdminProfile = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({});
 
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark-mode');
-
-  useEffect(() => {
-    document.body.className = theme;
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark-mode' ? 'light-mode' : 'dark-mode');
-  };
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -109,18 +98,29 @@ const AdminProfile = () => {
         <p><strong>Gender:</strong> {profile.gender}</p>
       </div>
 
-      <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '25px', flexWrap: 'wrap' }}>
-        <div className="theme-switch-wrapper">
-          <span style={{color: 'var(--text-primary)', fontWeight: 'bold'}}>{theme === 'light-mode' ? '☀️ Light' : '🌙 Dark'}</span>
-          <label className="theme-switch" htmlFor="checkbox">
-            <input type="checkbox" id="checkbox" checked={theme === 'dark-mode'} onChange={toggleTheme} />
-            <div className="slider round"></div>
-          </label>
-        </div>
-        <button className="btn logout-btn" onClick={handleLogout} style={{ background: "var(--danger-color)", color: "white", border: "none", padding: "10px 20px", borderRadius: "5px", cursor: "pointer" }}>
-          Logout
+      <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+        <button className="btn edit-btn" onClick={() => setShowForm(true)} style={{ background: "var(--accent-color)", color: "var(--bg-primary)", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", display: "flex", gap: "10px", alignItems: "center" }}>
+            <i className="fas fa-edit"></i> Edit Profile
+        </button>
+        <button className="btn logout-btn" onClick={handleLogout} style={{ background: "var(--danger-color)", color: "white", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", display: "flex", gap: "10px", alignItems: "center" }}>
+          <i className="fas fa-sign-out-alt"></i> Logout
         </button>
       </div>
+
+      {showForm && (
+        <div className="modal" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div className="modal-box" style={{ background: "var(--bg-secondary)", padding: "20px", borderRadius: "10px", width: "90%", maxWidth: "400px", color: "var(--text-primary)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+              <h3>Edit Profile</h3>
+              <span className="close" onClick={() => setShowForm(false)} style={{ cursor: "pointer", fontSize: "20px" }}>✖</span>
+            </div>
+            <p style={{ color: "var(--text-secondary)", marginBottom: "20px" }}>
+              Administrator details are managed securely via the database. To update your portrait, simply click on your avatar picture.
+            </p>
+            <button className="btn" onClick={() => setShowForm(false)} style={{ width: "100%" }}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

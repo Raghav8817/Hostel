@@ -14,6 +14,7 @@ function AdminRegistration() {
         phone: "",
         password: "",
         confirmpassword: "",
+        profile_pic: "",
     });
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -22,6 +23,17 @@ function AdminRegistration() {
             ...formData,
             [e.target.name]: e.target.value
         });
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, profile_pic: reader.result }));
+            };
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -141,6 +153,13 @@ function AdminRegistration() {
                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
                                 <input type="password" placeholder="Confirm Password" name="confirmpassword" value={formData.confirmpassword} onChange={handleChange} required />
+                            </div>
+
+                            <div className="input-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '10px 15px', gap: '8px', border: '1px dashed var(--border-color)', background: 'rgba(255, 255, 255, 0.02)' }}>
+                                <label style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <i className="fas fa-image"></i> Profile Picture (Optional)
+                                </label>
+                                <input type="file" accept="image/*" onChange={handleImageChange} style={{ width: "100%", padding: "5px", background: "transparent", border: "none", color: "var(--text-primary)", fontSize: "0.8rem", cursor: "pointer" }} />
                             </div>
                         </div>
 

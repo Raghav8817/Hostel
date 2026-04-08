@@ -20,7 +20,7 @@ exports.logout = (req, res) => {
 };
 
 exports.registerStudent = (req, res) => {
-    const { username, middlename, firstname, lastname, gender, email, phone, password, fathername, fatherphone, course, role="student" } = req.body;
+    const { username, middlename, firstname, lastname, gender, email, phone, password, fathername, fatherphone, course, profile_pic, role="student" } = req.body;
     const sql = `INSERT INTO students (username, middlename, firstname, lastname, gender, email, phone, password, role, fathername, fatherphone, course) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [username, middlename, firstname, lastname, gender, email, phone, password, role, fathername, fatherphone, course];
 
@@ -33,12 +33,23 @@ exports.registerStudent = (req, res) => {
         const token = jwt.sign({ username, password, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
         const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('authToken', token, { httpOnly: true, secure: isProduction, sameSite: isProduction ? 'none' : 'lax', maxAge: 86400000 });
+        
+        if (profile_pic) {
+            db.query(`CREATE TABLE IF NOT EXISTS students_profile_pic (username VARCHAR(255) PRIMARY KEY, profile_pic LONGTEXT)`, (err) => {
+                if (!err) {
+                    db.query(`INSERT INTO students_profile_pic (username, profile_pic) VALUES (?, ?) ON DUPLICATE KEY UPDATE profile_pic = VALUES(profile_pic)`, [username, profile_pic], (imgErr) => {
+                        if (imgErr) console.error("Student Pic Save Error:", imgErr);
+                    });
+                }
+            });
+        }
+
         res.status(201).json({ message: `${username} registered successfully!`, authenticated: true });
     });
 };
 
 exports.registerAdmin = (req, res) => {
-    const { username, middlename, firstname, lastname, gender, email, phone, password, role="admin" } = req.body;
+    const { username, middlename, firstname, lastname, gender, email, phone, password, profile_pic, role="admin" } = req.body;
     // Fix: Fixed typo in original sql query '?, ?' instead of '? .?'
     const sql = `INSERT INTO admins (username, middlename, firstname, lastname, gender, email, phone, password, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [username, middlename, firstname, lastname, gender, email, phone, password, role];
@@ -51,12 +62,23 @@ exports.registerAdmin = (req, res) => {
         const token = jwt.sign({ username, password, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
         const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('authToken', token, { httpOnly: true, secure: isProduction, sameSite: isProduction ? 'none' : 'lax', maxAge: 86400000 });
+        
+        if (profile_pic) {
+            db.query(`CREATE TABLE IF NOT EXISTS admin_profile_pics (admin_username VARCHAR(255) PRIMARY KEY, image_data LONGTEXT)`, (err) => {
+                if (!err) {
+                    db.query(`INSERT INTO admin_profile_pics (admin_username, image_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE image_data = VALUES(image_data)`, [username, profile_pic], (imgErr) => {
+                        if (imgErr) console.error("Admin Pic Save Error:", imgErr);
+                    });
+                }
+            });
+        }
+
         res.status(201).json({ message: `${username} registered successfully!` });
     });
 };
 
 exports.registerStaff = (req, res) => {
-    const { username, middlename, firstname, lastname, gender, email, phone, password, role="staff" } = req.body;
+    const { username, middlename, firstname, lastname, gender, email, phone, password, profile_pic, role="staff" } = req.body;
     const sql = `INSERT INTO staff (username, middlename, firstname, lastname, gender, email, phone, password, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [username, middlename, firstname, lastname, gender, email, phone, password, role];
 
@@ -68,6 +90,17 @@ exports.registerStaff = (req, res) => {
         const token = jwt.sign({ username, password, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
         const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('authToken', token, { httpOnly: true, secure: isProduction, sameSite: isProduction ? 'none' : 'lax', maxAge: 86400000 });
+        
+        if (profile_pic) {
+            db.query(`CREATE TABLE IF NOT EXISTS staff_profile_pics (staff_username VARCHAR(255) PRIMARY KEY, image_data LONGTEXT)`, (err) => {
+                if (!err) {
+                    db.query(`INSERT INTO staff_profile_pics (staff_username, image_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE image_data = VALUES(image_data)`, [username, profile_pic], (imgErr) => {
+                        if (imgErr) console.error("Staff Pic Save Error:", imgErr);
+                    });
+                }
+            });
+        }
+
         res.status(201).json({ message: `${username} registered successfully!` });
     });
 };

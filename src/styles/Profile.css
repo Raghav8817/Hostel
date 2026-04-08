@@ -6,6 +6,13 @@
     animation: slideUp var(--transition-med);
 }
 
+/* SIDE-BY-SIDE LAYOUT */
+.profile-layout-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -247,4 +254,45 @@
     .stats {
         grid-template-columns: 1fr;
     }
+}
+
+/* DESKTOP SIDE-BY-SIDE GRID */
+@media (min-width: 1024px) {
+    .profile-layout-grid {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    
+    .profile-left-col {
+        flex: 0 0 350px; /* Fixed width for profile card */
+    }
+    
+    .profile-right-col {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    /* Modify Profile Card to stack vertically on Desktop */
+    .profile-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 40px 20px;
+    }
+    
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .profile-info p {
+        justify-content: center;
+    }
+    
+    /* Remove bottom margin on components inside right col */
+    .bio-section { margin-bottom: 0; }
 }

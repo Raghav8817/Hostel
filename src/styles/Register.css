@@ -135,6 +135,7 @@
 .register-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 30px rgba(67, 233, 123, 0.5);
+    background: linear-gradient(to right, #38f9d7 0%, #43e97b 100%);
     filter: brightness(1.1);
 }
 

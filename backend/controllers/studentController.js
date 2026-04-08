@@ -235,3 +235,73 @@ exports.submitFoodReview = (req, res) => {
         res.status(403).json({ error: "Invalid session" });
     }
 };
+
+exports.getAvailableRooms = (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        jwt.verify(token, process.env.JWT_SECRET);
+        const sql = "SELECT room_number, room_type, capacity, current_occupancy, status FROM rooms WHERE status != 'Full' AND current_occupancy < capacity";
+        db.query(sql, (err, results) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            res.json(results);
+        });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid session" });
+    }
+};
+
+exports.applyForRoom = (req, res) => {
+    const { room_number } = req.body;
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const username = decoded.username;
+
+        const checkSql = "SELECT * FROM room_requests WHERE username = ? AND status = 'Pending'";
+        db.query(checkSql, [username], (err, results) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            if (results.length > 0) return res.status(400).json({ error: "You already have a pending request." });
+
+            const sql = "INSERT INTO room_requests (username, room_number) VALUES (?, ?)";
+            db.query(sql, [username, room_number], (err, result) => {
+                if (err) return res.status(500).json({ error: "Database error" });
+                res.json({ success: true, message: "Applied for room successfully." });
+            });
+        });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid session" });
+    }
+};
+
+exports.getRoomStatus = (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const username = decoded.username;
+
+        // Check assigned room
+        db.query("SELECT room_number FROM students WHERE username = ?", [username], (err, sResults) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            if (sResults[0] && sResults[0].room_number) {
+                return res.json({ status: "Assigned", room: sResults[0].room_number });
+            }
+
+            // Check pending request
+            db.query("SELECT room_number FROM room_requests WHERE username = ? AND status = 'Pending'", [username], (err, rResults) => {
+                if (err) return res.status(500).json({ error: "Database error" });
+                if (rResults.length > 0) {
+                    return res.json({ status: "Pending", room: rResults[0].room_number });
+                }
+                res.json({ status: "None" });
+            });
+        });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid session" });
+    }
+};

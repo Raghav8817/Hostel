@@ -13,4 +13,8 @@ router.get('/leave', studentController.getLeaveHistory);
 router.post('/leave', studentController.applyLeave);
 router.post('/food-review', studentController.submitFoodReview);
 
+router.get('/available-rooms', studentController.getAvailableRooms);
+router.post('/apply-room', studentController.applyForRoom);
+router.get('/room-status', studentController.getRoomStatus);
+
 module.exports = router;

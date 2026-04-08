@@ -15,6 +15,17 @@ const Navigation = ({ onMenuClick }) => {
     }
   }, []);
 
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark-mode');
+
+  useEffect(() => {
+    document.body.className = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark-mode' ? 'light-mode' : 'dark-mode');
+  };
+
   const handleLogout = async () => {
     try {
       // 1. Call backend to clear the JWT/Session cookie
@@ -47,7 +58,13 @@ const Navigation = ({ onMenuClick }) => {
         <h2 style={{ color: "var(--text-primary)" }}>Admin Panel</h2>
       </div>
       <div className="header-actions">
-        {/* <span style={{ color: "var(--text-primary)", marginRight: "15px", display: 'flex', alignItems: 'center' }}>Welcome, {adminName}</span> */}
+        <div className="theme-switch-wrapper" style={{ marginRight: '15px' }}>
+          <span style={{color: 'var(--text-primary)', fontWeight: 'bold'}}>{theme === 'light-mode' ? '☀️' : '🌙'}</span>
+          <label className="theme-switch" htmlFor="admin-nav-checkbox">
+            <input type="checkbox" id="admin-nav-checkbox" checked={theme === 'dark-mode'} onChange={toggleTheme} />
+            <div className="slider round"></div>
+          </label>
+        </div>
         <button className="btn">Notifications</button>
         <button className="btn logout" onClick={handleLogout}>
           Logout

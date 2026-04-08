@@ -14,18 +14,18 @@ const RegisterSelector = () => {
             path: '/register/student',
         },
         {
-            title: 'Staff',
-            description: 'Register a new staff member account to manage maintenance and hostel tasks.',
-            icon: 'fas fa-users-cog',
-            colorClass: 'role-staff',
-            path: '/register/staff',
-        },
-        {
             title: 'Admin',
             description: 'Register a master administrator account to oversee operations systems.',
             icon: 'fas fa-user-shield',
             colorClass: 'role-admin',
             path: '/register/admin',
+        },
+        {
+            title: 'Staff',
+            description: 'Register a new staff member account to manage maintenance and hostel tasks.',
+            icon: 'fas fa-users-cog',
+            colorClass: 'role-staff',
+            path: '/register/staff',
         }
     ];
 

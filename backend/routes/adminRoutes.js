@@ -18,4 +18,9 @@ router.put('/admin/complaints/:id', verifyAdmin, adminController.updateComplaint
 router.delete('/admin/complaints/:id', verifyAdmin, adminController.deleteComplaint);
 router.get('/admin/food-reviews', verifyAdmin, adminController.getFoodReviews);
 
+router.get('/admin/rooms-advanced', verifyAdmin, adminController.getRoomsAdvanced);
+router.get('/admin/room-requests', verifyAdmin, adminController.getRoomRequests);
+router.post('/admin/approve-room', verifyAdmin, adminController.approveRoomRequest);
+router.post('/admin/reject-room', verifyAdmin, adminController.rejectRoomRequest);
+
 module.exports = router;

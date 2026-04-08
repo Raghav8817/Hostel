@@ -139,3 +139,91 @@ exports.getFoodReviews = (req, res) => {
             res.status(500).json({ error: "Failed to fetch food review stats" });
         });
 };
+
+exports.getRoomsAdvanced = (req, res) => {
+    const sqlRooms = "SELECT * FROM rooms";
+    const sqlStudents = "SELECT username, firstname, lastname, gender, room_number FROM students WHERE room_number IS NOT NULL";
+    
+    db.query(sqlRooms, (err, rooms) => {
+        if (err) return res.status(500).json({ error: "Failed to fetch rooms" });
+        db.query(sqlStudents, (err, students) => {
+            if (err) return res.status(500).json({ error: "Failed to fetch students in rooms" });
+            
+            const detailedRooms = rooms.map(room => {
+                return {
+                    no: room.room_number,
+                    type: room.room_type,
+                    cap: room.capacity,
+                    ac: room.room_type.includes("AC") ? "AC" : "Non-AC", // Just mock mapping if not explicit
+                    students: students.filter(s => s.room_number === room.room_number).map(s => ({
+                        name: s.firstname + (s.lastname ? " " + s.lastname : ""),
+                        gender: s.gender || "Unknown"
+                    }))
+                };
+            });
+            res.status(200).json(detailedRooms);
+        });
+    });
+};
+
+exports.getRoomRequests = (req, res) => {
+    const sql = `
+        SELECT r.id, r.username, r.room_number, r.status, r.created_at, s.firstname, s.lastname, s.gender, s.course
+        FROM room_requests r
+        JOIN students s ON r.username = s.username
+        WHERE r.status = 'Pending'
+        ORDER BY r.created_at DESC
+    `;
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+    });
+};
+
+exports.approveRoomRequest = (req, res) => {
+    const { id, username, room_number } = req.body;
+    
+    // Check if room has capacity first
+    db.query("SELECT capacity, current_occupancy FROM rooms WHERE room_number = ?", [room_number], (err, roomRes) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (roomRes.length === 0) return res.status(404).json({ error: "Room not found" });
+        
+        if (roomRes[0].current_occupancy >= roomRes[0].capacity) {
+            return res.status(400).json({ error: "Room is already full" });
+        }
+
+        // 1. Update Request
+        db.query("UPDATE room_requests SET status = 'Approved' WHERE id = ?", [id], (err) => {
+            if (err) return res.status(500).json({ error: "Failed to update request" });
+
+            // 2. Assign student to room
+            db.query("UPDATE students SET room_number = ? WHERE username = ?", [room_number, username], (err) => {
+                if (err) return res.status(500).json({ error: "Failed to assign student" });
+
+                // 3. Update room occupancy
+                const newOcc = roomRes[0].current_occupancy + 1;
+                const newStatus = newOcc >= roomRes[0].capacity ? 'Full' : 'Available';
+                
+                db.query("UPDATE rooms SET current_occupancy = ?, status = ? WHERE room_number = ?", [newOcc, newStatus, room_number], (err) => {
+                    if (err) return res.status(500).json({ error: "Failed to update room stats" });
+                    
+                    // Add a notification for the student
+                    db.query("INSERT INTO students_notification (username, message) VALUES (?, ?)", [username, `Your application for Room ${room_number} was approved!`], () => {
+                        res.json({ success: true, message: "Room assigned successfully" });
+                    });
+                });
+            });
+        });
+    });
+};
+
+exports.rejectRoomRequest = (req, res) => {
+    const { id, username, room_number } = req.body;
+    db.query("UPDATE room_requests SET status = 'Rejected' WHERE id = ?", [id], (err) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        
+        db.query("INSERT INTO students_notification (username, message) VALUES (?, ?)", [username, `Your application for Room ${room_number} was rejected. Please apply for another.`], () => {
+            res.json({ success: true, message: "Request rejected" });
+        });
+    });
+};

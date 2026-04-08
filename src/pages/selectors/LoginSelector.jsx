@@ -14,19 +14,20 @@ const LoginSelector = () => {
             path: '/login/student',
         },
         {
-            title: 'Staff',
-            description: 'Manage your tasks, view resident records, and update status.',
-            icon: 'fas fa-users-cog',
-            colorClass: 'role-staff',
-            path: '/login/staff',
-        },
-        {
             title: 'Admin',
             description: 'Full system control, manage staff, oversee all operations.',
             icon: 'fas fa-user-shield',
             colorClass: 'role-admin',
             path: '/login/admin',
+        },
+        {
+            title: 'Staff',
+            description: 'Manage your tasks, view resident records, and update status.',
+            icon: 'fas fa-users-cog',
+            colorClass: 'role-staff',
+            path: '/login/staff',
         }
+        
     ];
 
     return (

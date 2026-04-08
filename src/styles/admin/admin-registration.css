@@ -104,7 +104,7 @@
 }
 
 .register-btn:hover {
-    background: var(--primary-hover);
+    background: linear-gradient(to right, #34d399, #10b981);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
 }
