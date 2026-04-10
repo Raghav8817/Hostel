@@ -12,15 +12,20 @@ function StudentRegister() {
         gender: "",
         email: "",
         phone: "",
-        fathername: "",      // New Field
-        fatherphone: "",     // New Field
-        course: "",          // New Field
+        fathername: "",
+        fatherphone: "",
+        course: "",
         password: "",
         confirmpassword: "",
         profile_pic: "",
+        otp: ""
     });
 
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [isVerified, setIsVerified] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -41,38 +46,93 @@ function StudentRegister() {
         }
     };
 
+    const handleSendOtp = async () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setErrorMessage("Please enter a valid email address first.");
+            return;
+        }
+
+        setOtpLoading(true);
+        setErrorMessage("");
+        setSuccessMessage("");
+        try {
+            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const res = await fetch(`${BASE_URL}/send-otp`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: formData.email })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setOtpSent(true);
+                setSuccessMessage("OTP sent to your email!");
+            } else {
+                setErrorMessage(data.error || "Failed to send OTP.");
+            }
+        } catch (error) {
+            setErrorMessage("Connection error.");
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        if (!formData.otp || formData.otp.length !== 6) {
+            setErrorMessage("Please enter the 6-digit OTP.");
+            return;
+        }
+
+        setOtpLoading(true);
+        setErrorMessage("");
+        setSuccessMessage("");
+        try {
+            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const res = await fetch(`${BASE_URL}/verify-otp`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: formData.email, otp: formData.otp })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setIsVerified(true);
+                setSuccessMessage("Email verified successfully! You can now register.");
+            } else {
+                setErrorMessage(data.error || "Invalid OTP.");
+            }
+        } catch (error) {
+            setErrorMessage("Connection error.");
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const nameRegex = /^[A-Za-z\s]+$/;
-        if (!nameRegex.test(formData.firstname) || (formData.middlename && !nameRegex.test(formData.middlename)) || !nameRegex.test(formData.lastname)) {
-            setErrorMessage("Names should only contain alphabets and spaces.");
+        if (!isVerified) {
+            setErrorMessage("Please verify your email with OTP first.");
             return;
         }
 
-        if (!nameRegex.test(formData.fathername)) {
-            setErrorMessage("Father's Name should only contain alphabets and spaces.");
+        const nameRegex = /^[A-Z][a-z\s]+$/; 
+        if (!nameRegex.test(formData.firstname) || !nameRegex.test(formData.lastname)) {
+            setErrorMessage("Names must start with a capital letter.");
             return;
         }
 
-        const usernameRegex = /^[a-zA-Z0-9_]+$/;
-        if (formData.username && !usernameRegex.test(formData.username)) {
-            setErrorMessage("Username can only contain alphanumeric characters and underscores.");
+        const phoneRegex = /^[6-9]\d{9}$/; 
+        if (!phoneRegex.test(formData.phone) || !phoneRegex.test(formData.fatherphone)) {
+            setErrorMessage("Phone numbers must be 10 digits and start with 6-9.");
             return;
         }
 
-        const phoneRegex = /^\d{10}$/;
-        if (!phoneRegex.test(formData.phone)) {
-            setErrorMessage("Your phone number must be exactly 10 digits.");
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(formData.password)) {
+            setErrorMessage("Password: 8+ chars, uppercase, lowercase, number, special character.");
             return;
         }
 
-        if (!phoneRegex.test(formData.fatherphone)) {
-            setErrorMessage("Father's phone number must be exactly 10 digits.");
-            return;
-        }
-
-        // Basic validation: Check if passwords match before sending to backend
         if (formData.password !== formData.confirmpassword) {
             setErrorMessage("Passwords do not match!");
             return;
@@ -82,33 +142,20 @@ function StudentRegister() {
             const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
             const response = await fetch(`${BASE_URL}/register/student`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(formData)
             });
 
             const data = await response.json();
-
-            
-            
-
             if (!response.ok) {
                 setErrorMessage(data.error || "Failed to register.");
                 return;
             }
 
-            setErrorMessage("");
-            console.log("Registration successful:", data);
-
-            // Redirect to dashboard (or login)
             navigate('/');
-
         } catch (error) {
-            console.log(formData);
             setErrorMessage("Error connecting to the server.");
-            console.error("Registration error:", error);
         }
     };
 
@@ -122,25 +169,17 @@ function StudentRegister() {
                     <h2>Student Registration</h2>
 
                     <form onSubmit={handleSubmit}>
-                        {errorMessage && (
-                            <div className="error-banner">
-                                {errorMessage}
-                            </div>
-                        )}
+                        {errorMessage && <div className="error-banner">{errorMessage}</div>}
+                        {successMessage && <div className="success-banner" style={{ color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #22c55e', textAlign: 'center', fontSize: '14px' }}>{successMessage}</div>}
 
                         <div className="form-grid">
-                            {/* Account Details */}
                             <div className="input-group">
                                 <i className="fas fa-user"></i>
                                 <input type="text" placeholder="Username" name="username" onChange={handleChange} required />
                             </div>
 
-                            <div className="input-group">
-                                <i className="fas fa-envelope"></i>
-                                <input type="email" placeholder="Email Address" name="email" onChange={handleChange} required />
-                            </div>
 
-                            {/* Personal Details */}
+
                             <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
                                 <input type="text" placeholder="First Name" name="firstname" onChange={handleChange} required />
@@ -168,10 +207,9 @@ function StudentRegister() {
 
                             <div className="input-group">
                                 <i className="fas fa-phone"></i>
-                                <input type="tel" placeholder="Your Phone Number" name="phone" maxLength="10" onChange={handleChange} required />
+                                <input type="tel" placeholder="Your Phone" name="phone" maxLength="10" onChange={handleChange} required />
                             </div>
 
-                            {/* Parent Details */}
                             <div className="input-group">
                                 <i className="fas fa-user-friends"></i>
                                 <input type="text" placeholder="Father's Name" name="fathername" onChange={handleChange} required />
@@ -182,7 +220,6 @@ function StudentRegister() {
                                 <input type="tel" placeholder="Father's Phone" name="fatherphone" maxLength="10" onChange={handleChange} required />
                             </div>
 
-                            {/* Academic Details */}
                             <div className="input-group">
                                 <i className="fas fa-graduation-cap"></i>
                                 <select name="course" value={formData.course} onChange={handleChange} required>
@@ -195,21 +232,41 @@ function StudentRegister() {
                                 </select>
                             </div>
 
-                            {/* Passwords */}
                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
                                 <input type="password" placeholder="Password" name="password" onChange={handleChange} required />
                             </div>
 
-                            <div className="input-group">
+                             <div className="input-group">
                                 <i className="fas fa-lock"></i>
                                 <input type="password" placeholder="Confirm Password" name="confirmpassword" onChange={handleChange} required />
-                                {showPasswordError && (
-                                    <span className="inline-error">Passwords do not match!</span>
+                            </div>
+
+                            <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'flex-start' }}>
+                                <div style={{ flex: 1, position: 'relative' }}>
+                                    <i className="fas fa-envelope" style={{ top: '18px', left: '17px' }}></i>
+                                    <input type="email" placeholder="Email Address" name="email" onChange={handleChange} required disabled={isVerified} style={{ paddingLeft: '3rem', height: '55px' }} />
+                                </div>
+                                {!isVerified && (
+                                    <button type="button" onClick={handleSendOtp} disabled={otpLoading} style={{ height: '55px', background: 'var(--accent, #43e97b)', color: '#000', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(67, 233, 123, 0.2)', minWidth: '120px' }}>
+                                        {otpLoading ? "..." : (otpSent ? "Resend" : "Send OTP")}
+                                    </button>
                                 )}
                             </div>
 
-                            <div className="input-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '10px 15px', gap: '8px', border: '1px dashed var(--border-color)', background: 'rgba(255, 255, 255, 0.02)' }}>
+                            {otpSent && !isVerified && (
+                                <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'flex-start' }}>
+                                    <div style={{ flex: 1, position: 'relative' }}>
+                                        <i className="fas fa-key" style={{ top: '18px', left: '17px' }}></i>
+                                        <input type="text" placeholder="Enter 6-digit OTP" name="otp" maxLength="6" onChange={handleChange} required style={{ paddingLeft: '3rem', height: '55px' }} />
+                                    </div>
+                                    <button type="button" onClick={handleVerifyOtp} disabled={otpLoading} style={{ height: '55px', background: '#22c55e', color: '#fff', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.2)', minWidth: '120px' }}>
+                                        {otpLoading ? "..." : "Verify OTP"}
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '10px 15px', gap: '8px', border: '1px dashed var(--border-color)', background: 'rgba(255, 255, 255, 0.02)' }}>
                                 <label style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
                                     <i className="fas fa-image"></i> Profile Picture (Optional)
                                 </label>
@@ -217,7 +274,7 @@ function StudentRegister() {
                             </div>
                         </div>
 
-                        <button type="submit" className="register-btn">
+                        <button type="submit" className="register-btn" disabled={!isVerified}>
                             Apply
                         </button>
 

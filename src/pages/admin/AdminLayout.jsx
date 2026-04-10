@@ -9,26 +9,29 @@ const AdminLayout = () => {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="dashboard-container">
-      {isSidebarOpen && (
-        <div className="sidebar-overlay" onClick={toggleSidebar}></div>
-      )}
+    <div className="admin-layout">
+      {/* Top Navigation */}
+      <Navigation onMenuClick={toggleSidebar} />
 
-      {/* Sidebar Wrapper */}
-      <div className={`sidebar-wrapper ${isSidebarOpen ? 'open' : ''}`}>
-        <Sidebar closeMobileMenu={() => setIsSidebarOpen(false)} />
-      </div>
+      <div className="admin-container">
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div className="admin-overlay" onClick={toggleSidebar}></div>
+        )}
 
-      {/* Main Content Area */}
-      <main className="main">
-        {/* Navigation (header) */}
-        <Navigation onMenuClick={toggleSidebar} />
-
-        {/* Dynamic Page Content */}
-        <div className="content-area">
-          <Outlet />
+        {/* Sidebar */}
+        <div className={`admin-sidebar-wrapper ${isSidebarOpen ? 'open' : ''}`}>
+          <Sidebar closeMobileMenu={() => setIsSidebarOpen(false)} />
         </div>
-      </main>
+
+        {/* Main Content Area */}
+        <main className="admin-main">
+          {/* Dynamic Page Content */}
+          <div className="admin-content-area">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({ closeMobileMenu }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileImg, setProfileImg] = useState("https://i.pravatar.cc/150");

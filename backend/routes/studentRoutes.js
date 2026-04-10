@@ -12,6 +12,8 @@ router.post('/complaints', studentController.postComplaint);
 router.get('/leave', studentController.getLeaveHistory);
 router.post('/leave', studentController.applyLeave);
 router.post('/food-review', studentController.submitFoodReview);
+router.get('/food-review/monthly', studentController.getMonthlyFoodReview);
+router.get('/mess-menu/today', studentController.getTodayMenu);
 
 router.get('/available-rooms', studentController.getAvailableRooms);
 router.post('/apply-room', studentController.applyForRoom);

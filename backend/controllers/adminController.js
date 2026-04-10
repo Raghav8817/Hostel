@@ -46,7 +46,7 @@ exports.uploadProfilePic = (req, res) => {
 };
 
 exports.getAllStudents = (req, res) => {
-    const sql = "SELECT username, firstname, lastname, gender, role, status, course FROM students";
+    const sql = "SELECT username, firstname, lastname, gender, role, status, course, room_number FROM students";
     db.query(sql, (err, results) => {
         if (err) {
             console.error("Database Error:", err);
@@ -76,9 +76,9 @@ exports.deleteStudent = (req, res) => {
 
 exports.getDashboardStats = (req, res) => {
     const studentCountSql = "SELECT COUNT(*) as total FROM students";
-    const roomCountSql = "SELECT COUNT(*) as total FROM rooms WHERE status = 'Occupied'";
+    const roomCountSql = "SELECT COUNT(*) as total FROM rooms WHERE status = 'Full' OR current_occupancy > 0";
     const complaintCountSql = "SELECT COUNT(*) as total FROM students_complaint";
-    const recentStudentsSql = "SELECT firstname, lastname, course FROM students ORDER BY created_at DESC LIMIT 5";
+    const recentStudentsSql = "SELECT CONCAT(firstname, ' ', lastname) as name, room_number as room, 'Paid' as fees FROM students ORDER BY created_at DESC LIMIT 5";
 
     const p1 = new Promise((resolve, reject) => db.query(studentCountSql, (err, r) => err ? reject(err) : resolve(r[0].total)));
     const p2 = new Promise((resolve, reject) => db.query(roomCountSql, (err, r) => err ? reject(err) : resolve(r[0].total)));

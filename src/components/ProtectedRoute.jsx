@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
                 if (data.authenticated) {
                     setAuth({
                         isAuthorized: true,
-                        role: data.role // Ensure backend returns 'admins' or 'students'
+                        role: data.role // Ensure backend returns 'admin' or 'student'
                     });
                 } else {
                     setAuth({ isAuthorized: false, role: null });
@@ -53,12 +53,12 @@ const ProtectedRoute = ({ children }) => {
     const path = location.pathname;
 
     // Block Admins from Student routes (Redirect them to Admin Dashboard)
-    if (auth.role === 'admins' && !path.startsWith('/admin')) {
+    if (auth.role === 'admin' && !path.startsWith('/admin')) {
         return <Navigate to="/admin/dashboard" replace />;
     }
 
     // Block Students from Admin routes (Redirect them to Student Home)
-    if (auth.role === 'students' && path.startsWith('/admin')) {
+    if (auth.role === 'student' && path.startsWith('/admin')) {
         return <Navigate to="/" replace />;
     }
 

@@ -223,17 +223,79 @@ exports.submitFoodReview = (req, res) => {
             return res.status(400).json({ error: "Rating must be between 1 and 5" });
         }
 
-        const sql = `INSERT INTO students_food_review (username, rating, review_text) VALUES (?, ?, ?)`;
-        db.query(sql, [username, rating, review_text], (err, result) => {
-            if (err) {
-                console.error("MYSQL ERROR:", err);
-                return res.status(500).json({ error: "Database error" });
+        // Check if user already submitted a review today
+        const checkSql = `SELECT id FROM students_food_review WHERE username = ? AND DATE(created_at) = CURDATE()`;
+        db.query(checkSql, [username], (err, results) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            if (results.length > 0) {
+                return res.status(400).json({ error: "You have already submitted a review for today." });
             }
-            res.json({ success: true, message: "Food review submitted successfully!" });
+
+            const sql = `INSERT INTO students_food_review (username, rating, review_text) VALUES (?, ?, ?)`;
+            db.query(sql, [username, rating, review_text], (err, result) => {
+                if (err) {
+                    console.error("MYSQL ERROR:", err);
+                    return res.status(500).json({ error: "Database error" });
+                }
+                res.json({ success: true, message: "Food review submitted successfully!" });
+            });
         });
     } catch (error) {
         res.status(403).json({ error: "Invalid session" });
     }
+};
+
+exports.getMonthlyFoodReview = (req, res) => {
+    const token = req.cookies.authToken || req.cookies.authtoken;
+    let username = null;
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            username = decoded.username;
+        } catch (e) { }
+    }
+
+    const sql = `
+        SELECT 
+            DATE(created_at) AS review_date,
+            ROUND(AVG(rating), 2) AS avg_rating,
+            COUNT(*) AS total_reviews
+        FROM students_food_review
+        WHERE MONTH(created_at) = MONTH(CURDATE())
+          AND YEAR(created_at) = YEAR(CURDATE())
+        GROUP BY DATE(created_at)
+        ORDER BY review_date ASC
+    `;
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+
+        const overallSql = `
+            SELECT 
+                ROUND(AVG(rating), 2) AS monthly_avg,
+                COUNT(*) AS total_reviews,
+                SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS five_star,
+                SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS four_star,
+                SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) AS three_star,
+                SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS two_star,
+                SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS one_star
+            FROM students_food_review
+            WHERE MONTH(created_at) = MONTH(CURDATE())
+              AND YEAR(created_at) = YEAR(CURDATE())
+        `;
+        db.query(overallSql, (err2, overall) => {
+            if (err2) return res.status(500).json({ error: "Database error" });
+
+            if (username) {
+                const checkSql = `SELECT id FROM students_food_review WHERE username = ? AND DATE(created_at) = CURDATE()`;
+                db.query(checkSql, [username], (err3, checkResult) => {
+                    const userHasReviewedToday = (!err3 && checkResult.length > 0);
+                    res.json({ daily: results, summary: overall[0], userHasReviewedToday });
+                });
+            } else {
+                res.json({ daily: results, summary: overall[0], userHasReviewedToday: false });
+            }
+        });
+    });
 };
 
 exports.getAvailableRooms = (req, res) => {
@@ -304,4 +366,21 @@ exports.getRoomStatus = (req, res) => {
     } catch (error) {
         res.status(403).json({ error: "Invalid session" });
     }
+};
+
+exports.getTodayMenu = (req, res) => {
+    const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    const today = days[new Date().getDay()];
+
+    const sql = `SELECT * FROM mess_menu WHERE day = ?`;
+    db.query(sql, [today], (err, results) => {
+        if (err) {
+            console.error("Database error fetching menu:", err);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: "Menu not found for today" });
+        }
+        res.json(results[0]);
+    });
 };

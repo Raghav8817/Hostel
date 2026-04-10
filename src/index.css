@@ -85,34 +85,41 @@ body {
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #0ea5e9;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(24px);
 }
 
 /* --- OVERRIDES FOR THEME ACCESSIBILITY GUARANTEES --- */
 /* These prevent Student/Admin CSS from battling over component backgrounds */
-.sidebar, .sidebar-wrapper {
+.sidebar,
+.sidebar-wrapper {
   background-color: var(--bg-secondary) !important;
 }
 
-.sidebar h3, .sidebar .logo-text {
+.sidebar h3,
+.sidebar .logo-text {
   color: var(--text-primary) !important;
 }
 
-.sidebar .menu, .sidebar-nav a {
+.sidebar .menu,
+.sidebar-nav a {
   color: var(--text-secondary);
 }
 
-.sidebar .menu:hover, .sidebar .menu.active, .sidebar-nav a:hover, .sidebar-nav a.active {
+.sidebar .menu:hover,
+.sidebar .menu.active,
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
   color: var(--text-primary);
 }
 
 /* Enforce table backgrounds to match the card bg, hiding old mismatched colors */
-.table-container, table {
+.table-container,
+table {
   background-color: var(--bg-card) !important;
 }
 

@@ -1,7 +1,14 @@
 /* Sidebar Container */
+.sidebar, .sidebar-wrapper {
+  background: #062319 !important; /* Dark pine green from Siohioma */
+}
+
+.sidebar-wrapper {
+  border-right: none !important;
+}
+
 .sidebar {
   width: 100%;
-  background: transparent;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -9,6 +16,7 @@
   top: 0;
   padding: 30px 0;
   transition: all var(--transition-med);
+  color: #fff;
 }
 
 /* User Profile Section in Sidebar */
@@ -18,7 +26,7 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 25px;
   text-align: center;
 }
@@ -28,10 +36,13 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 3px solid var(--bg-secondary);
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
+  border: 4px solid #062319;
+  outline: 3px solid #93c83e;
+  outline-offset: 3px;
+  margin-bottom: 20px;
   overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,6 +60,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scale(1.4); /* Heavy zoom on the image inside the original circle */
   transition: transform var(--transition-med);
 }
 
@@ -59,7 +71,7 @@
 .avatar-letter {
   font-size: 2rem;
   font-weight: 800;
-  color: var(--accent-color);
+  color: #93c83e;
   text-transform: uppercase;
 }
 
@@ -69,17 +81,21 @@
     gap: 4px;
 }
 
+.user-meta .logo-text {
+    color: #ffffff !important;
+}
+
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff !important;
   margin: 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .user-role {
     font-size: 0.7rem;
-    color: var(--text-secondary);
+    color: #93c83e;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     font-weight: 600;
@@ -101,7 +117,7 @@
   display: flex;
   align-items: center;
   padding: 12px 18px;
-  color: var(--text-secondary);
+  color: #9daea6 !important;
   text-decoration: none;
   border-radius: 12px;
   transition: all var(--transition-fast);
@@ -122,40 +138,44 @@
 /* Hover Effect */
 .sidebar-nav a:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
+  color: #ffffff !important;
   transform: translateX(4px);
 }
 
 .sidebar-nav a:hover i {
-    color: var(--accent-color);
+    color: #93c83e;
     transform: scale(1.1);
 }
 
 /* ACTIVE CLASS: Refined Gradient and Glow */
 .sidebar-nav a.active {
-  background: var(--accent-glow);
-  color: var(--accent-color);
+  background: transparent;
+  color: #ffffff !important;
   font-weight: 600;
-  border: 1px solid rgba(0, 198, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: none;
+  box-shadow: none;
 }
 
 .sidebar-nav a.active i {
-    color: var(--accent-color);
+    color: #93c83e;
 }
 
 /* Indicator line for active state */
 .sidebar-nav a.active::after {
+  display: none; /* Disable original right glow indicator */
+}
+
+.sidebar-nav a.active::before {
   content: "";
   position: absolute;
-  left: 0;
+  left: 0px; /* Aligned to touch left side based on padding */
   top: 50%;
   transform: translateY(-50%);
-  width: 4px;
+  width: 6px;
   height: 60%;
-  background: var(--accent-color);
+  background: #93c83e;
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 8px var(--accent-color);
+  box-shadow: 0 0 8px rgba(147, 200, 62, 0.4);
 }
 
 /* Hide scrollbar for clean look */

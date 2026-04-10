@@ -1,29 +1,79 @@
+:root {
+    --bg-dark: #062319;
+    --bg-lighter: #0a3d2b;
+    --accent: #93c83e;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --border-glow: rgba(147, 200, 62, 0.2);
+    --card-bg: rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-container {
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+}
+
 .stats {
     display: flex;
     gap: 20px;
-    margin-bottom: 25px;
-    flex-wrap: wrap; /* Ensures it stacks on small screens */
+    flex-wrap: wrap;
+    width: 100%;
 }
 
+/* Base Card Style */
 .stat {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border-glow);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     flex: 1;
     min-width: 200px;
-    border-left: 5px solid #3498db; /* Adds a nice accent color */
+}
+
+.stat:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .stat span {
-    color: #7f8c8d;
-    font-size: 14px;
-    font-weight: 600;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 8px;
 }
 
 .stat h2 {
-    margin: 10px 0 0 0;
-    font-size: 24px;
-    color: #2c3e50;
+    margin: 0;
+    font-size: 28px;
+    color: var(--text-primary);
+    font-weight: 800;
 }
+
+/* Menu Specific Styles */
+.menu-header-card {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-lighter) 100%) !important;
+    border: 1px solid var(--accent) !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.meal-card {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+
+.meal-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+}
