@@ -84,7 +84,7 @@ const Default = () => {
     ];
 
     const maxDailyAvg = Math.max(...daily.map(d => d.avg_rating), 1);
-
+    //force update check
     return (
         <div className="dashboard-container">
             {/* DYNAMIC MESS MENU HEADER */}
