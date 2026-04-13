@@ -25,5 +25,9 @@ dist-ssr
 
 # Environment Variables & Secrets
 .env
-.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 backend/config/.env
+!backend/config/.env.example
