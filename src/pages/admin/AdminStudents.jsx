@@ -139,7 +139,12 @@ const AdminStudents = () => {
           <tbody>
             {filtered.map((s) => (
               <tr key={s.username}>
-                <td>{s.firstname ? `${s.firstname} ${s.lastname}` : s.name}</td>
+                <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="avatar-initials small">
+                    {(s.firstname || s.name || "U").charAt(0)}
+                  </div>
+                  {s.firstname ? `${s.firstname} ${s.lastname}` : s.name}
+                </td>
                 <td>{s.room || "N/A"}</td>
                 <td>{s.gender}</td>
                 <td><span className={`status ${(s.status || "").toLowerCase()}`}>{s.status}</span></td>

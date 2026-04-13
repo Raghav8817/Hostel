@@ -108,11 +108,18 @@ const EditProfile = () => {
                     </header>
 
                     <section className="profile-upload-zone">
-                        <div className="avatar-wrapper">
-                            <img
-                                src={formData.profile_pic || "https://ui-avatars.com/api/?name=User"}
-                                alt="Avatar"
-                            />
+                        <div className="avatar-wrapper" style={{ overflow: 'hidden' }}>
+                            {formData.profile_pic ? (
+                                <img
+                                    src={formData.profile_pic}
+                                    alt="Avatar"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <div className="avatar-initials">
+                                    {(formData.firstname || "U").charAt(0)}
+                                </div>
+                            )}
                             <button className="change-photo-btn" onClick={() => fileInputRef.current.click()}>
                                 <i className="fas fa-camera"></i>
                             </button>

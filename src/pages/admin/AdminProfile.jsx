@@ -12,7 +12,7 @@ const AdminProfile = () => {
     email: "",
     phone: "",
     gender: "",
-    img: "https://i.pravatar.cc/150",
+    img: null,
   });
 
   const [showForm, setShowForm] = useState(false);
@@ -86,7 +86,15 @@ const AdminProfile = () => {
     <div className="profile-card">
       <div className="profile-top">
         <label style={{ cursor: "pointer" }}>
-          <img src={profile.img} alt="profile" style={{ width: "150px", height: "150px", borderRadius: "50%", objectFit: "cover" }} />
+          <div style={{ width: "150px", height: "150px", borderRadius: "50%", overflow: "hidden" }}>
+             {profile.img ? (
+                <img src={profile.img} alt="profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+             ) : (
+                <div className="avatar-initials" style={{ fontSize: "4rem" }}>
+                    {profile.firstname ? profile.firstname.charAt(0) : "A"}
+                </div>
+             )}
+          </div>
           <input type="file" hidden onChange={handleImage} accept="image/*" />
         </label>
         <h2 style={{ color: "white", marginTop: "15px" }}>{profile.firstname} {profile.lastname}</h2>

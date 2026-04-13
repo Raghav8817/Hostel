@@ -137,3 +137,25 @@ th {
   background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
 }
+
+/* --- Universal Avatar Initials Fallback --- */
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-initials.small {
+  font-size: 0.8rem;
+  width: 32px;
+  height: 32px;
+}

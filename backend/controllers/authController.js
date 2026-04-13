@@ -112,7 +112,7 @@ exports.registerAdmin = (req, res) => {
 };
 
 exports.registerStaff = (req, res) => {
-    const { username, middlename, firstname, lastname, gender, email, phone, password, profile_pic, role="staff" } = req.body;
+    const { username, middlename, firstname, lastname, gender, email, phone, password, profile_pic, work_type, role="staff" } = req.body;
 
     // Check if email is verified
     db.query("SELECT is_verified FROM otp_verifications WHERE email = ?", [email], (vErr, vResults) => {
@@ -120,8 +120,8 @@ exports.registerStaff = (req, res) => {
             return res.status(400).json({ error: "Email not verified. Please verify your email via OTP." });
         }
 
-        const sql = `INSERT INTO staff (username, middlename, firstname, lastname, gender, email, phone, password, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        const values = [username, middlename, firstname, lastname, gender, email, phone, password, role];
+        const sql = `INSERT INTO staff (username, middlename, firstname, lastname, gender, email, phone, password, role, work_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const values = [username, middlename, firstname, lastname, gender, email, phone, password, role, work_type];
 
         db.query(sql, values, (err, result) => {
             if (err) {
@@ -195,32 +195,65 @@ exports.loginStaff = (req, res) => {
     });
 };
 
-exports.sendOtp = (req, res) => {
+exports.sendOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email is required" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Your Verification Code',
-        text: `Your OTP for registration is: ${otp}. It will expire in 10 minutes.`
-    };
-
-    transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-            console.error("Email Error:", err);
-            return res.status(500).json({ error: "Failed to send email" });
-        }
-
+    const saveOtpToDb = (email, otp) => {
         const sql = `INSERT INTO otp_verifications (email, otp, is_verified) VALUES (?, ?, FALSE) 
                      ON DUPLICATE KEY UPDATE otp = VALUES(otp), is_verified = FALSE, created_at = CURRENT_TIMESTAMP`;
         db.query(sql, [email, otp], (dbErr) => {
             if (dbErr) return res.status(500).json({ error: "Database error" });
             res.json({ success: true, message: "OTP sent successfully!" });
         });
-    });
+    };
+
+    if (process.env.NODE_ENV === 'production') {
+        try {
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': process.env.BREVO_API_KEY,
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { email: process.env.EMAIL_USER, name: 'Hostel Management' },
+                    to: [{ email }],
+                    subject: 'Your Verification Code',
+                    textContent: `Your OTP for registration is: ${otp}. It will expire in 10 minutes.`
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Brevo Error:", errorData);
+                return res.status(500).json({ error: "Failed to send email via Brevo" });
+            }
+
+            saveOtpToDb(email, otp);
+        } catch (error) {
+            console.error("Brevo API Connection Error:", error);
+            return res.status(500).json({ error: "Failed to connect to email service" });
+        }
+    } else {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your Verification Code',
+            text: `Your OTP for registration is: ${otp}. It will expire in 10 minutes.`
+        };
+
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.error("Email Error:", err);
+                return res.status(500).json({ error: "Failed to send email" });
+            }
+            saveOtpToDb(email, otp);
+        });
+    }
 };
 
 exports.verifyOtp = (req, res) => {

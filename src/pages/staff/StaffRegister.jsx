@@ -10,6 +10,7 @@ function StaffRegistration() {
         lastname: "",
         gender: "",
         role: "",
+        work_type: "",
         email: "",
         phone: "",
         password: "",
@@ -208,10 +209,22 @@ function StaffRegistration() {
                                 <i className="fas fa-briefcase"></i>
                                 <select name="role" value={formData.role} onChange={handleChange} required>
                                     <option value="" disabled>Select Role</option>
-                                    <option value="Mess">Mess</option>
-                                    <option value="Electrician">Electrician</option>
-                                    <option value="Security">Security</option>
+                                    <option value="Warden">Warden</option>
+                                    <option value="Staff">Staff</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div className="input-group">
+                                <i className="fas fa-tools"></i>
+                                <select name="work_type" value={formData.work_type} onChange={handleChange} required>
+                                    <option value="" disabled>Select Work Type</option>
+                                    <option value="Electricity">Electricity</option>
+                                    <option value="Water">Water</option>
+                                    <option value="Internet">Internet</option>
                                     <option value="Cleaning">Cleaning</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Security">Security</option>
                                     <option value="Other">Other</option>
                                 </select>
                             </div>

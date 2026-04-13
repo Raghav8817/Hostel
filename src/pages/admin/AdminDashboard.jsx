@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../../styles/admin/AdminDashboard.css";
 import { Chart } from "chart.js/auto";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
   const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -19,14 +21,29 @@ const AdminDashboard = () => {
   const [foodStats, setFoodStats] = useState({
     todayAvg: 0,
     monthAvg: 0,
+    overallAvg: 0,
     recentReviews: []
   });
+
+  const [ratingMode, setRatingMode] = useState("today"); // today, month, overall
+
+  const toggleRating = () => {
+    setRatingMode(prev => {
+      if (prev === "today") return "month";
+      if (prev === "month") return "overall";
+      return "today";
+    });
+  };
+
+  const currentRating = ratingMode === "month" ? foodStats.monthAvg : (ratingMode === "overall" ? foodStats.overallAvg : foodStats.todayAvg);
+  const ratingLabel = ratingMode === "month" ? "Food Rating (Month)" : (ratingMode === "overall" ? "Food Rating (Overall)" : "Food Rating (Today)");
 
   const [loading, setLoading] = useState(true);
 
   // States for UI control and adding new students
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", room: "", gender: "" });
+  const [selectedTimeframe, setSelectedTimeframe] = useState("today");
 
   // 1. FETCH DATA FROM BACKEND
   useEffect(() => {
@@ -40,7 +57,7 @@ const AdminDashboard = () => {
           setStats(data);
         }
 
-        const foodRes = await fetch(`${BASE_URL}/admin/food-reviews`, {
+        const foodRes = await fetch(`${BASE_URL}/admin/food-reviews?timeframe=${selectedTimeframe}`, {
           credentials: "include"
         });
         if (foodRes.ok) {
@@ -54,7 +71,7 @@ const AdminDashboard = () => {
       }
     };
     fetchStats();
-  }, [BASE_URL]);
+  }, [BASE_URL, selectedTimeframe]);
 
   // 2. CHART LOGIC (Re-renders when stats or loading status changes)
   useEffect(() => {
@@ -123,25 +140,27 @@ const AdminDashboard = () => {
 
       {/* CARDS */}
       <div className="cards">
-        <div className="card">
+        <div className="card" onClick={() => navigate("/admin/students")} style={{ cursor: 'pointer' }} title="Click to view students">
           <span>Total Students</span>
           <h2>{stats.students}</h2>
         </div>
-        <div className="card">
+        <div className="card" onClick={() => navigate("/admin/room")} style={{ cursor: 'pointer' }} title="Click to manage rooms">
           <span>Rooms Occupied</span>
-          <h2>{stats.rooms}</h2>
+          <h2>{stats.rooms || (stats.list ? stats.list.length : 0)}</h2>
         </div>
-        <div className="card">
-          <span>Fees Collected</span>
-          <h2>₹{stats.fees}</h2>
-        </div>
-        <div className="card">
+        <div className="card" onClick={() => navigate("/admin/complaints")} style={{ cursor: 'pointer' }} title="Click to view complaints">
           <span>Complaints</span>
           <h2>{stats.complaints}</h2>
         </div>
-        <div className="card" style={{ background: 'linear-gradient(135deg, #eab308, #ca8a04)' }}>
-          <span>Food Rating (Today)</span>
-          <h2>{foodStats.todayAvg} ★</h2>
+        <div 
+          className="card" 
+          style={{ background: 'linear-gradient(135deg, #eab308, #ca8a04)', cursor: 'pointer', transition: 'transform 0.2s' }}
+          onClick={toggleRating}
+          title="Click to toggle (Today / Month / Overall)"
+        >
+          <span>{ratingLabel}</span>
+          <h2>{currentRating} ★</h2>
+          <small style={{ fontSize: '0.7rem', opacity: 0.8 }}>(Click to cycle)</small>
         </div>
       </div>
 
@@ -187,7 +206,19 @@ const AdminDashboard = () => {
         </div>
 
         <div className="table-box" style={{ gridColumn: '1 / -1' }}>
-          <h3>Recent Food Reviews</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h3>Recent Food Reviews</h3>
+            <select 
+              value={selectedTimeframe} 
+              onChange={(e) => setSelectedTimeframe(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '8px', background: '#334155', color: 'white', border: '1px solid #475569', outline: 'none', cursor: 'pointer', fontSize: '0.9rem' }}
+            >
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="all">Overall</option>
+            </select>
+          </div>
           <div className="table-responsive">
             <table>
               <thead>

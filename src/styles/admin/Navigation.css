@@ -4,13 +4,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0 2rem !important;
+  height: 60px; /* Fixed height to prevent vertical gaps */
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   backdrop-filter: blur(10px);
-  position: sticky;
+  position: relative; /* Changed from sticky to ensure proper flow with sidebar */
+  z-index: 1010; /* Above sidebar */
+  margin: 0 !important;
   top: 0;
-  z-index: 999;
 }
 
 .topbar h2 {
@@ -18,6 +20,11 @@
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.hamburger-btn {
+  display: none;
 }
 
 /* --- ACTIONS AREA --- */
@@ -76,10 +83,19 @@
 /* For Mobile Phones */
 @media (max-width: 768px) {
   .topbar {
-    flex-direction: column; /* Stack header and actions */
+    flex-direction: row; /* Keep row for icon + title */
+    justify-content: space-between;
     gap: 12px;
     padding: 15px;
-    text-align: center;
+  }
+
+  .hamburger-btn {
+    display: block;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
   }
 
   .topbar h2 {

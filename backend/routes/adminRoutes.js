@@ -22,5 +22,7 @@ router.get('/admin/rooms-advanced', verifyAdmin, adminController.getRoomsAdvance
 router.get('/admin/room-requests', verifyAdmin, adminController.getRoomRequests);
 router.post('/admin/approve-room', verifyAdmin, adminController.approveRoomRequest);
 router.post('/admin/reject-room', verifyAdmin, adminController.rejectRoomRequest);
+router.get('/admin/staff', verifyAdmin, adminController.getAllStaff);
+router.delete('/admin/staff/:username', verifyAdmin, adminController.deleteStaff);
 
 module.exports = router;

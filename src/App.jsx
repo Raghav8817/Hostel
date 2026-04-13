@@ -36,6 +36,7 @@ import AdminProfile from "./pages/admin/AdminProfile";
 import AdminRoom from "./pages/admin/AdminRoom";
 import AdminComplain from "./pages/admin/AdminComplain";
 import AdminFees from "./pages/admin/AdminFees";
+import AdminStaff from "./pages/admin/AdminStaff";
 
 function App() {
     return (
@@ -83,6 +84,7 @@ function App() {
                     <Route path="fees" element={<AdminFees />} />
                     <Route path="room" element={<AdminRoom />} />
                     <Route path="complaints" element={<AdminComplain />} />
+                    <Route path="staff" element={<AdminStaff />} />
                 </Route>
 
                 {/* FALLBACK: Redirect any unknown URL to the login selector */}

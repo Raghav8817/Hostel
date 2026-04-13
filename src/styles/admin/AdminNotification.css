@@ -1,32 +1,4 @@
-*{margin:0;padding:0;box-sizing:border-box;}
-
-body{
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-}
-
-.layout{display:flex;}
-
-.sidebar{
-    width:230px;
-    background:#020617;
-    height:100vh;
-    padding:20px;
-}
-
-.menu{
-    padding:10px;
-    margin:8px 0;
-    cursor:pointer;
-    border-radius:5px;
-}
-
-.menu:hover,.active{
-    background:#00c6ff;
-    color:black;
-}
-
+/* Page-specific styles for AdminNotification */
 .main{
     flex:1;
     padding:20px;

@@ -111,11 +111,19 @@ const Profile = () => {
                 {/* --- LEFT COLUMN --- */}
                 <div className="profile-left-col">
                     <div className="profile-card">
-                        <img
-                            src={user.profile_pic || `https://ui-avatars.com/api/?name=${user.firstname}+${user.lastname}&background=00c6ff&color=fff`}
-                            alt="Profile"
-                            className="profile-avatar"
-                        />
+                        <div className="profile-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                            {user.profile_pic ? (
+                                <img
+                                    src={user.profile_pic}
+                                    alt="Profile"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <div className="avatar-initials" style={{ fontSize: "4rem" }}>
+                                    {user.firstname ? user.firstname.charAt(0) : "U"}
+                                </div>
+                            )}
+                        </div>
                         <div className="profile-info">
                             <h2 style={{ textAlign: "center" }}>{user.firstname} {user.lastname}</h2>
                             <p style={{ justifyContent: "center" }}><strong>Username:</strong> {user.username}</p>

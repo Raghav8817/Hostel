@@ -76,7 +76,7 @@ exports.deleteStudent = (req, res) => {
 
 exports.getDashboardStats = (req, res) => {
     const studentCountSql = "SELECT COUNT(*) as total FROM students";
-    const roomCountSql = "SELECT COUNT(*) as total FROM rooms WHERE status = 'Full' OR current_occupancy > 0";
+    const roomCountSql = "SELECT COUNT(DISTINCT room_number) as total FROM students WHERE room_number IS NOT NULL";
     const complaintCountSql = "SELECT COUNT(*) as total FROM students_complaint";
     const recentStudentsSql = "SELECT CONCAT(firstname, ' ', lastname) as name, room_number as room, 'Paid' as fees FROM students ORDER BY created_at DESC LIMIT 5";
 
@@ -122,17 +122,32 @@ exports.deleteComplaint = (req, res) => {
 };
 
 exports.getFoodReviews = (req, res) => {
+    const { timeframe = 'all' } = req.query;
+
     const todaySql = "SELECT AVG(rating) as avgRating FROM students_food_review WHERE DATE(created_at) = CURDATE()";
     const monthSql = "SELECT AVG(rating) as avgRating FROM students_food_review WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())";
-    const recentSql = "SELECT username, rating, review_text, created_at FROM students_food_review ORDER BY created_at DESC LIMIT 10";
+    const overallSql = "SELECT AVG(rating) as avgRating FROM students_food_review";
+
+    let recentSql = "SELECT username, rating, review_text, created_at FROM students_food_review";
+    if (timeframe === 'today') recentSql += " WHERE DATE(created_at) = CURDATE()";
+    else if (timeframe === 'week') recentSql += " WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+    else if (timeframe === 'month') recentSql += " WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())";
+    
+    recentSql += " ORDER BY created_at DESC LIMIT 50";
 
     const p1 = new Promise((resolve, reject) => db.query(todaySql, (err, r) => err ? reject(err) : resolve(r[0].avgRating || 0)));
     const p2 = new Promise((resolve, reject) => db.query(monthSql, (err, r) => err ? reject(err) : resolve(r[0].avgRating || 0)));
-    const p3 = new Promise((resolve, reject) => db.query(recentSql, (err, r) => err ? reject(err) : resolve(r)));
+    const p3 = new Promise((resolve, reject) => db.query(overallSql, (err, r) => err ? reject(err) : resolve(r[0].avgRating || 0)));
+    const p4 = new Promise((resolve, reject) => db.query(recentSql, (err, r) => err ? reject(err) : resolve(r)));
 
-    Promise.all([p1, p2, p3])
-        .then(([todayAvg, monthAvg, recentReviews]) => {
-            res.json({ todayAvg: parseFloat(todayAvg).toFixed(1), monthAvg: parseFloat(monthAvg).toFixed(1), recentReviews });
+    Promise.all([p1, p2, p3, p4])
+        .then(([todayAvg, monthAvg, overallAvg, recentReviews]) => {
+            res.json({ 
+                todayAvg: parseFloat(todayAvg).toFixed(1), 
+                monthAvg: parseFloat(monthAvg).toFixed(1), 
+                overallAvg: parseFloat(overallAvg).toFixed(1),
+                recentReviews 
+            });
         })
         .catch(err => {
             console.error(err);
@@ -225,5 +240,25 @@ exports.rejectRoomRequest = (req, res) => {
         db.query("INSERT INTO students_notification (username, message) VALUES (?, ?)", [username, `Your application for Room ${room_number} was rejected. Please apply for another.`], () => {
             res.json({ success: true, message: "Request rejected" });
         });
+    });
+};
+
+exports.getAllStaff = (req, res) => {
+    const sql = "SELECT username, firstname, lastname, gender, role, work_type, email, phone FROM staff";
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).json({ error: "Failed to fetch staff members" });
+        }
+        res.status(200).json(results);
+    });
+};
+
+exports.deleteStaff = (req, res) => {
+    const username = req.params.username;
+    const sql = "DELETE FROM staff WHERE username = ?";
+    db.query(sql, [username], (err, result) => {
+        if (err) return res.status(500).json({ error: "Delete failed" });
+        res.status(200).json({ message: "Staff member removed from database" });
     });
 };
