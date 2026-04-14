@@ -230,8 +230,8 @@ exports.sendOtp = async (req, res) => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error("Brevo Error:", errorData);
-                return res.status(500).json({ error: "Failed to send email via Brevo" });
+                console.error("Brevo Error (Full Response):", JSON.stringify(errorData, null, 2));
+                return res.status(500).json({ error: "Failed to send email via Brevo", details: errorData });
             }
 
             saveOtpToDb(email, otp);
