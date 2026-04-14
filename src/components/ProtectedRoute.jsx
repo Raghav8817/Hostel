@@ -62,6 +62,18 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/" replace />;
     }
 
+    // --- STAFF ACCESS CONTROL ---
+    // 1. Block Staff from Admin or Student Home routes
+    if (auth.role === 'staff' && (path.startsWith('/admin') || path === '/')) {
+        return <Navigate to="/staff/dashboard" replace />;
+    }
+
+    // 2. Block non-staff from Staff routes
+    if (auth.role !== 'staff' && path.startsWith('/staff')) {
+        const target = auth.role === 'admin' ? '/admin/dashboard' : '/';
+        return <Navigate to={target} replace />;
+    }
+
     // 4. Authorized: Render the requested page
     return children;
 };

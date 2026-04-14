@@ -112,7 +112,8 @@ exports.registerAdmin = (req, res) => {
 };
 
 exports.registerStaff = (req, res) => {
-    const { username, middlename, firstname, lastname, gender, email, phone, password, profile_pic, work_type, role="staff" } = req.body;
+    const { username, middlename, firstname, lastname, gender, email, phone, password, profile_pic, work_type } = req.body;
+    const role = "staff"; // Always hardcode to staff
 
     // Check if email is verified
     db.query("SELECT is_verified FROM otp_verifications WHERE email = ?", [email], (vErr, vResults) => {

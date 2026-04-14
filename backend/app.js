@@ -8,6 +8,7 @@ require('dotenv').config({ path: path.resolve(__dirname, './config/.env') });
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const staffRoutes = require('./routes/staffRoutes');
 
 const allowedOrigins = [
     "http://localhost:5173",           
@@ -28,6 +29,7 @@ app.use(cookieparser());
 app.use('/', authRoutes);
 app.use('/', studentRoutes);
 app.use('/', adminRoutes);
+app.use('/', staffRoutes);
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');

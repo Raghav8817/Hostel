@@ -5,11 +5,11 @@ import "../../styles/staff/staff_reg.css";
 function StaffRegistration() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
+        username: "",
         firstname: "",
         middlename: "",
         lastname: "",
         gender: "",
-        role: "",
         work_type: "",
         email: "",
         phone: "",
@@ -181,6 +181,11 @@ function StaffRegistration() {
 
                         <div className="form-grid">
                             <div className="input-group">
+                                <i className="fas fa-user"></i>
+                                <input type="text" placeholder="Username" name="username" value={formData.username} onChange={handleChange} required />
+                            </div>
+
+                            <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
                                 <input type="text" placeholder="First Name" name="firstname" value={formData.firstname} onChange={handleChange} required />
                             </div>
@@ -205,15 +210,6 @@ function StaffRegistration() {
                                 </select>
                             </div>
 
-                            <div className="input-group">
-                                <i className="fas fa-briefcase"></i>
-                                <select name="role" value={formData.role} onChange={handleChange} required>
-                                    <option value="" disabled>Select Role</option>
-                                    <option value="Warden">Warden</option>
-                                    <option value="Staff">Staff</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
 
                             <div className="input-group">
                                 <i className="fas fa-tools"></i>

@@ -38,6 +38,9 @@ import AdminComplain from "./pages/admin/AdminComplain";
 import AdminFees from "./pages/admin/AdminFees";
 import AdminStaff from "./pages/admin/AdminStaff";
 
+// Staff Pages
+import StaffDashboard from "./pages/staff/StaffDashboard";
+
 function App() {
     return (
         <BrowserRouter>
@@ -86,6 +89,13 @@ function App() {
                     <Route path="complaints" element={<AdminComplain />} />
                     <Route path="staff" element={<AdminStaff />} />
                 </Route>
+
+                {/* --- STAFF ROUTES (Protected) --- */}
+                <Route path="/staff/dashboard" element={
+                    <ProtectedRoute>
+                        <StaffDashboard />
+                    </ProtectedRoute>
+                } />
 
                 {/* FALLBACK: Redirect any unknown URL to the login selector */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
