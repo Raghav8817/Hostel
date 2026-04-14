@@ -9,6 +9,7 @@ router.post('/api/upload-profile-pic', verifyAdmin, adminController.uploadProfil
 
 router.get('/admin/students', verifyAdmin, adminController.getAllStudents);
 router.put('/admin/students/status', verifyAdmin, adminController.updateStudentStatus);
+router.put('/admin/assign-room', verifyAdmin, adminController.assignRoom);
 router.delete('/admin/students/:username', verifyAdmin, adminController.deleteStudent);
 
 router.get('/admin/dashboard-stats', verifyAdmin, adminController.getDashboardStats);

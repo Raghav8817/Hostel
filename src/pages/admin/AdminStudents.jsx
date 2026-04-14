@@ -8,21 +8,27 @@ const AdminStudents = () => {
 
   // 1. STATE DEFINITIONS
   const [students, setStudents] = useState([]);
+  const [availableRooms, setAvailableRooms] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Missing states that caused the crash
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: "", room: "", gender: "" });
+  // Assignment Modal states
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [targetRoom, setTargetRoom] = useState("");
+  const [assignStatus, setAssignStatus] = useState("");
 
-  // 2. LOAD DATA FROM DATABASE
-  const fetchStudents = async () => {
+  // 2. LOAD DATA
+  const fetchData = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/admin/students`, { credentials: "include" });
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data);
-      }
+      setLoading(true);
+      const [sRes, rRes] = await Promise.all([
+        fetch(`${BASE_URL}/admin/students`, { credentials: "include" }),
+        fetch(`${BASE_URL}/available-rooms`, { credentials: "include" })
+      ]);
+      
+      if (sRes.ok) setStudents(await sRes.json());
+      if (rRes.ok) setAvailableRooms(await rRes.json());
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {
@@ -31,7 +37,7 @@ const AdminStudents = () => {
   };
 
   useEffect(() => {
-    fetchStudents();
+    fetchData();
   }, []);
 
   // 3. UPDATE STATUS (Approve/Reject)
@@ -52,24 +58,30 @@ const AdminStudents = () => {
     }
   };
 
-  // 4. ADD NEW STUDENT
-  const saveStudent = async () => {
+  // 4. ASSIGN ROOM MANUALLY
+  const handleAssignRoom = async () => {
+    if (!targetRoom || !selectedStudent) return;
+    setAssignStatus("Updating...");
     try {
-      const response = await fetch(`${BASE_URL}/admin/students/add`, {
-        method: "POST",
+      const res = await fetch(`${BASE_URL}/admin/assign-room`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-        credentials: "include",
+        body: JSON.stringify({ username: selectedStudent.username, room_number: targetRoom }),
+        credentials: "include"
       });
-
-      if (response.ok) {
-        alert("Student added successfully!");
-        setShowModal(false);
-        setForm({ name: "", room: "", gender: "" });
-        fetchStudents(); // Refresh list
+      if (res.ok) {
+        setAssignStatus("Success!");
+        setTimeout(() => {
+          setShowAssignModal(false);
+          setAssignStatus("");
+          fetchData(); // Refresh list
+        }, 1000);
+      } else {
+        const data = await res.json();
+        setAssignStatus(data.error || "Failed to assign.");
       }
     } catch (err) {
-      console.error("Save error:", err);
+      setAssignStatus("Error.");
     }
   };
 
@@ -90,17 +102,23 @@ const AdminStudents = () => {
     }
   };
 
-  /* SEARCH FILTER */
-  const filtered = students.filter((s) =>
-    `${s.firstname || ""} ${s.lastname || ""} ${s.name || ""}`.toLowerCase().includes(search.toLowerCase())
-  );
+  /* SEARCH FILTER & SORT */
+  const filtered = students
+    .filter((s) =>
+      `${s.firstname || ""} ${s.lastname || ""} ${s.name || ""}`.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (a.status === "Pending" && b.status !== "Pending") return -1;
+      if (a.status !== "Pending" && b.status === "Pending") return 1;
+      return 0;
+    });
 
   /* DYNAMIC COUNTS */
   const total = students.length;
   const male = students.filter(s => s.gender?.toLowerCase() === "male").length;
   const female = students.filter(s => s.gender?.toLowerCase() === "female").length;
 
-  if (loading) return <div style={{ color: 'var(--text-primary)', padding: '20px' }}>Loading Students...</div>;
+  if (loading) return <div className="loading-container" style={{ padding: '20px', color: '#00c6ff' }}><h2>Loading Students...</h2></div>;
 
   return (
     <div className="student-management-content">
@@ -121,8 +139,9 @@ const AdminStudents = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="search-input"
+          style={{ flex: 1 }}
         />
-        <button className="btn" onClick={() => setShowModal(true)}>+ Add New Student</button>
+        {/* "+ Add New Student" button removed as per request */}
       </div>
 
       <div className="table-container table-responsive">
@@ -143,12 +162,31 @@ const AdminStudents = () => {
                   <div className="avatar-initials small">
                     {(s.firstname || s.name || "U").charAt(0)}
                   </div>
-                  {s.firstname ? `${s.firstname} ${s.lastname}` : s.name}
+                   <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 600 }}>{s.firstname ? `${s.firstname} ${s.lastname}` : s.name}</span>
+                    <small style={{ color: '#888', fontSize: '11px' }}>@{s.username}</small>
+                  </div>
                 </td>
-                <td>{s.room || "N/A"}</td>
-                <td>{s.gender}</td>
+                <td style={{ fontWeight: s.room_number ? 700 : 400, color: s.room_number ? '#00c6ff' : 'inherit' }}>
+                  {s.room_number || "N/A"}
+                </td>
+                <td style={{ textTransform: 'capitalize' }}>{s.gender}</td>
                 <td><span className={`status ${(s.status || "").toLowerCase()}`}>{s.status}</span></td>
                 <td className="action">
+                  {/* EDIT BUTTON (Assign Room) */}
+                  <button 
+                    className="edit" 
+                    title="Assign New Room"
+                    onClick={() => {
+                       setSelectedStudent(s);
+                       setTargetRoom(s.room_number || "");
+                       setShowAssignModal(true);
+                    }}
+                    style={{ background: 'rgba(0,198,255,0.1)', color: '#00c6ff', border: 'none', padding: '6px 10px', borderRadius: '5px', cursor: 'pointer', marginRight: '8px' }}
+                  >
+                    <i className="fas fa-edit"></i>
+                  </button>
+
                   {s.status === "Pending" && (
                     <>
                       <button className="approve" onClick={() => updateStatus(s.username, "Approved")}>✔</button>
@@ -163,19 +201,51 @@ const AdminStudents = () => {
         </table>
       </div>
 
-      {showModal && (
+      {/* NEW ASSIGN ROOM MODAL */}
+      {showAssignModal && (
         <div className="modal">
-          <div className="modal-box">
-            <span className="close" onClick={() => setShowModal(false)}>✖</span>
-            <h3>Add Student</h3>
-            <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            <input placeholder="Room Number" value={form.room} onChange={(e) => setForm({ ...form, room: e.target.value })} />
-            <select value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-            <button className="btn" onClick={saveStudent}>Save Student</button>
+          <div className="modal-box" style={{ maxWidth: '400px', padding: '30px' }}>
+            <span className="close" onClick={() => setShowAssignModal(false)}>✖</span>
+            <h3 style={{ marginBottom: '20px' }}>
+               <i className="fas fa-door-open" style={{ marginRight: '10px', color: '#00c6ff' }}></i>
+               Assign Room
+            </h3>
+            
+            <p style={{ fontSize: '14px', color: '#aaa', marginBottom: '15px' }}>
+              Select a room for <strong>{selectedStudent?.firstname} {selectedStudent?.lastname}</strong>
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: '#888', textTransform: 'uppercase' }}>Available Rooms</label>
+              <select 
+                value={targetRoom} 
+                onChange={(e) => setTargetRoom(e.target.value)}
+                style={{ padding: '12px', borderRadius: '8px', background: '#252528', color: 'white', border: '1px solid #444', outline: 'none' }}
+              >
+                <option value="">Move to N/A (Unassign)</option>
+                {availableRooms.map(r => (
+                  <option key={r.room_number} value={r.room_number}>
+                     Room {r.room_number} — {r.room_type} ({r.capacity - r.current_occupancy} spots left)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {assignStatus && (
+              <p style={{ 
+                marginBottom: '15px', 
+                fontSize: '13px', 
+                fontWeight: 600, 
+                color: assignStatus.includes("Success") ? "#22c55e" : "#ef4444",
+                textAlign: 'center'
+              }}>
+                {assignStatus}
+              </p>
+            )}
+
+            <button className="btn" onClick={handleAssignRoom} style={{ width: '100%', padding: '12px' }}>
+              Apply Changes
+            </button>
           </div>
         </div>
       )}

@@ -33,8 +33,19 @@ const AdminLogin = () => {
                 setError(data.error || 'Invalid credentials');
             }
         } catch (err) {
-            // navigate('/admin/dashboard'); // Fallback for demo
              setError('Error connecting to the server.');
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            const form = e.currentTarget;
+            const focusable = Array.from(form.querySelectorAll('input, select, button[type="submit"]'));
+            const index = focusable.indexOf(e.target);
+            if (index > -1 && index < focusable.length - 1) {
+                e.preventDefault();
+                focusable[index + 1].focus();
+            }
         }
     };
 
@@ -45,7 +56,7 @@ const AdminLogin = () => {
                 <div className="form-box">
                     <h2>Admin Login</h2>
                     {error && <p className="login-error" style={{color: '#ff4d4d', textAlign: 'center', marginBottom: '10px'}}>{error}</p>}
-                    <form onSubmit={handleLogin}>
+                    <form onSubmit={handleLogin} onKeyDown={handleKeyDown}>
                         <div className="input-group">
                             <i className="fas fa-user"></i>
                             <input 

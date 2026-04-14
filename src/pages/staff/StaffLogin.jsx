@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// import '../../styles/main.css';
+import '../../styles/AuthShared.css';
 
 const StaffLogin = () => {
     const navigate = useNavigate();
@@ -38,14 +38,26 @@ const StaffLogin = () => {
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            const form = e.currentTarget;
+            const focusable = Array.from(form.querySelectorAll('input, select, button[type="submit"]'));
+            const index = focusable.indexOf(e.target);
+            if (index > -1 && index < focusable.length - 1) {
+                e.preventDefault();
+                focusable[index + 1].focus();
+            }
+        }
+    };
+
     return (
         <div className="login-page-body">
             <div className="bg-overlay"></div>
             <div className="login-container">
                 <div className="form-box">
                     <h2>Staff Login</h2>
-                    {error && <p className="login-error" style={{color: '#ff4d4d', textAlign: 'center', marginBottom: '10px'}}>{error}</p>}
-                    <form onSubmit={handleLogin}>
+                    {error && <p className="login-error">{error}</p>}
+                    <form onSubmit={handleLogin} onKeyDown={handleKeyDown}>
                         <div className="input-group">
                             <i className="fas fa-user"></i>
                             <input 

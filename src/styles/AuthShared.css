@@ -1,4 +1,4 @@
-/* Mirrored Student Login CSS mapped for Admin & Staff Login structures */
+/* Mirrors AdminLogin CSS for Student & Staff Login synchronization */
 * {
     margin: 0;
     padding: 0;
@@ -15,13 +15,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 3rem 1.5rem; /* Increased vertical padding for scrolling space */
     color: #ffffff;
-    animation: fadeIn var(--transition-med, 0.5s ease);
+    animation: AuthSharedFadeIn 0.5s ease;
+    overflow-y: auto;
 }
 
 .bg-overlay {
-    display: none;
+    display: none; /* Keep structure from AdminLogin */
 }
 
 .login-container {
@@ -105,7 +106,7 @@
     color: var(--accent-color);
 }
 
-.login-btn {
+.login-btn, .login-button {
     width: 100%;
     padding: 1.2rem;
     margin-top: 1rem;
@@ -122,13 +123,13 @@
     letter-spacing: 1px;
 }
 
-.login-btn:hover {
+.login-btn:hover, .login-button:hover {
     transform: translateY(-4px);
     box-shadow: 0 15px 35px var(--accent-glow);
     filter: brightness(1.1);
 }
 
-.login-btn:active {
+.login-btn:active, .login-button:active {
     transform: translateY(0);
 }
 
@@ -155,29 +156,35 @@
     gap: 10px;
 }
 
-.switch a {
+.switch a, .switch div {
     color: #4facfe;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.switch a:hover {
+.switch a:hover, .switch div:hover {
     color: #00f2fe;
     text-shadow: 0 0 8px rgba(79, 172, 254, 0.4);
 }
 
+@keyframes AuthSharedFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 480px) {
     .login-page-body {
-        padding: 0;
+        padding: 2rem 1rem;
+        justify-content: flex-start; /* Start from top on mobile */
     }
     
     .form-box {
-        padding: 2rem 1.5rem;
-        border-radius: 0;
-        border-right: none;
-        border-left: none;
-        box-shadow: none;
+        padding: 2.5rem 1.5rem;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
     
     .form-box h2 {

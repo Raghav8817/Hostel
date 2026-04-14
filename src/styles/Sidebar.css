@@ -1,10 +1,11 @@
-/* Sidebar Container */
+/* Sidebar Container - Refactored for Theme Support */
 .sidebar, .sidebar-wrapper {
-  background: #062319 !important; /* Dark pine green from Siohioma */
+  background: var(--bg-secondary); /* Dynamic theme-based background */
+  transition: background var(--transition-med), border var(--transition-med);
 }
 
 .sidebar-wrapper {
-  border-right: none !important;
+  border-right: 1px solid var(--border-color);
 }
 
 .sidebar {
@@ -16,7 +17,7 @@
   top: 0;
   padding: 30px 0;
   transition: all var(--transition-med);
-  color: #fff;
+  color: var(--text-primary);
 }
 
 /* User Profile Section in Sidebar */
@@ -26,18 +27,18 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 25px;
   text-align: center;
 }
 
-/* Updated Avatar Container */
+/* Avatar Container */
 .avatar-container {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 4px solid #062319;
-  outline: 3px solid #93c83e;
+  border: 4px solid var(--bg-secondary);
+  outline: 3px solid var(--accent-color);
   outline-offset: 3px;
   margin-bottom: 20px;
   overflow: hidden;
@@ -60,7 +61,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.4); /* Heavy zoom on the image inside the original circle */
+  transform: scale(1.4);
   transition: transform var(--transition-med);
 }
 
@@ -71,7 +72,7 @@
 .avatar-letter {
   font-size: 2rem;
   font-weight: 800;
-  color: #93c83e;
+  color: var(--accent-color);
   text-transform: uppercase;
 }
 
@@ -81,24 +82,23 @@
     gap: 4px;
 }
 
-.user-meta .logo-text {
-    color: #ffffff !important;
-}
-
 .logo-text {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #ffffff !important;
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  text-shadow: none; /* Removed shadow for cleaner light mode look */
 }
 
 .user-role {
-    font-size: 0.7rem;
-    color: #93c83e;
+    font-size: 0.75rem;
+    color: var(--accent-color);
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* Navigation List */
@@ -112,23 +112,24 @@
   margin: 8px 18px;
 }
 
-/* THE MAGIC: NavLink styles */
+/* --- Navigation Links --- */
 .sidebar-nav a {
   display: flex;
   align-items: center;
-  padding: 12px 18px;
-  color: #9daea6 !important;
+  padding: 14px 20px;
+  color: var(--text-secondary);
   text-decoration: none;
   border-radius: 12px;
-  transition: all var(--transition-fast);
-  font-weight: 500;
+  transition: all var(--transition-med);
+  font-weight: 600;
   font-size: 0.95rem;
-  gap: 12px;
+  gap: 15px;
   position: relative;
   overflow: hidden;
+  border: 1px solid transparent;
 }
 
-/* Icon styling inside links */
+/* Icon styling */
 .sidebar-nav a i {
     font-size: 1.1rem;
     width: 24px;
@@ -137,48 +138,43 @@
 
 /* Hover Effect */
 .sidebar-nav a:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff !important;
-  transform: translateX(4px);
+  background: rgba(var(--accent-color), 0.05);
+  color: var(--accent-color);
+  transform: translateX(5px);
+  border-color: rgba(var(--accent-color), 0.1);
 }
 
 .sidebar-nav a:hover i {
-    color: #93c83e;
-    transform: scale(1.1);
+    color: var(--accent-color);
 }
 
-/* ACTIVE CLASS: Refined Gradient and Glow */
+/* ACTIVE STATE */
 .sidebar-nav a.active {
-  background: transparent;
-  color: #ffffff !important;
-  font-weight: 600;
-  border: none;
-  box-shadow: none;
+  background: rgba(var(--accent-color), 0.1);
+  color: var(--accent-color);
+  font-weight: 700;
+  border-color: rgba(var(--accent-color), 0.2);
 }
 
 .sidebar-nav a.active i {
-    color: #93c83e;
+    color: var(--accent-color);
 }
 
 /* Indicator line for active state */
-.sidebar-nav a.active::after {
-  display: none; /* Disable original right glow indicator */
-}
-
 .sidebar-nav a.active::before {
   content: "";
   position: absolute;
-  left: 0px; /* Aligned to touch left side based on padding */
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 6px;
+  width: 5px;
   height: 60%;
-  background: #93c83e;
+  background: var(--accent-color);
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 8px rgba(147, 200, 62, 0.4);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 /* Hide scrollbar for clean look */
 .sidebar::-webkit-scrollbar {
     display: none;
-}
+}

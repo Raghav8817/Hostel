@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
-import "../../styles/Register.css";
+import "../../styles/RegisterShared.css";
 
 function StudentRegister() {
     const navigate = useNavigate();
@@ -159,26 +159,33 @@ function StudentRegister() {
         }
     };
 
-    const showPasswordError = formData.confirmpassword && formData.password !== formData.confirmpassword;
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            const form = e.currentTarget;
+            // Target only text-entry and selection fields for natural typing flow
+            const focusable = Array.from(form.querySelectorAll('input:not([type="file"]), select'));
+            const index = focusable.indexOf(e.target);
+            
+            if (index > -1 && index < focusable.length - 1) {
+                e.preventDefault();
+                focusable[index + 1].focus();
+            }
+        }
+    };
 
     return (
-        <div className="register-page">
+        <div className="register-page-body">
             <div className="bg-overlay"></div>
             <div className="register-container">
                 <div className="form-box">
                     <h2>Student Registration</h2>
 
-                    <form onSubmit={handleSubmit}>
-                        {errorMessage && <div className="error-banner">{errorMessage}</div>}
-                        {successMessage && <div className="success-banner" style={{ color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #22c55e', textAlign: 'center', fontSize: '14px' }}>{successMessage}</div>}
-
+                    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
                         <div className="form-grid">
                             <div className="input-group">
                                 <i className="fas fa-user"></i>
                                 <input type="text" placeholder="Username" name="username" onChange={handleChange} required />
                             </div>
-
-
 
                             <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
@@ -244,11 +251,11 @@ function StudentRegister() {
 
                             <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'flex-start' }}>
                                 <div style={{ flex: 1, position: 'relative' }}>
-                                    <i className="fas fa-envelope" style={{ top: '18px', left: '17px' }}></i>
-                                    <input type="email" placeholder="Email Address" name="email" onChange={handleChange} required disabled={isVerified} style={{ paddingLeft: '3rem', height: '55px' }} />
+                                    <i className="fas fa-envelope" style={{ top: '50%', left: '17px', transform: 'translateY(-50%)' }}></i>
+                                    <input type="email" placeholder="Email Address" name="email" onChange={handleChange} required disabled={isVerified} style={{ paddingLeft: '3rem' }} />
                                 </div>
                                 {!isVerified && (
-                                    <button type="button" onClick={handleSendOtp} disabled={otpLoading} style={{ height: '55px', background: 'var(--accent, #43e97b)', color: '#000', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(67, 233, 123, 0.2)', minWidth: '120px' }}>
+                                    <button type="button" onClick={handleSendOtp} disabled={otpLoading} style={{ height: '52px', background: 'var(--accent, #43e97b)', color: '#000', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(67, 233, 123, 0.2)', minWidth: '120px' }}>
                                         {otpLoading ? "..." : (otpSent ? "Resend" : "Send OTP")}
                                     </button>
                                 )}
@@ -257,10 +264,10 @@ function StudentRegister() {
                             {otpSent && !isVerified && (
                                 <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'flex-start' }}>
                                     <div style={{ flex: 1, position: 'relative' }}>
-                                        <i className="fas fa-key" style={{ top: '18px', left: '17px' }}></i>
-                                        <input type="text" placeholder="Enter 6-digit OTP" name="otp" maxLength="6" onChange={handleChange} required style={{ paddingLeft: '3rem', height: '55px' }} />
+                                        <i className="fas fa-key" style={{ top: '50%', left: '17px', transform: 'translateY(-50%)' }}></i>
+                                        <input type="text" placeholder="Enter 6-digit OTP" name="otp" maxLength="6" onChange={handleChange} required style={{ paddingLeft: '3rem' }} />
                                     </div>
-                                    <button type="button" onClick={handleVerifyOtp} disabled={otpLoading} style={{ height: '55px', background: '#22c55e', color: '#fff', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.2)', minWidth: '120px' }}>
+                                    <button type="button" onClick={handleVerifyOtp} disabled={otpLoading} style={{ height: '52px', background: '#22c55e', color: '#fff', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.2)', minWidth: '120px' }}>
                                         {otpLoading ? "..." : "Verify OTP"}
                                     </button>
                                 </div>
@@ -274,13 +281,16 @@ function StudentRegister() {
                             </div>
                         </div>
 
+                        {errorMessage && <div className="error-banner">{errorMessage}</div>}
+                        {successMessage && <div className="success-banner">{successMessage}</div>}
+
                         <button type="submit" className="register-btn" disabled={!isVerified}>
-                            Apply
+                            Submit Application
                         </button>
 
-                        <p className="switch">
-                            Already registered? <Link to="/login">Login</Link>
-                        </p>
+                        <div className="switch">
+                            Already registered? <div onClick={() => navigate('/login/student')}>Login</div>
+                        </div>
                     </form>
                 </div>
             </div>

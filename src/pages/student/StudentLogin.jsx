@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import '../../styles/Login.css';
+import '../../styles/AuthShared.css';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -27,8 +27,6 @@ const Login = () => {
                 
             });
 
-            // console.log(JSON.stringify({ username, password }))
-            console.log(response.ok)
             if (response.ok) {
                 navigate('/'); 
             } else {
@@ -40,51 +38,63 @@ const Login = () => {
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            const form = e.currentTarget;
+            const focusable = Array.from(form.querySelectorAll('input, select, button[type="submit"]'));
+            const index = focusable.indexOf(e.target);
+            if (index > -1 && index < focusable.length - 1) {
+                e.preventDefault();
+                focusable[index + 1].focus();
+            }
+        }
+    };
+
     return (
-        <div className="login-container">
-            <h2>Student Login</h2>
-            {error && <p className="login-error">{error}</p>}
-            <form onSubmit={handleLogin} className="login-form">
-                <div className="login-input-group">
-                    <label htmlFor="username">
-                        Username, Email, or Phone
-                    </label>
-                    <input
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter your username, email or phone"
-                        className="login-input"
-                        required
-                    />
+        <div className="login-page-body">
+            <div className="bg-overlay"></div>
+            <div className="login-container">
+                <div className="form-box">
+                    <h2>Student Login</h2>
+                    {error && <p className="login-error">{error}</p>}
+                    <form onSubmit={handleLogin} onKeyDown={handleKeyDown}>
+                        <div className="input-group">
+                            <i className="fas fa-user"></i>
+                            <input 
+                                type="text" 
+                                placeholder="Username, Email, or Phone" 
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required 
+                            />
+                        </div>
+
+                        <div className="input-group">
+                            <i className="fas fa-lock"></i>
+                            <input 
+                                type="password" 
+                                placeholder="Password" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required 
+                            />
+                        </div>
+
+                        <button type="submit" className="login-button">
+                             Sign In
+                        </button>
+                    </form>
+
+                    <div className="switch">
+                        <div onClick={() => navigate('/register/student')}>Create Account</div> | 
+                        <div onClick={() => navigate('/forgot')}>Forgot Password</div>
+                    </div>
+
+                    <div className="switch">
+                        <div onClick={() => navigate('/')} style={{ fontSize: '0.8rem', opacity: 0.7 }}>← Back to Home</div>
+                    </div>
                 </div>
-                <div className="login-input-group">
-                    <label htmlFor="password">
-                        Password
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        className="login-input"
-                        required
-                    />
-                </div>
-                <button type="submit" className="login-button">
-                    Login
-                </button>
-                <div className="switch">
-                <div onClick={()=>{navigate('/register/student')}} >
-                    Create New Account 
-                </div>
-                <div onClick={()=>{navigate('/forgot')}} >
-                    Forgot Password 
-                </div>
-                </div>
-            </form>
+            </div>
         </div>
     );
 };

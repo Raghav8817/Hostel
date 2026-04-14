@@ -159,6 +159,19 @@ function AdminRegistration() {
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            const form = e.currentTarget;
+            const focusable = Array.from(form.querySelectorAll('input:not([type="file"]), select'));
+            const index = focusable.indexOf(e.target);
+            
+            if (index > -1 && index < focusable.length - 1) {
+                e.preventDefault();
+                focusable[index + 1].focus();
+            }
+        }
+    };
+
     return (
         <div className="register-page-body">
             <div className="bg-overlay"></div>
@@ -167,25 +180,12 @@ function AdminRegistration() {
                 <div className="form-box">
                     <h2>Admin Registration</h2>
 
-                    <form onSubmit={handleSubmit}>
-                        {errorMessage && (
-                            <div style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center", fontSize: "14px" }}>
-                                {errorMessage}
-                            </div>
-                        )}
-                        {successMessage && (
-                            <div style={{ color: "#22c55e", backgroundColor: "rgba(34, 197, 94, 0.1)", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center", border: "1px solid #22c55e", fontSize: "14px" }}>
-                                {successMessage}
-                            </div>
-                        )}
-
+                    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
                         <div className="form-grid">
                             <div className="input-group">
                                 <i className="fas fa-user"></i>
                                 <input type="text" placeholder="Username" name="username" value={formData.username} onChange={handleChange} required />
                             </div>
-
-
 
                             <div className="input-group">
                                 <i className="fas fa-user-tag"></i>
@@ -228,12 +228,12 @@ function AdminRegistration() {
                             </div>
 
                             <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'flex-start' }}>
-                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0 15px', height: '55px' }}>
-                                    <i className="fas fa-envelope" style={{ marginRight: '15px', color: '#a0a0b2' }}></i>
-                                    <input type="email" placeholder="Email Address" name="email" value={formData.email} onChange={handleChange} required disabled={isVerified} style={{ background: 'transparent', border: 'none', color: '#fff', width: '100%', outline: 'none', fontSize: '0.95rem' }} />
+                                <div style={{ flex: 1, position: 'relative' }}>
+                                    <i className="fas fa-envelope" style={{ top: '50%', left: '17px', transform: 'translateY(-50%)' }}></i>
+                                    <input type="email" placeholder="Email Address" name="email" value={formData.email} onChange={handleChange} required disabled={isVerified} style={{ paddingLeft: '3rem' }} />
                                 </div>
                                 {!isVerified && (
-                                    <button type="button" onClick={handleSendOtp} disabled={otpLoading} style={{ height: '55px', background: 'var(--accent, #43e97b)', color: '#000', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(67, 233, 123, 0.2)', minWidth: '130px' }}>
+                                    <button type="button" onClick={handleSendOtp} disabled={otpLoading} style={{ height: '52px', background: 'var(--accent, #43e97b)', color: '#000', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(67, 233, 123, 0.2)', minWidth: '120px' }}>
                                         {otpLoading ? "..." : (otpSent ? "Resend" : "Send OTP")}
                                     </button>
                                 )}
@@ -241,11 +241,11 @@ function AdminRegistration() {
 
                             {otpSent && !isVerified && (
                                 <div className="input-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'flex-start' }}>
-                                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0 15px', height: '55px' }}>
-                                        <i className="fas fa-key" style={{ marginRight: '15px', color: '#a0a0b2' }}></i>
-                                        <input type="text" placeholder="Enter 6-digit OTP" name="otp" value={formData.otp} maxLength="6" onChange={handleChange} required style={{ background: 'transparent', border: 'none', color: '#fff', width: '100%', outline: 'none', fontSize: '0.95rem' }} />
+                                    <div style={{ flex: 1, position: 'relative' }}>
+                                        <i className="fas fa-key" style={{ top: '50%', left: '17px', transform: 'translateY(-50%)' }}></i>
+                                        <input type="text" placeholder="Enter 6-digit OTP" name="otp" value={formData.otp} maxLength="6" onChange={handleChange} required style={{ paddingLeft: '3rem' }} />
                                     </div>
-                                    <button type="button" onClick={handleVerifyOtp} disabled={otpLoading} style={{ height: '55px', background: '#22c55e', color: '#fff', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.2)', minWidth: '130px' }}>
+                                    <button type="button" onClick={handleVerifyOtp} disabled={otpLoading} style={{ height: '52px', background: '#22c55e', color: '#fff', border: 'none', padding: '0 25px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: '800', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.2)', minWidth: '120px' }}>
                                         {otpLoading ? "..." : "Verify OTP"}
                                     </button>
                                 </div>
@@ -259,11 +259,16 @@ function AdminRegistration() {
                             </div>
                         </div>
 
-                        <button type="submit" className="register-btn" disabled={!isVerified}>Register Admin</button>
+                        {errorMessage && <div className="error-banner">{errorMessage}</div>}
+                        {successMessage && <div className="success-banner">{successMessage}</div>}
 
-                        <p className="switch">
+                        <button type="submit" className="register-btn" disabled={!isVerified}>
+                            Register Admin
+                        </button>
+
+                        <div className="switch">
                             Already registered? <Link to="/login/admin">Login</Link>
-                        </p>
+                        </div>
                     </form>
                 </div>
             </div>

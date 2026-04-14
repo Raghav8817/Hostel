@@ -1,24 +1,27 @@
-/* --- TOPBAR CONTAINER --- */
+/* --- TOPBAR CONTAINER SYNC --- */
 .topbar {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2rem !important;
-  height: 60px; /* Fixed height to prevent vertical gaps */
-  background: var(--bg-secondary);
+  padding: 0 40px !important;
+  height: 70px;
+  background: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
-  position: relative; /* Changed from sticky to ensure proper flow with sidebar */
-  z-index: 1010; /* Above sidebar */
+  backdrop-filter: blur(15px);
+  position: relative;
+  z-index: 1010;
   margin: 0 !important;
   top: 0;
 }
 
 .topbar h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
   margin: 0;
 }
@@ -31,62 +34,64 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
 .header-actions span {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* --- BUTTON STYLING --- */
+/* --- BUTTON STYLING SYNC --- */
 .btn {
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
   border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-med);
+  text-transform: uppercase;
+  font-size: 0.85rem;
 }
 
 .btn:hover {
   background: var(--accent-color);
-  color: var(--bg-primary);
+  color: #000;
   border-color: var(--accent-color);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: translateY(-2px);
 }
 
 .btn.logout {
-  background: rgba(239, 68, 68, 0.1); /* Subtle red tint */
-  border-color: rgba(239, 68, 68, 0.2);
-  color: var(--danger-color);
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
 .btn.logout:hover {
-  background: var(--danger-color);
-  color: white;
-  border-color: var(--danger-color);
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+  filter: brightness(1.2);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+  transform: translateY(-2px) scale(1.02);
 }
 
 /* --- RESPONSIVE BREAKPOINTS --- */
-
-/* For Tablets */
 @media (max-width: 1024px) {
   .topbar {
-    padding: 1rem;
+    padding: 0 20px !important;
   }
 }
 
-/* For Mobile Phones */
 @media (max-width: 768px) {
   .topbar {
-    flex-direction: row; /* Keep row for icon + title */
-    justify-content: space-between;
-    gap: 12px;
-    padding: 15px;
+    padding: 15px !important;
+    height: auto;
+    min-height: 60px;
   }
 
   .hamburger-btn {
@@ -99,37 +104,19 @@
   }
 
   .topbar h2 {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
   }
 
   .header-actions {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap; /* Wraps buttons if they run out of space */
     gap: 10px;
   }
 
   .header-actions span {
-    width: 100%; /* Forces 'Welcome' to its own line */
-    margin-right: 0 !important;
-    margin-bottom: 5px;
-    font-size: 0.85rem;
+    display: none; /* Hide 'Welcome' on mobile to save space */
   }
 
   .btn {
-    flex: 1; /* Buttons grow to fill width */
-    font-size: 0.8rem;
-    padding: 10px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
   }
-}
-
-/* For Very Small Screens (below 400px) */
-@media (max-width: 400px) {
-  .header-actions {
-    flex-direction: column;
-  }
-  
-  .btn {
-    width: 100%;
-  }
-}
+}

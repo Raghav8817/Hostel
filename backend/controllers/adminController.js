@@ -197,32 +197,48 @@ exports.getRoomRequests = (req, res) => {
 
 exports.approveRoomRequest = (req, res) => {
     const { id, username, room_number } = req.body;
+    console.log(`ATTEMPTING APPROVAL: ID=${id}, User=${username}, Room=${room_number}`);
     
-    // Check if room has capacity first
     db.query("SELECT capacity, current_occupancy FROM rooms WHERE room_number = ?", [room_number], (err, roomRes) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (roomRes.length === 0) return res.status(404).json({ error: "Room not found" });
-        
-        if (roomRes[0].current_occupancy >= roomRes[0].capacity) {
-            return res.status(400).json({ error: "Room is already full" });
-        }
+        if (roomRes[0].current_occupancy >= roomRes[0].capacity) return res.status(400).json({ error: "Room is already full" });
 
         // 1. Update Request
-        db.query("UPDATE room_requests SET status = 'Approved' WHERE id = ?", [id], (err) => {
-            if (err) return res.status(500).json({ error: "Failed to update request" });
+        db.query("UPDATE room_requests SET status = 'Approved' WHERE id = ?", [id], (err, res1) => {
+            if (err) {
+                console.error("PHASE 1 ERROR:", err);
+                return res.status(500).json({ error: "Failed to update request" });
+            }
+            if (res1.affectedRows === 0) {
+                console.warn(`PHASE 1 WARN: No request found with ID ${id}`);
+                return res.status(404).json({ error: "Request not found or already processed" });
+            }
+            console.log(`PHASE 1 SUCCESS: Rows affected: ${res1.affectedRows}`);
 
             // 2. Assign student to room
-            db.query("UPDATE students SET room_number = ? WHERE username = ?", [room_number, username], (err) => {
-                if (err) return res.status(500).json({ error: "Failed to assign student" });
+            db.query("UPDATE students SET room_number = ? WHERE username = ?", [room_number, username], (err, res2) => {
+                if (err) {
+                    console.error("PHASE 2 ERROR:", err);
+                    return res.status(500).json({ error: "Failed to assign student" });
+                }
+                if (res2.affectedRows === 0) {
+                    console.warn(`PHASE 2 WARN: No student found with username ${username}`);
+                    return res.status(404).json({ error: "Student record not found" });
+                }
+                console.log(`PHASE 2 SUCCESS: Rows affected: ${res2.affectedRows}`);
 
                 // 3. Update room occupancy
                 const newOcc = roomRes[0].current_occupancy + 1;
                 const newStatus = newOcc >= roomRes[0].capacity ? 'Full' : 'Available';
                 
-                db.query("UPDATE rooms SET current_occupancy = ?, status = ? WHERE room_number = ?", [newOcc, newStatus, room_number], (err) => {
-                    if (err) return res.status(500).json({ error: "Failed to update room stats" });
+                db.query("UPDATE rooms SET current_occupancy = ?, status = ? WHERE room_number = ?", [newOcc, newStatus, room_number], (err, res3) => {
+                    if (err) {
+                        console.error("PHASE 3 ERROR:", err);
+                        return res.status(500).json({ error: "Failed to update room stats" });
+                    }
+                    console.log(`PHASE 3 SUCCESS: Rows affected: ${res3.affectedRows}`);
                     
-                    // Add a notification for the student
                     db.query("INSERT INTO students_notification (username, message) VALUES (?, ?)", [username, `Your application for Room ${room_number} was approved!`], () => {
                         res.json({ success: true, message: "Room assigned successfully" });
                     });
@@ -260,5 +276,41 @@ exports.deleteStaff = (req, res) => {
     db.query(sql, [username], (err, result) => {
         if (err) return res.status(500).json({ error: "Delete failed" });
         res.status(200).json({ message: "Staff member removed from database" });
+    });
+};
+
+exports.assignRoom = (req, res) => {
+    const { username, room_number } = req.body;
+    console.log(`ADMIN MANUAL ASSIGN: User=${username}, NewRoom=${room_number}`);
+
+    db.query("SELECT room_number FROM students WHERE username = ?", [username], (err, sRes) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (sRes.length === 0) return res.status(404).json({ error: "Student not found" });
+
+        const oldRoom = sRes[0].room_number;
+
+        db.query("SELECT capacity, current_occupancy FROM rooms WHERE room_number = ?", [room_number], (err, rRes) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            if (rRes.length === 0) return res.status(404).json({ error: "Target room not found" });
+            if (rRes[0].current_occupancy >= rRes[0].capacity) return res.status(400).json({ error: "Target room is full" });
+
+            const decrementOld = oldRoom ? new Promise((resolve) => {
+                db.query("UPDATE rooms SET current_occupancy = GREATEST(0, current_occupancy - 1), status = 'Available' WHERE room_number = ?", [oldRoom], (e) => resolve());
+            }) : Promise.resolve();
+
+            decrementOld.then(() => {
+                db.query("UPDATE rooms SET current_occupancy = current_occupancy + 1 WHERE room_number = ?", [room_number], (err) => {
+                    if (err) return res.status(500).json({ error: "Failed to update new room occupancy" });
+
+                    db.query("UPDATE students SET room_number = ?, status = 'Approved' WHERE username = ?", [room_number, username], (err) => {
+                        if (err) return res.status(500).json({ error: "Failed to update student record" });
+
+                        db.query("INSERT INTO students_notification (username, message) VALUES (?, ?)", [username, `Admin has assigned you to Room ${room_number}.`], () => {
+                            res.json({ success: true, message: `Student assigned to Room ${room_number}` });
+                        });
+                    });
+                });
+            });
+        });
     });
 };

@@ -1,21 +1,27 @@
-/* --- PROFILE CARD CONTAINER --- */
+/* --- PROFILE CARD CONTAINER SYNC --- */
 .profile-card {
-  background: var(--bg-secondary);
-  padding: 3rem;
-  border-radius: 24px;
+  background: var(--bg-card);
+  padding: 3.5rem 3rem;
+  border-radius: 30px;
   width: 100%;
   max-width: 600px;
-  margin: 20px auto;
+  margin: 40px auto;
   border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: transform var(--transition-med);
 }
 
-/* Subtle glow effect in the corner of the card */
+.profile-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Accent glow from Student dash style */
 .profile-card::after {
   content: '';
   position: absolute;
@@ -29,132 +35,128 @@
   pointer-events: none;
 }
 
-/* --- TOP SECTION (IMAGE & NAME) --- */
+/* --- TOP SECTION (IMAGE & NAME) SYNC --- */
 .profile-top {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   text-align: center;
 }
 
 .profile-top label {
   position: relative;
   transition: transform var(--transition-med);
+  margin-bottom: 20px;
 }
 
 .profile-top label:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .profile-top img {
-  border: 4px solid var(--bg-primary);
-  box-shadow: 0 0 20px rgba(0, 198, 255, 0.3);
-  transition: box-shadow var(--transition-med);
+  border: 4px solid var(--bg-secondary);
+  box-shadow: 0 0 25px var(--accent-glow);
+  transition: all var(--transition-med);
+  object-fit: cover;
 }
 
 .profile-top label:hover img {
-  box-shadow: 0 0 30px var(--accent-glow);
-}
-
-/* Hover overlay for image upload */
-.profile-top label::after {
-  content: 'Change Photo';
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  opacity: 0;
-  transition: opacity var(--transition-med);
-}
-
-.profile-top label:hover::after {
-  opacity: 1;
+  box-shadow: 0 0 40px var(--accent-glow);
+  border-color: var(--accent-color);
 }
 
 .profile-top h2 {
-  font-size: 2rem;
-  background: linear-gradient(to right, #ffffff, var(--accent-color));
+  font-size: 2.5rem;
+  background: var(--accent-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-/* --- INFO SECTION --- */
+/* --- INFO SECTION SYNC --- */
 .profile-info {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
 }
 
 .profile-info p {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 15px 20px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 18px 25px;
+  border-radius: 16px;
   border: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1rem;
-  transition: background var(--transition-med);
+  font-size: 1.05rem;
+  transition: all var(--transition-fast);
 }
 
 .profile-info p:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
 }
 
 .profile-info strong {
   color: var(--accent-color);
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-}
-
-/* --- LOGOUT BUTTON --- */
-.logout-btn {
-  margin-top: 2rem;
-  width: 100%;
-  max-width: 200px;
-  font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  opacity: 0.8;
+}
+
+/* --- LOGOUT BUTTON SYNC --- */
+.logout-btn {
+  margin-top: 2.5rem;
+  width: 100%;
+  max-width: 220px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
   transition: all var(--transition-med) !important;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
 .logout-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5);
+  filter: brightness(1.2);
 }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 768px) {
   .profile-card {
-    padding: 2rem 1.5rem;
-    max-width: 90%;
+    padding: 2.5rem 1.5rem;
+    max-width: 95%;
+    margin-top: 20px;
   }
 
   .profile-top img {
-    width: 120px !important;
-    height: 120px !important;
+    width: 130px !important;
+    height: 130px !important;
   }
 
   .profile-top h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
 
   .profile-info p {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
-    font-size: 0.95rem;
+    gap: 6px;
+    font-size: 1rem;
+    padding: 15px 20px;
   }
-}
+}

@@ -347,19 +347,28 @@ exports.getRoomStatus = (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const username = decoded.username;
 
-        // Check assigned room
+        // 1. Check if a room is already assigned in the students table (PRIORITY)
         db.query("SELECT room_number FROM students WHERE username = ?", [username], (err, sResults) => {
             if (err) return res.status(500).json({ error: "Database error" });
-            if (sResults[0] && sResults[0].room_number) {
-                return res.json({ status: "Assigned", room: sResults[0].room_number });
+            
+            const assignedRoom = sResults[0]?.room_number;
+            console.log(`DEBUG: Student ${username} assigned room check:`, assignedRoom);
+
+            if (assignedRoom) {
+                return res.json({ status: "Assigned", room: assignedRoom });
             }
 
-            // Check pending request
-            db.query("SELECT room_number FROM room_requests WHERE username = ? AND status = 'Pending'", [username], (err, rResults) => {
+            // 2. If no room assigned, check for pending requests
+            db.query("SELECT room_number, status FROM room_requests WHERE username = ? AND status = 'Pending'", [username], (err, rResults) => {
                 if (err) return res.status(500).json({ error: "Database error" });
+                
+                console.log(`DEBUG: Student ${username} pending requests count:`, rResults.length);
+                
                 if (rResults.length > 0) {
                     return res.json({ status: "Pending", room: rResults[0].room_number });
                 }
+                
+                // 3. No room and no pending requests
                 res.json({ status: "None" });
             });
         });

@@ -22,7 +22,7 @@ const Profile = () => {
                 const s = await statusRes.json();
                 setRoomStatusObj(s);
             }
-            const roomsRes = await fetch(`${BASE_URL}/rooms`);
+            const roomsRes = await fetch(`${BASE_URL}/available-rooms`, { credentials: "include" });
             if (roomsRes.ok) {
                 const r = await roomsRes.json();
                 setAvailableRooms(r);
