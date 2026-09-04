@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import StaffNavigation from './StaffNavigation';
 import '../../styles/staff/StaffDashboard.css';
+import { BASE_URL } from '../../config/api';
 
 const StaffDashboard = () => {
     const [complaints, setComplaints] = useState([]);
     const [stats, setStats] = useState({ pending: 0, inProgress: 0, resolved: 0 });
     const [staffInfo, setStaffInfo] = useState({ workType: '', category: '' });
     const [loading, setLoading] = useState(true);
-    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const fetchData = async () => {
         try {

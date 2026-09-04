@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../styles/admin/Navigation.css'
+import { BASE_URL } from "../../config/api";
 
 const Navigation = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("Admin");
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     // Attempt to load name from localStorage if you're still using it for UI

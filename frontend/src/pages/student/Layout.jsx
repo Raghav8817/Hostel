@@ -3,6 +3,7 @@ import '../../styles/Layout.css';
 import Navigation from "./Navigation";
 import Sidebar from "./Sidebar";
 import { Outlet } from 'react-router-dom';
+import { BASE_URL } from '../../config/api';
 
 function Layout() {
   const [userData, setUserData] = useState(null);
@@ -13,7 +14,6 @@ function Layout() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
         const response = await fetch(`${BASE_URL}/user-data`, {
           credentials: 'include'
         });

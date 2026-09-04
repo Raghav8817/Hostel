@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/admin/AdminComplain.css";
 import { Chart } from "chart.js/auto";
+import { BASE_URL } from "../../config/api";
 
 const AdminComplain = () => {
   const [complaints, setComplaints] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const [stats, setStats] = useState({ Pending: 0, Assigned: 0, Solved: 0 });
   const [months, setMonths] = useState(new Array(12).fill(0));

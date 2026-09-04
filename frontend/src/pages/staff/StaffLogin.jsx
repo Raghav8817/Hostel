@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../../styles/AuthShared.css';
+import { BASE_URL } from '../../config/api';
 
 const StaffLogin = () => {
     const navigate = useNavigate();
@@ -18,8 +19,6 @@ const StaffLogin = () => {
         }
 
         try {
-            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
             const response = await fetch(`${BASE_URL}/login/staff`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

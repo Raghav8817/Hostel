@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import '../../styles/Profile.css';
+import { BASE_URL } from '../../config/api';
 
 const Profile = () => {
     const user = useOutletContext();
@@ -12,8 +13,6 @@ const Profile = () => {
     const [applyStatus, setApplyStatus] = useState("");
     const [typeFilter, setTypeFilter] = useState("All");
     const [acFilter, setAcFilter] = useState("All");
-
-    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     async function fetchRoomData() {
         try {

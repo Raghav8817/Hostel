@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/admin/AdminRoom.css"; 
 import { Chart } from "chart.js/auto";
+import { BASE_URL } from "../../config/api";
 
 const AdminRoom = () => {
   const [search, setSearch] = useState("");
@@ -15,8 +16,6 @@ const AdminRoom = () => {
   const [stats, setStats] = useState({
     available: 0, occupied: 0, single: 0, double: 0, triple: 0, ac: 0, nac: 0
   });
-
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     fetchData();

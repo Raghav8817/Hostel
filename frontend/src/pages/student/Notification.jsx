@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/Notification.css";
+import { BASE_URL } from '../../config/api';
 
 export default function Notification() {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // 1. Fetch Notifications from DB
   const fetchNotifications = async () => {

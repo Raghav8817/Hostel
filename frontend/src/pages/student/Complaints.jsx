@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/Complaints.css';
+import { BASE_URL } from '../../config/api';
 
 const Complaints = () => {
     const [complaints, setComplaints] = useState([]);
@@ -10,8 +11,6 @@ const Complaints = () => {
         room_number: '',
         photo: null
     });
-
-    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     // Load data from the GET /complaints route
     const fetchComplaints = async () => {

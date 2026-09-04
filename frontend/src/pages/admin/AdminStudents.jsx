@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/admin/AdminStudents.css";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config/api";
 
 const AdminStudents = () => {
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // 1. STATE DEFINITIONS
   const [students, setStudents] = useState([]);

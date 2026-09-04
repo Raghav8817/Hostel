@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../styles/Navigation.css';
+import { BASE_URL } from '../../config/api';
 
 function Navigation({ user, onMenuClick }) {
     const navigate = useNavigate();
@@ -18,7 +19,6 @@ function Navigation({ user, onMenuClick }) {
 
     const handleLogout = async () => {
         try {
-            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
             const response = await fetch(`${BASE_URL}/logout`, {
                 method: "POST",
                 credentials: "include",

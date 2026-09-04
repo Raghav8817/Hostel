@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/Leave.css';
 import { useOutletContext } from 'react-router-dom';
+import { BASE_URL } from '../../config/api';
 
 function Leave() {
     const userData = useOutletContext();
@@ -9,8 +10,6 @@ function Leave() {
     const [formData, setFormData] = useState({
         room_number: '', from_date: '', to_date: '', destination: '', reason: ''
     });
-
-    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const fetchLeaves = async () => {
         try {

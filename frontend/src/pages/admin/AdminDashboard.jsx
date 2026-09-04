@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import "../../styles/admin/AdminDashboard.css";
 import { Chart } from "chart.js/auto";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config/api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // Standardized state for all dashboard statistics
   const [stats, setStats] = useState({

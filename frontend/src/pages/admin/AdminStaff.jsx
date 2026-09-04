@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/admin/AdminStudents.css"; // Reusing the same styling for consistency
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config/api";
 
 const AdminStaff = () => {
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const [staff, setStaff] = useState([]);
   const [search, setSearch] = useState("");

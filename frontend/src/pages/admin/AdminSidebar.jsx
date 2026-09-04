@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { BASE_URL } from "../../config/api";
 
 const Sidebar = ({ closeMobileMenu }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileImg, setProfileImg] = useState(null);
   const [adminName, setAdminName] = useState("Admin");
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     const fetchAdminData = async () => {

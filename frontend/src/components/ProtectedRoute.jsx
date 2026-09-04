@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import PuppyAnimation from './PuppyAnimation';
+import { BASE_URL } from '../config/api';
 
 const ProtectedRoute = ({ children }) => {
     const [auth, setAuth] = useState({
@@ -12,7 +13,6 @@ const ProtectedRoute = ({ children }) => {
     useEffect(() => {
         const verifyToken = async () => {
             try {
-                const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
                 const response = await fetch(`${BASE_URL}/verify`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },

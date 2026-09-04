@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import '../../styles/Default.css';
-
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { BASE_URL } from '../../config/api';
 
 const Default = () => {
     const userData = useOutletContext();

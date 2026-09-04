@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import "../../styles/RegisterShared.css";
+import { BASE_URL } from '../../config/api';
 
 function StudentRegister() {
     const navigate = useNavigate();
@@ -69,7 +70,6 @@ function StudentRegister() {
         }
 
         try {
-            const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
             const response = await fetch(`${BASE_URL}/register/student`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

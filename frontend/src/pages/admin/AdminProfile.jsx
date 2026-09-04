@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/admin/AdminProfile.css";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config/api";
 
 const AdminProfile = () => {
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const [profile, setProfile] = useState({
     firstname: "",

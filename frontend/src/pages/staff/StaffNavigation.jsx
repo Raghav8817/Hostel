@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../styles/admin/Navigation.css'; // Reuse admin styles
+import { BASE_URL } from "../../config/api";
 
 const StaffNavigation = () => {
   const navigate = useNavigate();
   const [staffName, setStaffName] = useState("Staff");
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark-mode');
 
   useEffect(() => {
