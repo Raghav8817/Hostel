@@ -32,7 +32,12 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieparser());
 
-// Mount the modular routes
+// Mount the modular routes (both /api for production rewrites and / for direct calls)
+app.use('/api', authRoutes);
+app.use('/api', studentRoutes);
+app.use('/api', adminRoutes);
+app.use('/api', staffRoutes);
+
 app.use('/', authRoutes);
 app.use('/', studentRoutes);
 app.use('/', adminRoutes);
