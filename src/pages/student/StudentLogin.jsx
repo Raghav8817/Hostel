@@ -86,8 +86,7 @@ const Login = () => {
                     </form>
 
                     <div className="switch">
-                        <div onClick={() => navigate('/register/student')}>Create Account</div> | 
-                        <div onClick={() => navigate('/forgot')}>Forgot Password</div>
+                        <div onClick={() => navigate('/register/student')}>Create Account</div>
                     </div>
 
                     <div className="switch">

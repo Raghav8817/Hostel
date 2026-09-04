@@ -11,12 +11,19 @@ const adminRoutes = require('./routes/adminRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 
 const allowedOrigins = [
-    "http://localhost:5173",           
-    "https://hostel-virid.vercel.app"    
-];
+    "http://localhost:5173",
+    "https://hostel-virid.vercel.app",
+    process.env.FRONTEND_URL
+].filter(Boolean);
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
@@ -31,6 +38,7 @@ app.use('/', studentRoutes);
 app.use('/', adminRoutes);
 app.use('/', staffRoutes);
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

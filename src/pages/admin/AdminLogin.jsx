@@ -85,8 +85,7 @@ const AdminLogin = () => {
                     </form>
 
                     <div className="switch">
-                        <Link to="/register/admin">Create Account</Link> | 
-                        <Link to="/forgot">Forgot Password</Link>
+                        <Link to="/register/admin">Create Account</Link>
                     </div>
 
                     <div className="switch">

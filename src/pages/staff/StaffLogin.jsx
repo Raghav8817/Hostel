@@ -86,8 +86,7 @@ const StaffLogin = () => {
                     </form>
 
                     <div className="switch">
-                        <Link to="/register/staff">Create Account</Link> | 
-                        <Link to="/forgot">Forgot Password</Link>
+                        <Link to="/register/staff">Create Account</Link>
                     </div>
 
                     <div className="switch">
